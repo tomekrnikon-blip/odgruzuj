@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor, Crown, Loader2, ExternalLink, Filter } from "lucide-react";
+import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor, Crown, Loader2, ExternalLink, Filter, BellRing, BellOff } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useFlashcardsFromDB, difficulties, difficultyLabels, difficultyIcons, DifficultyFilter } from "@/hooks/useFlashcardsFromDB";
 import { useGameification } from "@/hooks/useGameification";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useSubscription } from "@/hooks/useSubscription";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { categories, categoryIcons, Category } from "@/data/flashcards";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -42,6 +43,15 @@ export default function Settings() {
   );
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
+  const { 
+    isSupported: pushSupported, 
+    isSubscribed: pushSubscribed, 
+    isLoading: pushLoading, 
+    permission: pushPermission,
+    subscribe: subscribePush, 
+    unsubscribe: unsubscribePush,
+    updateNotificationTime 
+  } = usePushNotifications();
 
   // Handle upgrade success/cancel from URL params
   useEffect(() => {
@@ -318,58 +328,95 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Notifications */}
+        {/* Push Notifications */}
         <div className="card-elevated p-6">
-          <h2 className="font-heading font-semibold mb-4">Powiadomienia</h2>
+          <h2 className="font-heading font-semibold mb-4">Powiadomienia Push</h2>
           
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Bell className="w-5 h-5 text-muted-foreground" />
-                <div>
-                  <p className="font-medium">Powiadomienia</p>
-                  <p className="text-sm text-muted-foreground">
-                    Codzienne przypomnienie
+          {!pushSupported ? (
+            <div className="p-4 bg-muted rounded-xl">
+              <p className="text-sm text-muted-foreground">
+                Twoja przeglądarka nie obsługuje powiadomień push. Zainstaluj aplikację na urządzeniu mobilnym, aby otrzymywać powiadomienia.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {pushSubscribed ? (
+                    <BellRing className="w-5 h-5 text-primary" />
+                  ) : (
+                    <BellOff className="w-5 h-5 text-muted-foreground" />
+                  )}
+                  <div>
+                    <p className="font-medium">Powiadomienia push</p>
+                    <p className="text-sm text-muted-foreground">
+                      {pushSubscribed 
+                        ? "Aktywne - otrzymasz codzienne przypomnienie" 
+                        : pushPermission === 'denied'
+                          ? "Zablokowane w przeglądarce"
+                          : "Włącz, by otrzymywać przypomnienia"}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={async () => {
+                    if (pushSubscribed) {
+                      await unsubscribePush();
+                    } else {
+                      await subscribePush(settings.notificationTime + ':00');
+                    }
+                  }}
+                  disabled={pushLoading || pushPermission === 'denied'}
+                  className={cn(
+                    "w-12 h-7 rounded-full transition-all duration-200",
+                    pushSubscribed ? "bg-primary" : "bg-muted",
+                    (pushLoading || pushPermission === 'denied') && "opacity-50 cursor-not-allowed"
+                  )}
+                >
+                  {pushLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    </div>
+                  ) : (
+                    <div
+                      className={cn(
+                        "w-5 h-5 bg-white rounded-full shadow transition-transform duration-200",
+                        pushSubscribed ? "translate-x-6" : "translate-x-1"
+                      )}
+                    />
+                  )}
+                </button>
+              </div>
+
+              {pushSubscribed && (
+                <div className="pl-8">
+                  <label className="block text-sm text-muted-foreground mb-2">
+                    Pora powiadomienia
+                  </label>
+                  <input
+                    type="time"
+                    value={settings.notificationTime}
+                    onChange={(e) => {
+                      setSettings((prev) => ({
+                        ...prev,
+                        notificationTime: e.target.value,
+                      }));
+                      updateNotificationTime(e.target.value + ':00');
+                    }}
+                    className="px-4 py-2 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+              )}
+
+              {pushPermission === 'denied' && (
+                <div className="p-3 bg-destructive/10 rounded-xl">
+                  <p className="text-sm text-destructive">
+                    Powiadomienia są zablokowane. Zmień ustawienia w przeglądarce, aby je włączyć.
                   </p>
                 </div>
-              </div>
-              <button
-                onClick={() => toggleSetting("notificationsEnabled")}
-                className={cn(
-                  "w-12 h-7 rounded-full transition-all duration-200",
-                  settings.notificationsEnabled ? "bg-primary" : "bg-muted"
-                )}
-              >
-                <div
-                  className={cn(
-                    "w-5 h-5 bg-white rounded-full shadow transition-transform duration-200",
-                    settings.notificationsEnabled
-                      ? "translate-x-6"
-                      : "translate-x-1"
-                  )}
-                />
-              </button>
+              )}
             </div>
-
-            {settings.notificationsEnabled && (
-              <div className="pl-8">
-                <label className="block text-sm text-muted-foreground mb-2">
-                  Pora powiadomienia
-                </label>
-                <input
-                  type="time"
-                  value={settings.notificationTime}
-                  onChange={(e) =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      notificationTime: e.target.value,
-                    }))
-                  }
-                  className="px-4 py-2 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-              </div>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Sound & Vibration */}
