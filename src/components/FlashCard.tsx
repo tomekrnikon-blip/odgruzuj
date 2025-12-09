@@ -1,19 +1,35 @@
-import { Flashcard, categoryIcons, getDifficultyLabel, getDifficultyColor } from "@/data/flashcards";
 import { Clock, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { categoryIcons, Difficulty } from "@/data/flashcards";
+import { DBFlashcard } from "@/hooks/useFlashcardsFromDB";
 
 interface FlashCardProps {
-  flashcard: Flashcard;
+  flashcard: DBFlashcard;
   className?: string;
 }
 
+const getDifficultyLabel = (difficulty: string): string => {
+  switch (difficulty) {
+    case "easy":
+      return "Łatwe";
+    case "medium":
+      return "Średnie";
+    case "hard":
+      return "Trudne";
+    default:
+      return difficulty;
+  }
+};
+
 export function FlashCard({ flashcard, className }: FlashCardProps) {
+  const icon = categoryIcons[flashcard.category as keyof typeof categoryIcons] || "📦";
+  
   return (
     <div className={cn("flashcard animate-fade-up", className)}>
       {/* Category and difficulty badges */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">{categoryIcons[flashcard.category]}</span>
+          <span className="text-2xl">{icon}</span>
           <span className="text-sm font-medium text-muted-foreground">
             {flashcard.category}
           </span>
@@ -49,9 +65,9 @@ export function FlashCard({ flashcard, className }: FlashCardProps) {
         <span className="text-sm font-medium">
           {flashcard.timeEstimate} {flashcard.timeUnit === "minutes" ? "min" : "godz"}
         </span>
-        {flashcard.isCustom && (
-          <span className="ml-auto text-xs bg-accent/10 text-accent px-2 py-1 rounded-full">
-            Własne zadanie
+        {flashcard.isPremium && (
+          <span className="ml-auto text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+            Pro
           </span>
         )}
       </div>
