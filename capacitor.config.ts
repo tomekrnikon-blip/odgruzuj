@@ -1,12 +1,22 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.d07c62380cf34500a6ea0b013c9ca9e7',
+  appId: 'pl.odgruzuj.app',
   appName: 'odgruzuj.pl',
   webDir: 'dist',
   server: {
     url: 'https://d07c6238-0cf3-4500-a6ea-0b013c9ca9e7.lovableproject.com?forceHideBadge=true',
     cleartext: true
+  },
+  ios: {
+    contentInset: 'automatic',
+    backgroundColor: '#16a34a',
+    preferredContentMode: 'mobile'
+  },
+  android: {
+    backgroundColor: '#16a34a',
+    allowMixedContent: true,
+    captureInput: true
   },
   plugins: {
     PushNotifications: {
@@ -15,7 +25,18 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 2000,
       backgroundColor: '#16a34a',
-      showSpinner: false
+      showSpinner: false,
+      androidScaleType: 'CENTER_CROP',
+      splashFullScreen: true,
+      splashImmersive: true
+    },
+    StatusBar: {
+      style: 'light',
+      backgroundColor: '#16a34a'
+    },
+    Keyboard: {
+      resize: 'body',
+      resizeOnFullScreen: true
     }
   }
 };
