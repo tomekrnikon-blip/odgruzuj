@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Users, Crown, Loader2, Search } from 'lucide-react';
+import { Users, Crown, Loader2, Search, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { cn } from '@/lib/utils';
 
 interface Profile {
   id: string;
@@ -22,6 +23,7 @@ interface Profile {
 
 export function UserManager() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -98,83 +100,101 @@ export function UserManager() {
   };
 
   return (
-    <Card className="bg-card border-border">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-foreground">
-          <Users className="h-5 w-5" />
-          Zarządzanie użytkownikami
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Szukaj po emailu lub nazwie..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-
-        {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
-        ) : filteredUsers?.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">
-            Brak użytkowników
-          </p>
-        ) : (
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {filteredUsers?.map((user) => (
-              <div
-                key={user.id}
-                className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium text-foreground truncate">
-                      {user.display_name || user.email}
-                    </p>
-                    {getStatusBadge(user.subscription_status)}
-                  </div>
-                  <p className="text-sm text-muted-foreground truncate">
-                    {user.email}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Dołączył: {format(new Date(user.created_at), 'dd MMM yyyy', { locale: pl })}
-                    {user.subscription_status === 'active' && user.subscription_expires_at && (
-                      <> • Pro do: {format(new Date(user.subscription_expires_at), 'dd MMM yyyy', { locale: pl })}</>
-                    )}
-                  </p>
-                </div>
-                <div className="flex gap-2 ml-4">
-                  {user.subscription_status === 'active' ? (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => updateStatusMutation.mutate({ userId: user.user_id, newStatus: 'free' })}
-                      disabled={updateStatusMutation.isPending}
-                    >
-                      Usuń Pro
-                    </Button>
-                  ) : (
-                    <Button
-                      size="sm"
-                      onClick={() => updateStatusMutation.mutate({ userId: user.user_id, newStatus: 'active' })}
-                      disabled={updateStatusMutation.isPending}
-                      className="gap-1"
-                    >
-                      <Crown className="h-3 w-3" />
-                      Nadaj Pro
-                    </Button>
-                  )}
-                </div>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-6">
+      <div className="bg-card border border-border rounded-lg overflow-hidden">
+        <CollapsibleTrigger asChild>
+          <button className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Users className="h-5 w-5 text-primary" />
               </div>
-            ))}
+              <div className="text-left">
+                <h3 className="font-semibold text-foreground">Zarządzanie użytkownikami</h3>
+                <p className="text-sm text-muted-foreground">
+                  {users?.length ?? 0} użytkowników
+                </p>
+              </div>
+            </div>
+            <ChevronDown className={cn(
+              "h-5 w-5 text-muted-foreground transition-transform duration-200",
+              isOpen && "rotate-180"
+            )} />
+          </button>
+        </CollapsibleTrigger>
+        
+        <CollapsibleContent>
+          <div className="p-4 pt-0 space-y-4 border-t border-border">
+            <div className="relative pt-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 mt-2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Szukaj po emailu lub nazwie..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : filteredUsers?.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                Brak użytkowników
+              </p>
+            ) : (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {filteredUsers?.map((user) => (
+                  <div
+                    key={user.id}
+                    className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-foreground truncate">
+                          {user.display_name || user.email}
+                        </p>
+                        {getStatusBadge(user.subscription_status)}
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate">
+                        {user.email}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Dołączył: {format(new Date(user.created_at), 'dd MMM yyyy', { locale: pl })}
+                        {user.subscription_status === 'active' && user.subscription_expires_at && (
+                          <> • Pro do: {format(new Date(user.subscription_expires_at), 'dd MMM yyyy', { locale: pl })}</>
+                        )}
+                      </p>
+                    </div>
+                    <div className="flex gap-2 ml-4">
+                      {user.subscription_status === 'active' ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateStatusMutation.mutate({ userId: user.user_id, newStatus: 'free' })}
+                          disabled={updateStatusMutation.isPending}
+                        >
+                          Usuń Pro
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          onClick={() => updateStatusMutation.mutate({ userId: user.user_id, newStatus: 'active' })}
+                          disabled={updateStatusMutation.isPending}
+                          className="gap-1"
+                        >
+                          <Crown className="h-3 w-3" />
+                          Nadaj Pro
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </CollapsibleContent>
+      </div>
+    </Collapsible>
   );
 }
