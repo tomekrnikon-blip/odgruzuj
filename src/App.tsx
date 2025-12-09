@@ -10,6 +10,7 @@ import History from "./pages/History";
 import Stats from "./pages/Stats";
 import MyTasks from "./pages/MyTasks";
 import Settings from "./pages/Settings";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/stats" element={<Stats />} />
             <Route path="/my-tasks" element={<MyTasks />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Navigation />
