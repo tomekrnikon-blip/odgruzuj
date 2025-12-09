@@ -1,6 +1,7 @@
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { CategoryManager } from '@/components/admin/CategoryManager';
 import { FlashcardManager } from '@/components/admin/FlashcardManager';
+import { NotificationManager } from '@/components/admin/NotificationManager';
 import { ShieldAlert, Loader2, ShieldCheck } from 'lucide-react';
 
 export default function Admin() {
@@ -40,9 +41,12 @@ export default function Admin() {
             </h1>
           </div>
           <p className="text-muted-foreground">
-            Zarządzaj kategoriami i fiszkami aplikacji
+            Zarządzaj kategoriami, fiszkami i powiadomieniami
           </p>
         </header>
+
+        {/* Notifications Section */}
+        <NotificationManager />
 
         {/* Categories Section */}
         <CategoryManager />
