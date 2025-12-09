@@ -2,10 +2,29 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { CategoryManager } from '@/components/admin/CategoryManager';
 import { FlashcardManager } from '@/components/admin/FlashcardManager';
 import { NotificationManager } from '@/components/admin/NotificationManager';
-import { ShieldAlert, Loader2, ShieldCheck } from 'lucide-react';
+import { ShieldAlert, Loader2, ShieldCheck, Users, Crown } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function Admin() {
   const { isAdmin, isLoading: authLoading } = useAdminAuth();
+
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ['admin-stats'],
+    queryFn: async () => {
+      const [usersResult, proResult] = await Promise.all([
+        supabase.from('profiles').select('id', { count: 'exact', head: true }),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('subscription_status', 'active')
+      ]);
+      
+      return {
+        totalUsers: usersResult.count ?? 0,
+        proUsers: proResult.count ?? 0
+      };
+    },
+    enabled: isAdmin
+  });
 
   if (authLoading) {
     return (
@@ -44,6 +63,36 @@ export default function Admin() {
             Zarządzaj kategoriami, fiszkami i powiadomieniami
           </p>
         </header>
+
+        {/* Stats Section */}
+        <div className="grid grid-cols-2 gap-4 mb-8">
+          <Card className="bg-card border-border">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-3 rounded-full bg-primary/10">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Zarejestrowani</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {statsLoading ? '...' : stats?.totalUsers ?? 0}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-card border-border">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-3 rounded-full bg-yellow-500/10">
+                <Crown className="h-6 w-6 text-yellow-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Pakiety Pro</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {statsLoading ? '...' : stats?.proUsers ?? 0}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Notifications Section */}
         <NotificationManager />
