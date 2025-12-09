@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Loader2, Mail, Lock, Sparkles } from 'lucide-react';
+import { Loader2, Mail, Lock } from 'lucide-react';
+import logo from '@/assets/logo.jpg';
 import { z } from 'zod';
 
 const authSchema = z.object({
@@ -95,11 +96,12 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 p-4">
       <div className="w-full max-w-md space-y-6">
-        <div className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-2">
-            <Sparkles className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold text-foreground">odgruzuj</h1>
-          </div>
+        <div className="text-center space-y-4">
+          <img 
+            src={logo} 
+            alt="odgruzuj.pl logo" 
+            className="w-32 h-32 mx-auto rounded-2xl shadow-lg"
+          />
           <p className="text-muted-foreground">
             Twój codzienny motywator do porządkowania
           </p>
