@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Check, Bell, Volume2, Vibrate, RotateCcw, Info } from "lucide-react";
+import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useFlashcards } from "@/hooks/useFlashcards";
 import { useGameification } from "@/hooks/useGameification";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
@@ -25,6 +26,7 @@ export default function Settings() {
   const { selectedCategories, setSelectedCategories, resetDailyProgress } =
     useFlashcards();
   const { resetStats } = useGameification();
+  const { theme, setTheme } = useTheme();
   const [settings, setSettings] = useLocalStorage<AppSettings>(
     "odgruzuj_settings",
     defaultSettings
@@ -63,6 +65,12 @@ export default function Settings() {
     });
   };
 
+  const themeOptions = [
+    { value: "light", label: "Jasny", icon: Sun },
+    { value: "dark", label: "Ciemny", icon: Moon },
+    { value: "system", label: "System", icon: Monitor },
+  ];
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
@@ -76,6 +84,30 @@ export default function Settings() {
       </header>
 
       <main className="max-w-lg mx-auto px-4 py-6 space-y-6">
+        {/* Theme */}
+        <div className="card-elevated p-6">
+          <h2 className="font-heading font-semibold mb-4">Motyw</h2>
+          <div className="grid grid-cols-3 gap-2">
+            {themeOptions.map(({ value, label, icon: Icon }) => (
+              <button
+                key={value}
+                onClick={() => setTheme(value)}
+                className={cn(
+                  "flex flex-col items-center gap-2 p-3 rounded-xl transition-all",
+                  theme === value
+                    ? "bg-primary/10 border-2 border-primary"
+                    : "bg-secondary border-2 border-transparent"
+                )}
+              >
+                <Icon className={cn("w-5 h-5", theme === value ? "text-primary" : "text-muted-foreground")} />
+                <span className={cn("text-sm font-medium", theme === value ? "text-primary" : "text-muted-foreground")}>
+                  {label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Categories */}
         <div className="card-elevated p-6">
           <h2 className="font-heading font-semibold mb-4">Kategorie</h2>
