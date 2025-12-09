@@ -14,16 +14,233 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      completed_tasks: {
+        Row: {
+          completed_at: string
+          completed_in_time: boolean
+          flashcard_id: string | null
+          flashcard_type: string
+          id: string
+          time_spent: number
+          user_id: string
+          was_timed_task: boolean
+        }
+        Insert: {
+          completed_at?: string
+          completed_in_time?: boolean
+          flashcard_id?: string | null
+          flashcard_type: string
+          id?: string
+          time_spent?: number
+          user_id: string
+          was_timed_task?: boolean
+        }
+        Update: {
+          completed_at?: string
+          completed_in_time?: boolean
+          flashcard_id?: string | null
+          flashcard_type?: string
+          id?: string
+          time_spent?: number
+          user_id?: string
+          was_timed_task?: boolean
+        }
+        Relationships: []
+      }
+      global_flashcards: {
+        Row: {
+          category: string
+          comment: string
+          created_at: string
+          difficulty: string
+          id: string
+          is_premium: boolean
+          is_timed_task: boolean
+          task: string
+          time_estimate: number
+          time_unit: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          comment: string
+          created_at?: string
+          difficulty: string
+          id?: string
+          is_premium?: boolean
+          is_timed_task?: boolean
+          task: string
+          time_estimate: number
+          time_unit: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          comment?: string
+          created_at?: string
+          difficulty?: string
+          id?: string
+          is_premium?: boolean
+          is_timed_task?: boolean
+          task?: string
+          time_estimate?: number
+          time_unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string
+          id: string
+          subscription_expires_at: string | null
+          subscription_status: Database["public"]["Enums"]["subscription_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email: string
+          id?: string
+          subscription_expires_at?: string | null
+          subscription_status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string
+          id?: string
+          subscription_expires_at?: string | null
+          subscription_status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_flashcards: {
+        Row: {
+          category: string
+          comment: string | null
+          created_at: string
+          difficulty: string
+          id: string
+          is_timed_task: boolean
+          task: string
+          time_estimate: number
+          time_unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          comment?: string | null
+          created_at?: string
+          difficulty: string
+          id?: string
+          is_timed_task?: boolean
+          task: string
+          time_estimate: number
+          time_unit: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          comment?: string | null
+          created_at?: string
+          difficulty?: string
+          id?: string
+          is_timed_task?: boolean
+          task?: string
+          time_estimate?: number
+          time_unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_progress: {
+        Row: {
+          created_at: string
+          current_streak: number
+          id: string
+          last_completed_date: string | null
+          level: number
+          longest_streak: number
+          points: number
+          unlocked_badges: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_completed_date?: string | null
+          level?: number
+          longest_streak?: number
+          points?: number
+          unlocked_badges?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_completed_date?: string | null
+          level?: number
+          longest_streak?: number
+          points?: number
+          unlocked_badges?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_premium: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      subscription_status: "free" | "active" | "cancelled" | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +367,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      subscription_status: ["free", "active", "cancelled", "expired"],
+    },
   },
 } as const
