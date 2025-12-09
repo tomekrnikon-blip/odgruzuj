@@ -35,19 +35,74 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Create admin client for database operations
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { userId, title, body, sendToAll } = await req.json();
+    // Verify authorization - require valid JWT token
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      console.error("[SEND-PUSH] No authorization header provided");
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - no authorization header" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    console.log("[SEND-PUSH] Request:", { userId, title, body, sendToAll });
+    const token = authHeader.replace("Bearer ", "");
+    
+    // Create a client with the user's token to verify their identity
+    const supabaseUser = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+      global: { headers: { Authorization: `Bearer ${token}` } }
+    });
 
-    let query = supabase
+    const { data: userData, error: userError } = await supabaseUser.auth.getUser();
+    
+    if (userError || !userData?.user) {
+      console.error("[SEND-PUSH] Invalid token:", userError?.message);
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - invalid token" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const userId = userData.user.id;
+    console.log("[SEND-PUSH] Authenticated user:", userId);
+
+    // Check if user has admin role using the has_role function
+    const { data: isAdmin, error: roleError } = await supabaseAdmin.rpc("has_role", {
+      _user_id: userId,
+      _role: "admin"
+    });
+
+    if (roleError) {
+      console.error("[SEND-PUSH] Error checking admin role:", roleError.message);
+      return new Response(
+        JSON.stringify({ error: "Error verifying permissions" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!isAdmin) {
+      console.error("[SEND-PUSH] User is not an admin:", userId);
+      return new Response(
+        JSON.stringify({ error: "Forbidden - admin access required" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("[SEND-PUSH] Admin authorization verified for user:", userId);
+
+    const { userId: targetUserId, title, body, sendToAll } = await req.json();
+
+    console.log("[SEND-PUSH] Request:", { targetUserId, title, body, sendToAll });
+
+    let query = supabaseAdmin
       .from("push_subscriptions")
       .select("*")
       .eq("is_active", true);
 
-    if (!sendToAll && userId) {
-      query = query.eq("user_id", userId);
+    if (!sendToAll && targetUserId) {
+      query = query.eq("user_id", targetUserId);
     }
 
     const { data: subscriptions, error } = await query;
@@ -93,7 +148,7 @@ const handler = async (req: Request): Promise<Response> => {
           
           // Mark failed subscription as inactive if 404 or 410
           if (response.status === 404 || response.status === 410) {
-            await supabase
+            await supabaseAdmin
               .from("push_subscriptions")
               .update({ is_active: false })
               .eq("id", sub.id);
