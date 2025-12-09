@@ -10,7 +10,7 @@ import { Loader2 } from "lucide-react";
 import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
 import Stats from "./pages/Stats";
-import MyTasks from "./pages/MyTasks";
+// MyTasks page removed - only admin can manage flashcards now
 import Settings from "./pages/Settings";
 import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
@@ -43,7 +43,7 @@ function AppRoutes() {
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
       <Route path="/stats" element={<ProtectedRoute><Stats /></ProtectedRoute>} />
-      <Route path="/my-tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
+      {/* MyTasks route removed - only admin can manage flashcards */}
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
