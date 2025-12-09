@@ -39,10 +39,12 @@ import {
   Loader2,
   Clock,
   Crown,
-  Search
+  Search,
+  ChevronDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const DIFFICULTIES = [
   { value: 'easy', label: 'Łatwe', color: 'bg-success/10 text-success' },
@@ -78,6 +80,7 @@ export function FlashcardManager() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [isOpen, setIsOpen] = useState(false);
 
   const filteredFlashcards = flashcards.filter((flashcard) => {
     const matchesSearch = flashcard.task.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -276,49 +279,70 @@ export function FlashcardManager() {
   );
 
   return (
-    <section className="mb-8">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-heading text-xl font-semibold flex items-center gap-2">
-          <Layers className="h-5 w-5 text-primary" />
-          Fiszki globalne
-          <Badge variant="secondary" className="ml-2">
-            {flashcards.length}
-          </Badge>
-        </h2>
-        <Button onClick={handleOpenAddModal} size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          Dodaj
-        </Button>
-      </div>
-
-      {/* Filters */}
-      <div className="flex gap-3 mb-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Szukaj fiszek..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <Select value={filterCategory} onValueChange={setFilterCategory}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Kategoria" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Wszystkie</SelectItem>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={category.name}>
-                <span className="flex items-center gap-2">
-                  <span>{category.icon}</span>
-                  <span>{category.name}</span>
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-6">
+      <div className="bg-card border border-border rounded-lg overflow-hidden">
+        <CollapsibleTrigger asChild>
+          <button className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Layers className="h-5 w-5 text-primary" />
+              </div>
+              <div className="text-left">
+                <h3 className="font-semibold text-foreground">Fiszki globalne</h3>
+                <p className="text-sm text-muted-foreground">
+                  {flashcards.length} fiszek
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenAddModal();
+                }} 
+                size="sm"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Dodaj
+              </Button>
+              <ChevronDown className={cn(
+                "h-5 w-5 text-muted-foreground transition-transform duration-200",
+                isOpen && "rotate-180"
+              )} />
+            </div>
+          </button>
+        </CollapsibleTrigger>
+        
+        <CollapsibleContent>
+          <div className="p-4 pt-0 space-y-4 border-t border-border">
+            {/* Filters */}
+            <div className="flex gap-3 pt-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Szukaj fiszek..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Select value={filterCategory} onValueChange={setFilterCategory}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Kategoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Wszystkie</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.name}>
+                      <span className="flex items-center gap-2">
+                        <span>{category.icon}</span>
+                        <span>{category.name}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
       {isLoading ? (
         <div className="card-flat p-8 flex items-center justify-center">
@@ -392,9 +416,10 @@ export function FlashcardManager() {
             );
           })}
         </div>
-      )}
-
-      {/* Add Flashcard Modal */}
+            )}
+          </div>
+        </CollapsibleContent>
+      </div>
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -469,6 +494,6 @@ export function FlashcardManager() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </section>
+    </Collapsible>
   );
 }
