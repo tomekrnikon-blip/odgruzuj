@@ -1,0 +1,2702 @@
+[
+  {
+    "id": 1,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć 3 skarpetki bez pary",
+    "comment": "Samotne skarpetki to smutne skarpetki. Daj im spokój i pozwól im odejść w parze... do kosza.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 2,
+    "category": "Ubrania i Moda",
+    "task": "Przejrzyj szufladę z T-shirtami. Wyrzuć 5 starych",
+    "comment": "Te T-shirty czekały na Ciebie jak psy na powrót do domu. Pora im powiedzieć, że się nie wrócisz.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 3,
+    "category": "Ubrania i Moda",
+    "task": "Znajdź i wyrzuć jeden stary pasek",
+    "comment": "Ten pasek już nie trzyma Cię razem – ani dosłownie, ani w sensie metaforycznym.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 4,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć 3 ubrania, które nie pasują od roku",
+    "comment": "Nie, nie schudniesz akurat do tego rozmiaru. Czas się z tym pogodzić.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 5,
+    "category": "Ubrania i Moda",
+    "task": "Uporządkuj szafę. Wyrzuć 10 rzeczy",
+    "comment": "Twoja szafa to nie muzeum mody z lat 90. Chyba że jesteś w to, ale wtedy to vintage.",
+    "difficulty": "hard",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 6,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć 5 starych bielizn",
+    "comment": "Jeśli bielizna ma dziury, to nie jest 'wentylacja'. To jest sygnał do wyrzucenia.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 7,
+    "category": "Ubrania i Moda",
+    "task": "Przejrzyj buty. Wyrzuć 2 pary",
+    "comment": "Te buty widziały lepsze czasy. Teraz widzą tylko kurz.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 8,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć 3 stare kurtki",
+    "comment": "Kurtki z liceum? Naprawdę? Czas puścić przeszłość.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 9,
+    "category": "Ubrania i Moda",
+    "task": "Uporządkuj szuflady z bielizną",
+    "comment": "Marie Kondo byłaby dumna. Albo przerażona. Zależy, co tam znajdziesz.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 10,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć wszystkie ubrania z metkami",
+    "comment": "Jeśli nie założyłeś tego przez rok, to nie założysz nigdy. Metka to dowód.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 11,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć 3 stare czasopisma",
+    "comment": "Newsy z 2015 to już nie newsy. To historia.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 12,
+    "category": "Książki i Czasopisma",
+    "task": "Oddaj 5 książek, których nie przeczytasz",
+    "comment": "Nie, nie przeczytasz tej książki 'kiedyś'. Kiedyś to teraz nigdy.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 13,
+    "category": "Książki i Czasopisma",
+    "task": "Uporządkuj półkę z książkami",
+    "comment": "Książki lubią porządek. Ty też. Win-win.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 14,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć stare podręczniki szkolne",
+    "comment": "Nie wrócisz do szkoły. Nawet jeśli, będą nowe podręczniki.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 15,
+    "category": "Książki i Czasopisma",
+    "task": "Oddaj 10 książek do biblioteki",
+    "comment": "Twoje książki zasługują na nowych czytelników. Ty zasługujesz na więcej miejsca.",
+    "difficulty": "hard",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 16,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć 5 starych rachunków",
+    "comment": "Rachunki z 2010? Naprawdę? Nawet urząd skarbowy o nich zapomniał.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 17,
+    "category": "Papiery i Dokumenty",
+    "task": "Uporządkuj dokumenty w segregatorze",
+    "comment": "Segregator to nie czarna dziura. Przynajmniej nie powinien być.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 18,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć stare ulotki i reklamy",
+    "comment": "Promocja z zeszłego roku to już nie promocja. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 19,
+    "category": "Papiery i Dokumenty",
+    "task": "Przejrzyj szufladę z papierami. Wyrzuć 10 rzeczy",
+    "comment": "Szuflada z papierami to grobowiec informacji. Czas na ekshumację.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 20,
+    "category": "Papiery i Dokumenty",
+    "task": "Zeskanuj 5 ważnych dokumentów i wyrzuć oryginały",
+    "comment": "Witaj w XXI wieku. Tutaj mamy chmurę, nie papier.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 21,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć 3 przeterminowane produkty z szafki",
+    "comment": "Produkty przeterminowane to nie inwestycja, to zagrożenie. Wyrzuć je.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 22,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Przejrzyj lodówkę. Wyrzuć wszystko, co ma dziwny zapach",
+    "comment": "Jeśli nie wiesz, co to jest, to nie jest jedzenie. To jest biohazard.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 23,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć jeden stary, zniszczony pojemnik na jedzenie",
+    "comment": "Ten pojemnik widział lepsze czasy. Teraz widzi tylko kosz.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 24,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Uporządkuj szafkę z przyprawami",
+    "comment": "Przyprawy z 2015 to już nie przyprawy. To proch.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 25,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć 5 starych naczyń",
+    "comment": "Naczynia z odłupaną emalią to nie vintage. To niebezpieczeństwo.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 26,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć 3 stare kosmetyki",
+    "comment": "Kosmetyki mają datę ważności. Tak jak jogurt. Nie ignoruj tego.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 27,
+    "category": "Łazienka i Higiena",
+    "task": "Uporządkuj szafkę w łazience",
+    "comment": "Szafka w łazience to nie apteka z czasów wojny. Wyrzuć stare leki.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 28,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć stare ręczniki",
+    "comment": "Ręczniki z dziurami to nie ręczniki. To sito.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 29,
+    "category": "Łazienka i Higiena",
+    "task": "Przejrzyj apteczkę. Wyrzuć przeterminowane leki",
+    "comment": "Leki po terminie to nie leki. To rosyjska ruletka.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 30,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć 5 pustych butelek po kosmetykach",
+    "comment": "Puste butelki to nie kolekcja. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 31,
+    "category": "Garaż",
+    "task": "Wyrzuć 3 stare puszki po farbie",
+    "comment": "Farba z 2005 to już nie farba. To skamielina.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 32,
+    "category": "Garaż",
+    "task": "Uporządkuj narzędzia na ścianie",
+    "comment": "Narzędzia lubią porządek. Ty też. A przynajmniej powinien.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 33,
+    "category": "Garaż",
+    "task": "Wyrzuć 5 starych opon",
+    "comment": "Opony bez bieżnika to nie opony. To gładkie koła śmierci.",
+    "difficulty": "hard",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 34,
+    "category": "Garaż",
+    "task": "Przejrzyj pudła w garażu. Wyrzuć 3 rzeczy",
+    "comment": "Pudła w garażu to kapsuła czasu. Czas ją otworzyć i wyrzucić.",
+    "difficulty": "medium",
+    "timeEstimate": 25,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 35,
+    "category": "Garaż",
+    "task": "Wyrzuć stary sprzęt elektroniczny",
+    "comment": "Ten magnetowid już nie wróci do łask. Czas się pożegnać.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 36,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć 3 stare mopy",
+    "comment": "Mopy z lat 90 to nie antyki. To śmieci.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 37,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Uporządkuj środki czystości",
+    "comment": "Środki czystości powinny być czyste. Przynajmniej ich opakowania.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 38,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć puste butelki po detergentach",
+    "comment": "Puste butelki to nie rezerwa strategiczna. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 39,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Przejrzyj stare worki na śmieci. Wyrzuć dziurawe",
+    "comment": "Dziurawe worki na śmieci to ironia losu.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 40,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Uporządkuj półki z narzędziami do sprzątania",
+    "comment": "Narzędzia do sprzątania powinny być uporządkowane. To podstawa.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 41,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć 2 stare czapki",
+    "comment": "Czapki z logo zespołu, który się rozpadł w 2008? Czas iść dalej.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 42,
+    "category": "Ubrania i Moda",
+    "task": "Przejrzyj szaliki. Wyrzuć 3",
+    "comment": "Nie potrzebujesz 20 szalików. To nie Syberia.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 43,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć stare rękawiczki bez pary",
+    "comment": "Samotne rękawiczki to jak samotne skarpetki. Smutne i bezużyteczne.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 44,
+    "category": "Ubrania i Moda",
+    "task": "Uporządkuj szafę z płaszczami",
+    "comment": "Płaszcze z liceum? Naprawdę? Marie Kondo płacze.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 45,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć 5 starych krawatów",
+    "comment": "Krawaty z lat 80 to nie vintage. To horror.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 46,
+    "category": "Ubrania i Moda",
+    "task": "Przejrzyj biżuterię. Wyrzuć zepsutą",
+    "comment": "Zepsuta biżuteria to nie biżuteria. To złom.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 47,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć stare torby i plecaki",
+    "comment": "Torby z dziurami to nie torby. To sito na rzeczy.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 48,
+    "category": "Ubrania i Moda",
+    "task": "Uporządkuj szufladę z akcesoriami",
+    "comment": "Akcesoria to nie kolekcja. Przynajmniej nie wszystkie.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 49,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć 3 stare koszule",
+    "comment": "Koszule z plamami to nie koszule. To mapa przeszłości.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 50,
+    "category": "Ubrania i Moda",
+    "task": "Przejrzyj spodnie. Wyrzuć 5 par",
+    "comment": "Spodnie, które nie pasują, to nie motywacja. To frustracja.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 51,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć stare katalogi",
+    "comment": "Katalogi z 2010 to nie katalogi. To archeologia.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 52,
+    "category": "Książki i Czasopisma",
+    "task": "Oddaj 3 książki kucharskie, których nie używasz",
+    "comment": "Nie, nie zrobisz tego dania z 47 składnikami. Oddaj książkę.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 53,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć stare komiksy",
+    "comment": "Komiksy bez wartości kolekcjonerskiej to papier. Recykling czeka.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 54,
+    "category": "Książki i Czasopisma",
+    "task": "Uporządkuj książki alfabetycznie",
+    "comment": "Książki lubią alfabetyczny porządek. Ty też będziesz.",
+    "difficulty": "hard",
+    "timeEstimate": 45,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 55,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć 5 starych gazet",
+    "comment": "Gazety z zeszłego roku to nie gazety. To historia.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 56,
+    "category": "Książki i Czasopisma",
+    "task": "Oddaj encyklopedie do biblioteki",
+    "comment": "Encyklopedie z lat 90? Mamy teraz Wikipedię.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 57,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć stare notatki ze studiów",
+    "comment": "Notatki z 2005? Nawet Ty ich nie rozumiesz.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 58,
+    "category": "Książki i Czasopisma",
+    "task": "Uporządkuj magazyny na półce",
+    "comment": "Magazyny powinny być uporządkowane. Nie chaotycznie rozrzucone.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 59,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć 3 książki z brakującymi stronami",
+    "comment": "Książki bez końca to nie książki. To frustracja.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 60,
+    "category": "Książki i Czasopisma",
+    "task": "Oddaj 5 książek dziecięcych",
+    "comment": "Twoje dzieci dorosły. Książki mogą znaleźć nowych czytelników.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 61,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć stare bilety lotnicze",
+    "comment": "Bilety z 2010 to nie pamiątki. To papier.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 62,
+    "category": "Papiery i Dokumenty",
+    "task": "Uporządkuj faktury w folderze",
+    "comment": "Faktury powinny być uporządkowane. Nie chaotycznie rozrzucone.",
+    "difficulty": "medium",
+    "timeEstimate": 25,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 63,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć stare umowy",
+    "comment": "Umowy z nieistniejącymi firmami to nie dokumenty. To historia.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 64,
+    "category": "Papiery i Dokumenty",
+    "task": "Przejrzyj stare CV. Wyrzuć 5",
+    "comment": "CV z 2005? Nawet Ty nie chcesz tej pracy.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 65,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć stare wizytówki",
+    "comment": "Wizytówki z nieistniejących firm to nie networking. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 66,
+    "category": "Papiery i Dokumenty",
+    "task": "Uporządkuj dokumenty medyczne",
+    "comment": "Dokumenty medyczne powinny być uporządkowane. To może uratować życie.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 67,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć stare mapy",
+    "comment": "Mapy z lat 90? Mamy teraz GPS.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 68,
+    "category": "Papiery i Dokumenty",
+    "task": "Przejrzyj stare listy. Wyrzuć 10",
+    "comment": "Listy z liceum? Czas puścić przeszłość.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 69,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć stare kalendarze",
+    "comment": "Kalendarze z 2015 to nie kalendarze. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 70,
+    "category": "Papiery i Dokumenty",
+    "task": "Uporządkuj dokumenty samochodowe",
+    "comment": "Dokumenty samochodowe powinny być uporządkowane. Policja doceni.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 71,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć 5 starych kubków",
+    "comment": "Kubki z odłupaną emalią to nie kubki. To niebezpieczeństwo.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 72,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Uporządkuj szafkę z talerzami",
+    "comment": "Talerze lubią porządek. Ty też będziesz.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 73,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć stare sztućce",
+    "comment": "Sztućce z lat 80 to nie sztućce. To artefakty.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 74,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Przejrzyj szafkę z garnkami. Wyrzuć 2",
+    "comment": "Garnki z przypalonym dnem to nie garnki. To wspomnienia.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 75,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć stare deski do krojenia",
+    "comment": "Deski z głębokimi nacięciami to nie deski. To siedlisko bakterii.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 76,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Uporządkuj szufladę z nożami",
+    "comment": "Noże powinny być uporządkowane. To bezpieczeństwo.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 77,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć 3 stare patelnie",
+    "comment": "Patelnie z odchodzącym teflonem to nie patelnie. To trucizna.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 78,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Przejrzyj lodówkę. Wyrzuć 5 rzeczy",
+    "comment": "Lodówka to nie muzeum jedzenia. Wyrzuć stare rzeczy.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 79,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć stare foremki do pieczenia",
+    "comment": "Foremki, których nie używasz, to nie foremki. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 80,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Uporządkuj szafkę z herbatami",
+    "comment": "Herbaty z 2010 to nie herbaty. To proch.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 81,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć 5 starych szczoteczek do zębów",
+    "comment": "Szczoteczki z rozwiniętymi włoskami to nie szczoteczki. To miotły.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 82,
+    "category": "Łazienka i Higiena",
+    "task": "Uporządkuj szafkę z kosmetykami",
+    "comment": "Kosmetyki powinny być uporządkowane. Nie chaotycznie rozrzucone.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 83,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć stare gąbki",
+    "comment": "Gąbki z pleśnią to nie gąbki. To biohazard.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 84,
+    "category": "Łazienka i Higiena",
+    "task": "Przejrzyj apteczkę. Wyrzuć 5 rzeczy",
+    "comment": "Apteczka to nie muzeum leków. Wyrzuć przeterminowane.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 85,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć stare perfumy",
+    "comment": "Perfumy z lat 90 to nie perfumy. To chemikalia.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 86,
+    "category": "Łazienka i Higiena",
+    "task": "Uporządkuj szafkę z ręcznikami",
+    "comment": "Ręczniki powinny być uporządkowane. Marie Kondo byłaby dumna.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 87,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć 3 stare mydła",
+    "comment": "Mydła z hoteli to nie mydła. To pamiątki, które nie mają sensu.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 88,
+    "category": "Łazienka i Higiena",
+    "task": "Przejrzyj szampony. Wyrzuć 3",
+    "comment": "Szampony, których nie używasz, to nie szampony. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 89,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć stare maszynki do golenia",
+    "comment": "Maszynki z zardzewiałymi ostrzami to nie maszynki. To tetanus.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 90,
+    "category": "Łazienka i Higiena",
+    "task": "Uporządkuj kosmetyki pod umywalką",
+    "comment": "Kosmetyki pod umywalką to czarna dziura. Czas na porządek.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 91,
+    "category": "Garaż",
+    "task": "Wyrzuć stare kable",
+    "comment": "Kable do nieistniejących urządzeń to nie kable. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 92,
+    "category": "Garaż",
+    "task": "Uporządkuj narzędzia w skrzynce",
+    "comment": "Narzędzia w skrzynce to nie chaos. Przynajmniej nie powinny być.",
+    "difficulty": "medium",
+    "timeEstimate": 25,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 93,
+    "category": "Garaż",
+    "task": "Wyrzuć stare części samochodowe",
+    "comment": "Części do samochodu, którego nie masz, to nie części. To śmieć.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 94,
+    "category": "Garaż",
+    "task": "Przejrzyj pudła z narzędziami. Wyrzuć 5 rzeczy",
+    "comment": "Pudła z narzędziami to kapsuła czasu. Czas ją otworzyć.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 95,
+    "category": "Garaż",
+    "task": "Wyrzuć stare rowery",
+    "comment": "Rowery bez kół to nie rowery. To złom.",
+    "difficulty": "hard",
+    "timeEstimate": 45,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 96,
+    "category": "Garaż",
+    "task": "Uporządkuj półki w garażu",
+    "comment": "Półki w garażu powinny być uporządkowane. Nie chaotycznie zastawione.",
+    "difficulty": "hard",
+    "timeEstimate": 60,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 97,
+    "category": "Garaż",
+    "task": "Wyrzuć stare drabiny",
+    "comment": "Drabiny z brakującymi szczeblami to nie drabiny. To niebezpieczeństwo.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 98,
+    "category": "Garaż",
+    "task": "Przejrzyj stare farby. Wyrzuć 5 puszek",
+    "comment": "Farby z 2005 to nie farby. To skamieliny.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 99,
+    "category": "Garaż",
+    "task": "Wyrzuć stare wiadra",
+    "comment": "Wiadra z dziurami to nie wiadra. To sito.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 100,
+    "category": "Garaż",
+    "task": "Uporządkuj sprzęt ogrodowy",
+    "comment": "Sprzęt ogrodowy powinien być uporządkowany. Nie chaotycznie rozrzucony.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 101,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć 3 stare szczotki",
+    "comment": "Szczotki bez włosia to nie szczotki. To patyki.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 102,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Uporządkuj środki czystości na półce",
+    "comment": "Środki czystości powinny być uporządkowane. To podstawa.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 103,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć stare gąbki do zmywania",
+    "comment": "Gąbki z pleśnią to nie gąbki. To biohazard.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 104,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Przejrzyj worki na śmieci. Wyrzuć dziurawe",
+    "comment": "Dziurawe worki na śmieci to ironia losu.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 105,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć stare ścierki",
+    "comment": "Ścierki z dziurami to nie ścierki. To sito.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 106,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Uporządkuj narzędzia do sprzątania",
+    "comment": "Narzędzia do sprzątania powinny być uporządkowane. To logiczne.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 107,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć puste butelki po środkach czystości",
+    "comment": "Puste butelki to nie rezerwa. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 108,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Przejrzyj stare mopy. Wyrzuć 2",
+    "comment": "Mopy z lat 90 to nie mopy. To artefakty.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 109,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć stare wiadra",
+    "comment": "Wiadra z pęknięciami to nie wiadra. To sito.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 110,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Uporządkuj półki z detergentami",
+    "comment": "Detergenty powinny być uporządkowane. Nie chaotycznie rozrzucone.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 111,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć 5 starych swetrów",
+    "comment": "Swetry z kulkami to nie swetry. To owłosione potwory.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 112,
+    "category": "Ubrania i Moda",
+    "task": "Przejrzyj bieliznę. Wyrzuć 10 rzeczy",
+    "comment": "Bielizna z lat 90 to nie bielizna. To historia.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 113,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć stare piżamy",
+    "comment": "Piżamy z dziurami to nie piżamy. To wentylacja.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 114,
+    "category": "Ubrania i Moda",
+    "task": "Uporządkuj szafę z sukienkami",
+    "comment": "Sukienki z liceum? Naprawdę? Czas iść dalej.",
+    "difficulty": "medium",
+    "timeEstimate": 25,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 115,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć 3 stare kurtki zimowe",
+    "comment": "Kurtki bez zamków to nie kurtki. To płaszcze bez sensu.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 116,
+    "category": "Ubrania i Moda",
+    "task": "Przejrzyj szuflady. Wyrzuć 10 rzeczy",
+    "comment": "Szuflady to nie kapsuła czasu. Wyrzuć stare rzeczy.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 117,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć stare stroje kąpielowe",
+    "comment": "Stroje kąpielowe z rozciągniętych gumek to nie stroje. To wstydu.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 118,
+    "category": "Ubrania i Moda",
+    "task": "Uporządkuj szafę z bluzami",
+    "comment": "Bluzy z lat 90 to nie bluzy. To vintage. Albo śmieć. Zależy.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 119,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć 5 starych koszulek nocnych",
+    "comment": "Koszulki nocne z dziurami to nie koszulki. To sito.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 120,
+    "category": "Ubrania i Moda",
+    "task": "Przejrzyj ubrania sportowe. Wyrzuć 5",
+    "comment": "Ubrania sportowe, których nie używasz, to nie ubrania. To wymówka.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 121,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć 10 starych magazynów",
+    "comment": "Magazyny z 2010 to nie magazyny. To archeologia.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 122,
+    "category": "Książki i Czasopisma",
+    "task": "Oddaj 5 książek fantasy",
+    "comment": "Książki fantasy, których nie przeczytasz, mogą znaleźć nowych czytelników.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 123,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć stare broszury",
+    "comment": "Broszury z 2005 to nie broszury. To papier.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 124,
+    "category": "Książki i Czasopisma",
+    "task": "Uporządkuj książki na półce",
+    "comment": "Książki lubią porządek. Ty też będziesz.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 125,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć 5 starych przewodników turystycznych",
+    "comment": "Przewodniki z 2000 to nie przewodniki. To historia.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 126,
+    "category": "Książki i Czasopisma",
+    "task": "Oddaj książki naukowe do biblioteki",
+    "comment": "Książki naukowe z lat 80 to nie książki. To artefakty.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 127,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć stare kalendarze książkowe",
+    "comment": "Kalendarze z 2010 to nie kalendarze. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 128,
+    "category": "Książki i Czasopisma",
+    "task": "Przejrzyj książki dla dzieci. Oddaj 10",
+    "comment": "Książki dla dzieci, które dorosły, mogą znaleźć nowych czytelników.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 129,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć 3 książki z plamami",
+    "comment": "Książki z plamami to nie książki. To wspomnienia.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 130,
+    "category": "Książki i Czasopisma",
+    "task": "Uporządkuj czasopisma w segregatorze",
+    "comment": "Czasopisma powinny być uporządkowane. Nie chaotycznie rozrzucone.",
+    "difficulty": "medium",
+    "timeEstimate": 25,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 131,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć stare paragony",
+    "comment": "Paragony z 2005 to nie paragony. To papier.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 132,
+    "category": "Papiery i Dokumenty",
+    "task": "Uporządkuj dokumenty w szufladzie",
+    "comment": "Dokumenty w szufladzie to czarna dziura. Czas na porządek.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 133,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć stare gwarancje",
+    "comment": "Gwarancje do nieistniejących produktów to nie gwarancje. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 134,
+    "category": "Papiery i Dokumenty",
+    "task": "Przejrzyj stare notatki. Wyrzuć 10",
+    "comment": "Notatki z liceum? Nawet Ty ich nie rozumiesz.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 135,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć stare instrukcje obsługi",
+    "comment": "Instrukcje do nieistniejących urządzeń to nie instrukcje. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 136,
+    "category": "Papiery i Dokumenty",
+    "task": "Uporządkuj dokumenty ubezpieczeniowe",
+    "comment": "Dokumenty ubezpieczeniowe powinny być uporządkowane. To ważne.",
+    "difficulty": "medium",
+    "timeEstimate": 25,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 137,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć stare pocztówki",
+    "comment": "Pocztówki z lat 90 to nie pocztówki. To wspomnienia, które można wyrzucić.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 138,
+    "category": "Papiery i Dokumenty",
+    "task": "Przejrzyj stare zdjęcia. Wyrzuć 20",
+    "comment": "Zdjęcia rozmazane to nie zdjęcia. To błędy.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 139,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć stare zaświadczenia",
+    "comment": "Zaświadczenia z liceum to nie zaświadczenia. To historia.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 140,
+    "category": "Papiery i Dokumenty",
+    "task": "Uporządkuj dokumenty bankowe",
+    "comment": "Dokumenty bankowe powinny być uporządkowane. Bank doceni.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 141,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć 5 starych słoików",
+    "comment": "Słoiki bez pokrywek to nie słoiki. To szkło.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 142,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Uporządkuj szafkę z kieliszkami",
+    "comment": "Kieliszki powinny być uporządkowane. Nie chaotycznie rozrzucone.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 143,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć stare miski",
+    "comment": "Miski z pęknięciami to nie miski. To niebezpieczeństwo.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 144,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Przejrzyj szafkę z kuchennymi gadżetami. Wyrzuć 5",
+    "comment": "Gadżety, których nie używasz, to nie gadżety. To śmieć.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 145,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć stare obrusy",
+    "comment": "Obrusy z plamami to nie obrusy. To mapa przeszłości.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 146,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Uporządkuj szufladę z łyżkami",
+    "comment": "Łyżki powinny być uporządkowane. To podstawa.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 147,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć 3 stare rondle",
+    "comment": "Rondle z przypalonym dnem to nie rondle. To wspomnienia.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 148,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Przejrzyj zamrażarkę. Wyrzuć 5 rzeczy",
+    "comment": "Zamrażarka to nie muzeum jedzenia. Wyrzuć stare rzeczy.",
+    "difficulty": "easy",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 149,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć stare pokrywki do garnków",
+    "comment": "Pokrywki bez garnków to nie pokrywki. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 150,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Uporządkuj szafkę z kawą i herbatą",
+    "comment": "Kawa i herbata powinny być uporządkowane. Nie chaotycznie rozrzucone.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 151,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć 5 starych kremów",
+    "comment": "Kremy z lat 90 to nie kremy. To chemikalia.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 152,
+    "category": "Łazienka i Higiena",
+    "task": "Uporządkuj szafkę z płynami",
+    "comment": "Płyny powinny być uporządkowane. Nie chaotycznie rozrzucone.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 153,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć stare szczotki do włosów",
+    "comment": "Szczotki z włosami innych ludzi to nie szczotki. To biohazard.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 154,
+    "category": "Łazienka i Higiena",
+    "task": "Przejrzyj kosmetyki. Wyrzuć 10 rzeczy",
+    "comment": "Kosmetyki przeterminowane to nie kosmetyki. To trucizna.",
+    "difficulty": "medium",
+    "timeEstimate": 25,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 155,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć stare lakiery do paznokci",
+    "comment": "Lakiery zgęstniałe to nie lakiery. To klej.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 156,
+    "category": "Łazienka i Higiena",
+    "task": "Uporządkuj szafkę z makijażem",
+    "comment": "Makijaż powinien być uporządkowany. Marie Kondo byłaby dumna.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 157,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć 3 stare dezodoranty",
+    "comment": "Dezodoranty puste to nie dezodoranty. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 158,
+    "category": "Łazienka i Higiena",
+    "task": "Przejrzyj płyny do kąpieli. Wyrzuć 5",
+    "comment": "Płyny do kąpieli, których nie używasz, to nie płyny. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 159,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć stare grzebienie",
+    "comment": "Grzebienie z brakującymi zębami to nie grzebienie. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 160,
+    "category": "Łazienka i Higiena",
+    "task": "Uporządkuj kosmetyki na półce",
+    "comment": "Kosmetyki na półce powinny być uporządkowane. To podstawa.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 161,
+    "category": "Garaż",
+    "task": "Wyrzuć stare śruby i gwoździe",
+    "comment": "Śruby zardzewiałe to nie śruby. To tetanus.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 162,
+    "category": "Garaż",
+    "task": "Uporządkuj narzędzia elektryczne",
+    "comment": "Narzędzia elektryczne powinny być uporządkowane. To bezpieczeństwo.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 163,
+    "category": "Garaż",
+    "task": "Wyrzuć stare kanistry",
+    "comment": "Kanistry z dziurami to nie kanistry. To sito.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 164,
+    "category": "Garaż",
+    "task": "Przejrzyj pudła z elektroniką. Wyrzuć 5 rzeczy",
+    "comment": "Elektronika z lat 90 to nie elektronika. To artefakty.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 165,
+    "category": "Garaż",
+    "task": "Wyrzuć stare łańcuchy",
+    "comment": "Łańcuchy zardzewiałe to nie łańcuchy. To tetanus.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 166,
+    "category": "Garaż",
+    "task": "Uporządkuj sprzęt sportowy",
+    "comment": "Sprzęt sportowy powinien być uporządkowany. Nie chaotycznie rozrzucony.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 167,
+    "category": "Garaż",
+    "task": "Wyrzuć stare wózki",
+    "comment": "Wózki z brakującymi kołami to nie wózki. To śmieć.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 168,
+    "category": "Garaż",
+    "task": "Przejrzyj stare materiały budowlane. Wyrzuć 10 rzeczy",
+    "comment": "Materiały budowlane z lat 90 to nie materiały. To artefakty.",
+    "difficulty": "hard",
+    "timeEstimate": 45,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 169,
+    "category": "Garaż",
+    "task": "Wyrzuć stare folie i worki",
+    "comment": "Folie podarte to nie folie. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 170,
+    "category": "Garaż",
+    "task": "Uporządkuj półki z narzędziami",
+    "comment": "Półki z narzędziami powinny być uporządkowane. To podstawa.",
+    "difficulty": "hard",
+    "timeEstimate": 60,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 171,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć 3 stare wiadra",
+    "comment": "Wiadra z pęknięciami to nie wiadra. To sito.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 172,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Uporządkuj środki do prania",
+    "comment": "Środki do prania powinny być uporządkowane. To podstawa.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 173,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć stare szmaty",
+    "comment": "Szmaty z dziurami to nie szmaty. To sito.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 174,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Przejrzyj stare szczotki. Wyrzuć 5",
+    "comment": "Szczotki bez włosia to nie szczotki. To patyki.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 175,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć stare miotły",
+    "comment": "Miotły bez włosia to nie miotły. To patyki.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 176,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Uporządkuj narzędzia do sprzątania na ścianie",
+    "comment": "Narzędzia na ścianie powinny być uporządkowane. To podstawa.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 177,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć puste opakowania po środkach",
+    "comment": "Puste opakowania to nie rezerwa. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 178,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Przejrzyj stare gąbki. Wyrzuć 10",
+    "comment": "Gąbki z pleśnią to nie gąbki. To biohazard.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 179,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć stare szczotki do WC",
+    "comment": "Szczotki do WC z lat 90 to nie szczotki. To biohazard.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 180,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Uporządkuj półki z workami na śmieci",
+    "comment": "Worki na śmieci powinny być uporządkowane. To logiczne.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 181,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć 5 starych koszulek",
+    "comment": "Koszulki z logo nieistniejących firm to nie koszulki. To wspomnienia.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 182,
+    "category": "Ubrania i Moda",
+    "task": "Przejrzyj szalik. Wyrzuć 5",
+    "comment": "Szaliki z lat 90 to nie szaliki. To artefakty.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 183,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć stare okulary przeciwsłoneczne",
+    "comment": "Okulary z porysowanymi szkłami to nie okulary. To niebezpieczeństwo.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 184,
+    "category": "Ubrania i Moda",
+    "task": "Uporządkuj szafę z kurtkam",
+    "comment": "Kurtki powinny być uporządkowane. Marie Kondo byłaby dumna.",
+    "difficulty": "medium",
+    "timeEstimate": 25,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 185,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć 3 stare spódnice",
+    "comment": "Spódnice z lat 90 to nie spódnice. To vintage. Albo śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 186,
+    "category": "Ubrania i Moda",
+    "task": "Przejrzyj ubrania robocze. Wyrzuć 5",
+    "comment": "Ubrania robocze z dziurami to nie ubrania. To sito.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 187,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć stare zegarki",
+    "comment": "Zegarki, które nie działają, to nie zegarki. To biżuteria bez sensu.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 188,
+    "category": "Ubrania i Moda",
+    "task": "Uporządkuj szufladę z paskami",
+    "comment": "Paski powinny być uporządkowane. Nie chaotycznie rozrzucone.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 189,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć 5 starych koszul flanelowych",
+    "comment": "Koszule flanelowe z lat 90 to nie koszule. To vintage. Albo śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 190,
+    "category": "Ubrania i Moda",
+    "task": "Przejrzyj ubrania dziecięce. Oddaj 10",
+    "comment": "Dzieci dorosły. Ubrania mogą znaleźć nowych właścicieli.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 191,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć 10 starych broszur reklamowych",
+    "comment": "Broszury reklamowe z 2005 to nie broszury. To papier.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 192,
+    "category": "Książki i Czasopisma",
+    "task": "Oddaj 5 książek romantycznych",
+    "comment": "Książki romantyczne, których nie przeczytasz, mogą znaleźć nowych czytelników.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 193,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć stare atlasy",
+    "comment": "Atlasy z lat 90 to nie atlasy. To historia.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 194,
+    "category": "Książki i Czasopisma",
+    "task": "Uporządkuj książki po kolorach",
+    "comment": "Książki po kolorach to piękny widok. Instagram doceni.",
+    "difficulty": "hard",
+    "timeEstimate": 60,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 195,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć 5 starych słowników",
+    "comment": "Słowniki z lat 80 to nie słowniki. Mamy teraz Google Translate.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 196,
+    "category": "Książki i Czasopisma",
+    "task": "Oddaj książki medyczne do biblioteki",
+    "comment": "Książki medyczne z lat 80 to nie książki. To artefakty.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 197,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć stare poradniki",
+    "comment": "Poradniki z lat 90 to nie poradniki. To historia.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 198,
+    "category": "Książki i Czasopisma",
+    "task": "Przejrzyj książki techniczne. Oddaj 10",
+    "comment": "Książki techniczne z lat 90 to nie książki. To artefakty.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 199,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć 3 książki z brakującymi okładkami",
+    "comment": "Książki bez okładek to nie książki. To strony.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 200,
+    "category": "Książki i Czasopisma",
+    "task": "Uporządkuj komiksy w pudłach",
+    "comment": "Komiksy powinny być uporządkowane. Kolekcjonerzy docenią.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 201,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć stare bilety autobusowe",
+    "comment": "Bilety autobusowe z 2010 to nie bilety. To papier.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 202,
+    "category": "Papiery i Dokumenty",
+    "task": "Uporządkuj dokumenty podatkowe",
+    "comment": "Dokumenty podatkowe powinny być uporządkowane. Urząd skarbowy doceni.",
+    "difficulty": "hard",
+    "timeEstimate": 45,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 203,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć stare certyfikaty",
+    "comment": "Certyfikaty z nieistniejących kursów to nie certyfikaty. To papier.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 204,
+    "category": "Papiery i Dokumenty",
+    "task": "Przejrzyj stare dyplomy. Wyrzuć kopie",
+    "comment": "Kopie dyplomów to nie dyplomy. To papier.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 205,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć stare karty lojalnościowe",
+    "comment": "Karty lojalnościowe z nieistniejących sklepów to nie karty. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 206,
+    "category": "Papiery i Dokumenty",
+    "task": "Uporządkuj dokumenty nieruchomości",
+    "comment": "Dokumenty nieruchomości powinny być uporządkowane. To ważne.",
+    "difficulty": "hard",
+    "timeEstimate": 60,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 207,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć stare plany mieszkań",
+    "comment": "Plany mieszkań, w których nie mieszkasz, to nie plany. To papier.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 208,
+    "category": "Papiery i Dokumenty",
+    "task": "Przejrzyj stare umowy najmu. Wyrzuć 5",
+    "comment": "Umowy najmu z lat 90 to nie umowy. To historia.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 209,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć stare zaproszenia",
+    "comment": "Zaproszenia na wesela z 2005 to nie zaproszenia. To wspomnienia.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 210,
+    "category": "Papiery i Dokumenty",
+    "task": "Uporządkuj dokumenty szkolne",
+    "comment": "Dokumenty szkolne powinny być uporządkowane. Przynajmniej te ważne.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 211,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć 5 starych filiżanek",
+    "comment": "Filiżanki z odłupaną emalią to nie filiżanki. To niebezpieczeństwo.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 212,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Uporządkuj szafkę z karafkami",
+    "comment": "Karafki powinny być uporządkowane. Nie chaotycznie rozrzucone.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 213,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć stare serwetki",
+    "comment": "Serwetki z plamami to nie serwetki. To mapa przeszłości.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 214,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Przejrzyj szafkę z przyprawami. Wyrzuć 10",
+    "comment": "Przyprawy z 2005 to nie przyprawy. To proch.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 215,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć stare podkładki pod talerze",
+    "comment": "Podkładki z plamami to nie podkładki. To wspomnienia.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 216,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Uporządkuj szufladę z widelcami",
+    "comment": "Widelce powinny być uporządkowane. To podstawa.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 217,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć 3 stare czajniki",
+    "comment": "Czajniki z kamieniem to nie czajniki. To kopalnia.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 218,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Przejrzyj spiżarnię. Wyrzuć 10 rzeczy",
+    "comment": "Spiżarnia to nie muzeum jedzenia. Wyrzuć stare rzeczy.",
+    "difficulty": "medium",
+    "timeEstimate": 25,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 219,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć stare termosy",
+    "comment": "Termosy, które nie trzymają ciepła, to nie termosy. To butelki.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 220,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Uporządkuj szafkę z cukrem i mąką",
+    "comment": "Cukier i mąka powinny być uporządkowane. Nie chaotycznie rozrzucone.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 221,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć 5 starych balsamów",
+    "comment": "Balsamy z lat 90 to nie balsamy. To chemikalia.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 222,
+    "category": "Łazienka i Higiena",
+    "task": "Uporządkuj szafkę z żelami",
+    "comment": "Żele powinny być uporządkowane. Nie chaotycznie rozrzucone.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 223,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć stare pilniki do paznokci",
+    "comment": "Pilniki zużyte to nie pilniki. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 224,
+    "category": "Łazienka i Higiena",
+    "task": "Przejrzyj kosmetyki do makijażu. Wyrzuć 10 rzeczy",
+    "comment": "Kosmetyki przeterminowane to nie kosmetyki. To trucizna.",
+    "difficulty": "medium",
+    "timeEstimate": 25,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 225,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć stare pędzle do makijażu",
+    "comment": "Pędzle z wypadającym włosiem to nie pędzle. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 226,
+    "category": "Łazienka i Higiena",
+    "task": "Uporządkuj szafkę z pielęgnacją",
+    "comment": "Pielęgnacja powinna być uporządkowana. Marie Kondo byłaby dumna.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 227,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć 3 stare wody toaletowe",
+    "comment": "Wody toaletowe z lat 90 to nie wody. To chemikalia.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 228,
+    "category": "Łazienka i Higiena",
+    "task": "Przejrzyj płyny do płukania. Wyrzuć 5",
+    "comment": "Płyny do płukania, których nie używasz, to nie płyny. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 229,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć stare lusterka",
+    "comment": "Lusterka z porysowaniami to nie lusterka. To niebezpieczeństwo.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 230,
+    "category": "Łazienka i Higiena",
+    "task": "Uporządkuj kosmetyki w szufladzie",
+    "comment": "Kosmetyki w szufladzie powinny być uporządkowane. To podstawa.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 231,
+    "category": "Garaż",
+    "task": "Wyrzuć stare piły",
+    "comment": "Piły z tępymi zębami to nie piły. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 232,
+    "category": "Garaż",
+    "task": "Uporządkuj narzędzia ręczne",
+    "comment": "Narzędzia ręczne powinny być uporządkowane. To bezpieczeństwo.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 233,
+    "category": "Garaż",
+    "task": "Wyrzuć stare kłódki",
+    "comment": "Kłódki bez kluczy to nie kłódki. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 234,
+    "category": "Garaż",
+    "task": "Przejrzyj pudła z zabawkami. Wyrzuć 10 rzeczy",
+    "comment": "Zabawki z lat 90 to nie zabawki. To artefakty.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 235,
+    "category": "Garaż",
+    "task": "Wyrzuć stare liny",
+    "comment": "Liny postrzępione to nie liny. To niebezpieczeństwo.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 236,
+    "category": "Garaż",
+    "task": "Uporządkuj sprzęt wędkarski",
+    "comment": "Sprzęt wędkarski powinien być uporządkowany. Nie chaotycznie rozrzucony.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 237,
+    "category": "Garaż",
+    "task": "Wyrzuć stare namioty",
+    "comment": "Namioty z dziurami to nie namioty. To sito.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 238,
+    "category": "Garaż",
+    "task": "Przejrzyj stare chemikalia. Wyrzuć 5 rzeczy",
+    "comment": "Chemikalia z lat 90 to nie chemikalia. To trucizna.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 239,
+    "category": "Garaż",
+    "task": "Wyrzuć stare worki na cement",
+    "comment": "Worki na cement skamieniałe to nie worki. To kamienie.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 240,
+    "category": "Garaż",
+    "task": "Uporządkuj półki z materiałami",
+    "comment": "Półki z materiałami powinny być uporządkowane. To podstawa.",
+    "difficulty": "hard",
+    "timeEstimate": 60,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 241,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć 3 stare szczotki do podłogi",
+    "comment": "Szczotki bez włosia to nie szczotki. To patyki.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 242,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Uporządkuj środki do okien",
+    "comment": "Środki do okien powinny być uporządkowane. To podstawa.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 243,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć stare ściereczki",
+    "comment": "Ściereczki z dziurami to nie ściereczki. To sito.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 244,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Przejrzyj stare mopy. Wyrzuć 5",
+    "comment": "Mopy bez włosia to nie mopy. To patyki.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 245,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć stare odkurzacze",
+    "comment": "Odkurzacze, które nie ssą, to nie odkurzacze. To śmieć.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 246,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Uporządkuj narzędzia do mycia okien",
+    "comment": "Narzędzia do mycia okien powinny być uporządkowane. To podstawa.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 247,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć puste butelki po płynach",
+    "comment": "Puste butelki to nie rezerwa. To śmieć.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 248,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Przejrzyj stare gąbki do zmywania. Wyrzuć 10",
+    "comment": "Gąbki z pleśnią to nie gąbki. To biohazard.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 249,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć stare szczotki do garnków",
+    "comment": "Szczotki bez włosia to nie szczotki. To patyki.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 250,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Uporządkuj półki z workami",
+    "comment": "Worki powinny być uporządkowane. To logiczne.",
+    "difficulty": "medium",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 251,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć wszystkie ubrania, których nie nosiłeś od 2 lat",
+    "comment": "Jeśli nie nosiłeś tego przez 2 lata, to nie będziesz nosić nigdy. Czas się pożegnać.",
+    "difficulty": "hard",
+    "timeEstimate": 45,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 252,
+    "category": "Ubrania i Moda",
+    "task": "Uporządkuj całą szafę metodą KonMari",
+    "comment": "Marie Kondo byłaby dumna. Albo przerażona. Zależy, co tam znajdziesz.",
+    "difficulty": "hard",
+    "timeEstimate": 90,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 253,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć 10 par starych butów",
+    "comment": "Buty, które nie pasują, to nie buty. To narzędzie tortur.",
+    "difficulty": "hard",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 254,
+    "category": "Książki i Czasopisma",
+    "task": "Oddaj 20 książek do biblioteki",
+    "comment": "Książki zasługują na nowych czytelników. Ty zasługujesz na więcej miejsca.",
+    "difficulty": "hard",
+    "timeEstimate": 45,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 255,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć wszystkie czasopisma starsze niż rok",
+    "comment": "Czasopisma z zeszłego roku to już nie czasopisma. To historia.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 256,
+    "category": "Papiery i Dokumenty",
+    "task": "Zdigitalizuj wszystkie ważne dokumenty",
+    "comment": "Witaj w XXI wieku. Tutaj mamy chmurę, nie papier.",
+    "difficulty": "hard",
+    "timeEstimate": 90,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 257,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć wszystkie dokumenty starsze niż 5 lat",
+    "comment": "Dokumenty z 2010 to już nie dokumenty. To archeologia.",
+    "difficulty": "hard",
+    "timeEstimate": 60,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 258,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć wszystko z lodówki i zamrażarki. Zacznij od nowa",
+    "comment": "Lodówka to nie muzeum jedzenia. Czas na reset.",
+    "difficulty": "hard",
+    "timeEstimate": 60,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 259,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Uporządkuj całą kuchnię metodą KonMari",
+    "comment": "Kuchnia to serce domu. Czas mu dać nowe bicie.",
+    "difficulty": "hard",
+    "timeEstimate": 120,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 260,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć wszystkie kosmetyki starsze niż rok",
+    "comment": "Kosmetyki mają datę ważności. Tak jak jogurt. Nie ignoruj tego.",
+    "difficulty": "hard",
+    "timeEstimate": 45,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 261,
+    "category": "Łazienka i Higiena",
+    "task": "Uporządkuj całą łazienkę metodą KonMari",
+    "comment": "Łazienka to miejsce relaksu. Czas na porządek.",
+    "difficulty": "hard",
+    "timeEstimate": 90,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 262,
+    "category": "Garaż",
+    "task": "Wyrzuć wszystko, czego nie używałeś od 3 lat",
+    "comment": "Jeśli nie używałeś tego przez 3 lata, to nie będziesz używać nigdy.",
+    "difficulty": "hard",
+    "timeEstimate": 120,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 263,
+    "category": "Garaż",
+    "task": "Uporządkuj cały garaż od podstaw",
+    "comment": "Garaż to nie składowisko. Przynajmniej nie powinien być.",
+    "difficulty": "hard",
+    "timeEstimate": 180,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 264,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć wszystkie stare środki czystości",
+    "comment": "Środki czystości z lat 90 to nie środki. To chemikalia.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 265,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Uporządkuj całe pomieszczenie gospodarcze",
+    "comment": "Pomieszczenie gospodarcze powinno być uporządkowane. To logiczne.",
+    "difficulty": "hard",
+    "timeEstimate": 90,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 266,
+    "category": "Ubrania i Moda",
+    "task": "Wyrzuć 5 starych swetrów z kulkami",
+    "comment": "Swetry z kulkami wyglądają jak owłosione potwory. Czas je wyrzucić.",
+    "difficulty": "easy",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 267,
+    "category": "Ubrania i Moda",
+    "task": "Przejrzyj szafę z płaszczami. Wyrzuć 3",
+    "comment": "Płaszcze z lat 90 to nie płaszcze. To vintage. Albo śmieć.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 268,
+    "category": "Książki i Czasopisma",
+    "task": "Wyrzuć wszystkie stare gazety",
+    "comment": "Gazety z zeszłego miesiąca to już nie gazety. To papier.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 269,
+    "category": "Książki i Czasopisma",
+    "task": "Oddaj 10 książek dziecięcych do przedszkola",
+    "comment": "Książki dla dzieci mogą znaleźć nowych małych czytelników.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 270,
+    "category": "Papiery i Dokumenty",
+    "task": "Wyrzuć wszystkie stare koperty",
+    "comment": "Koperty z lat 90 to nie koperty. To papier.",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 271,
+    "category": "Papiery i Dokumenty",
+    "task": "Uporządkuj wszystkie faktury w folderze",
+    "comment": "Faktury powinny być uporządkowane. Księgowy doceni.",
+    "difficulty": "hard",
+    "timeEstimate": 60,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 272,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyrzuć wszystkie stare przyprawy",
+    "comment": "Przyprawy z 2005 to już nie przyprawy. To proch.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 273,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Uporządkuj wszystkie szafki kuchenne",
+    "comment": "Szafki kuchenne powinny być uporządkowane. Marie Kondo byłaby dumna.",
+    "difficulty": "hard",
+    "timeEstimate": 90,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 274,
+    "category": "Łazienka i Higiena",
+    "task": "Wyrzuć wszystkie stare ręczniki",
+    "comment": "Ręczniki z dziurami to nie ręczniki. To sito.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 275,
+    "category": "Łazienka i Higiena",
+    "task": "Uporządkuj wszystkie szafki w łazience",
+    "comment": "Szafki w łazience powinny być uporządkowane. To podstawa.",
+    "difficulty": "hard",
+    "timeEstimate": 60,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 276,
+    "category": "Garaż",
+    "task": "Wyrzuć wszystkie stare narzędzia",
+    "comment": "Narzędzia zardzewiałe to nie narzędzia. To tetanus.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 277,
+    "category": "Garaż",
+    "task": "Uporządkuj wszystkie półki w garażu",
+    "comment": "Półki w garażu powinny być uporządkowane. To podstawa.",
+    "difficulty": "hard",
+    "timeEstimate": 120,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 278,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyrzuć wszystkie stare mopy i szczotki",
+    "comment": "Mopy i szczotki bez włosia to nie narzędzia. To patyki.",
+    "difficulty": "medium",
+    "timeEstimate": 20,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 279,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Uporządkuj wszystkie środki czystości",
+    "comment": "Środki czystości powinny być uporządkowane. To logiczne.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 280,
+    "category": "Ubrania i Moda",
+    "task": "Spakuj 10 ubrań do oddania",
+    "comment": "Ubrania, których nie nosisz, mogą znaleźć nowych właścicieli.",
+    "difficulty": "medium",
+    "timeEstimate": 25,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 281,
+    "category": "Książki i Czasopisma",
+    "task": "Spakuj 15 książek do oddania",
+    "comment": "Książki zasługują na nowych czytelników. Ty zasługujesz na więcej miejsca.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 282,
+    "category": "Papiery i Dokumenty",
+    "task": "Zniszcz 20 starych dokumentów z danymi osobowymi",
+    "comment": "Dokumenty z danymi osobowymi powinny być zniszczone. Nie wyrzucone.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 283,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Wyczyść i uporządkuj lodówkę",
+    "comment": "Lodówka to nie muzeum jedzenia. Czas na porządek.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 284,
+    "category": "Łazienka i Higiena",
+    "task": "Wyczyść i uporządkuj szafkę pod umywalką",
+    "comment": "Szafka pod umywalką to czarna dziura. Czas na porządek.",
+    "difficulty": "medium",
+    "timeEstimate": 25,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 285,
+    "category": "Garaż",
+    "task": "Wyczyść i uporządkuj stół roboczy",
+    "comment": "Stół roboczy powinien być uporządkowany. To podstawa.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 286,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Wyczyść i uporządkuj wszystkie półki",
+    "comment": "Półki powinny być uporządkowane. To logiczne.",
+    "difficulty": "medium",
+    "timeEstimate": 40,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 287,
+    "category": "Ubrania i Moda",
+    "task": "Zrób listę ubrań do kupienia po declutteringu",
+    "comment": "Teraz wiesz, czego naprawdę potrzebujesz. Nie kupuj więcej niż trzeba.",
+    "difficulty": "easy",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 288,
+    "category": "Książki i Czasopisma",
+    "task": "Zrób listę książek do przeczytania",
+    "comment": "Teraz masz miejsce na nowe książki. Ale przeczytaj stare najpierw.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 289,
+    "category": "Kuchnia i Jedzenie",
+    "task": "Zrób listę zakupów na podstawie tego, co masz",
+    "comment": "Teraz wiesz, co masz w kuchni. Nie kupuj więcej niż trzeba.",
+    "difficulty": "easy",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 290,
+    "category": "Łazienka i Higiena",
+    "task": "Zrób listę kosmetyków do kupienia",
+    "comment": "Teraz wiesz, czego naprawdę potrzebujesz. Nie kupuj więcej niż trzeba.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 291,
+    "category": "Garaż",
+    "task": "Zrób listę narzędzi do kupienia",
+    "comment": "Teraz wiesz, czego naprawdę potrzebujesz. Nie kupuj więcej niż trzeba.",
+    "difficulty": "easy",
+    "timeEstimate": 15,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 292,
+    "category": "Pomieszczenie Gospodarcze",
+    "task": "Zrób listę środków czystości do kupienia",
+    "comment": "Teraz wiesz, czego naprawdę potrzebujesz. Nie kupuj więcej niż trzeba.",
+    "difficulty": "easy",
+    "timeEstimate": 10,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 293,
+    "category": "Ubrania i Moda",
+    "task": "Zrób zdjęcia ubrań do oddania i wstaw na OLX",
+    "comment": "Ubrania mogą znaleźć nowych właścicieli. A Ty możesz zarobić.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 294,
+    "category": "Książki i Czasopisma",
+    "task": "Zrób zdjęcia książek do sprzedania i wstaw na OLX",
+    "comment": "Książki mogą znaleźć nowych czytelników. A Ty możesz zarobić.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 295,
+    "category": "Garaż",
+    "task": "Zrób zdjęcia narzędzi do sprzedania i wstaw na OLX",
+    "comment": "Narzędzia mogą znaleźć nowych właścicieli. A Ty możesz zarobić.",
+    "difficulty": "medium",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 296,
+    "category": "Ubrania i Moda",
+    "task": "Zawieź ubrania do PCK lub Caritasu",
+    "comment": "Ubrania mogą pomóc potrzebującym. Ty czujesz się lepiej.",
+    "difficulty": "medium",
+    "timeEstimate": 45,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 297,
+    "category": "Książki i Czasopisma",
+    "task": "Zawieź książki do biblioteki",
+    "comment": "Książki mogą znaleźć nowych czytelników. Biblioteka doceni.",
+    "difficulty": "medium",
+    "timeEstimate": 45,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 298,
+    "category": "Papiery i Dokumenty",
+    "task": "Zawieź stare dokumenty do recyklingu",
+    "comment": "Dokumenty mogą być przetworzone. Ziemia doceni.",
+    "difficulty": "easy",
+    "timeEstimate": 30,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 299,
+    "category": "Garaż",
+    "task": "Zawieź stary sprzęt elektroniczny do punktu zbiórki",
+    "comment": "Sprzęt elektroniczny powinien być recyklingowany. Nie wyrzucony.",
+    "difficulty": "medium",
+    "timeEstimate": 45,
+    "timeUnit": "minutes"
+  },
+  {
+    "id": 300,
+    "category": "Ubrania i Moda",
+    "task": "Świętuj! Udało Ci się przejść przez wszystkie 300 fiszek!",
+    "comment": "Gratulacje! Jesteś mistrzem declutteringu. Marie Kondo byłaby dumna. Teraz utrzymaj ten porządek!",
+    "difficulty": "easy",
+    "timeEstimate": 5,
+    "timeUnit": "minutes"
+  }
+]
