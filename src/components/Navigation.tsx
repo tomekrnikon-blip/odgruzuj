@@ -1,4 +1,4 @@
-import { Home, History, BarChart3, Settings, ListTodo } from "lucide-react";
+import { Home, History, BarChart3, Settings } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "./NotificationBell";
@@ -7,7 +7,6 @@ const navItems = [
   { to: "/", icon: Home, label: "Główna" },
   { to: "/history", icon: History, label: "Historia" },
   { to: "/stats", icon: BarChart3, label: "Statystyki" },
-  { to: "/my-tasks", icon: ListTodo, label: "Moje" },
   { to: "/settings", icon: Settings, label: "Ustawienia" },
 ];
 
