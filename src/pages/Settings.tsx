@@ -1,13 +1,14 @@
-import { useState } from "react";
-import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor, Crown, Loader2, ExternalLink } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useFlashcards } from "@/hooks/useFlashcards";
 import { useGameification } from "@/hooks/useGameification";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useSubscription } from "@/hooks/useSubscription";
 import { categories, categoryIcons, Category } from "@/data/flashcards";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-
 interface AppSettings {
   notificationsEnabled: boolean;
   notificationTime: string;
@@ -23,15 +24,63 @@ const defaultSettings: AppSettings = {
 };
 
 export default function Settings() {
+  const [searchParams] = useSearchParams();
   const { selectedCategories, setSelectedCategories, resetDailyProgress } =
     useFlashcards();
   const { resetStats } = useGameification();
   const { theme, setTheme } = useTheme();
+  const { subscribed, subscriptionEnd, isLoading: subscriptionLoading, startCheckout, openCustomerPortal, checkSubscription } = useSubscription();
   const [settings, setSettings] = useLocalStorage<AppSettings>(
     "odgruzuj_settings",
     defaultSettings
   );
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [isUpgrading, setIsUpgrading] = useState(false);
+
+  // Handle upgrade success/cancel from URL params
+  useEffect(() => {
+    const upgradeStatus = searchParams.get('upgrade');
+    if (upgradeStatus === 'success') {
+      toast({
+        title: "Sukces!",
+        description: "Twoja subskrypcja Pro została aktywowana.",
+      });
+      checkSubscription();
+    } else if (upgradeStatus === 'cancelled') {
+      toast({
+        title: "Anulowano",
+        description: "Proces płatności został anulowany.",
+        variant: "destructive",
+      });
+    }
+  }, [searchParams, checkSubscription]);
+
+  const handleUpgrade = async () => {
+    setIsUpgrading(true);
+    try {
+      await startCheckout();
+    } catch (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się rozpocząć procesu płatności.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpgrading(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    try {
+      await openCustomerPortal();
+    } catch (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się otworzyć portalu zarządzania subskrypcją.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const toggleCategory = (category: Category) => {
     if (selectedCategories.includes(category)) {
@@ -84,6 +133,79 @@ export default function Settings() {
       </header>
 
       <main className="max-w-lg mx-auto px-4 py-6 space-y-6">
+        {/* Subscription */}
+        <div className="card-elevated p-6 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 rounded-xl bg-primary/20">
+              <Crown className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h2 className="font-heading font-semibold">Plan Pro</h2>
+              <p className="text-sm text-muted-foreground">
+                {subscriptionLoading ? "Sprawdzanie..." : subscribed ? "Aktywna subskrypcja" : "49,90 zł/rok"}
+              </p>
+            </div>
+          </div>
+
+          {subscriptionLoading ? (
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          ) : subscribed ? (
+            <div className="space-y-4">
+              <div className="bg-primary/10 rounded-xl p-4">
+                <p className="text-sm font-medium text-primary">Status: Aktywna</p>
+                {subscriptionEnd && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Ważna do: {new Date(subscriptionEnd).toLocaleDateString('pl-PL')}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={handleManageSubscription}
+                className="w-full flex items-center justify-center gap-2 btn-secondary"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Zarządzaj subskrypcją
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-primary" />
+                  <span>Dostęp do wszystkich 300 fiszek</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-primary" />
+                  <span>Wszystkie kategorie zadań</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-primary" />
+                  <span>Synchronizacja między urządzeniami</span>
+                </li>
+              </ul>
+              <button
+                onClick={handleUpgrade}
+                disabled={isUpgrading}
+                className="w-full btn-primary flex items-center justify-center gap-2"
+              >
+                {isUpgrading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Przekierowanie...
+                  </>
+                ) : (
+                  <>
+                    <Crown className="w-4 h-4" />
+                    Ulepsz do Pro
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Theme */}
         <div className="card-elevated p-6">
           <h2 className="font-heading font-semibold mb-4">Motyw</h2>
