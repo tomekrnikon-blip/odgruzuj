@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor, Crown, Loader2, ExternalLink } from "lucide-react";
+import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor, Crown, Loader2, ExternalLink, Filter } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useFlashcards } from "@/hooks/useFlashcards";
+import { useFlashcardsFromDB, difficulties, difficultyLabels, difficultyIcons, DifficultyFilter } from "@/hooks/useFlashcardsFromDB";
 import { useGameification } from "@/hooks/useGameification";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useSubscription } from "@/hooks/useSubscription";
 import { categories, categoryIcons, Category } from "@/data/flashcards";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+
 interface AppSettings {
   notificationsEnabled: boolean;
   notificationTime: string;
@@ -25,8 +26,13 @@ const defaultSettings: AppSettings = {
 
 export default function Settings() {
   const [searchParams] = useSearchParams();
-  const { selectedCategories, setSelectedCategories, resetDailyProgress } =
-    useFlashcards();
+  const { 
+    selectedCategories, 
+    setSelectedCategories, 
+    selectedDifficulties,
+    setSelectedDifficulties,
+    resetDailyProgress 
+  } = useFlashcardsFromDB();
   const { resetStats } = useGameification();
   const { theme, setTheme } = useTheme();
   const { subscribed, subscriptionEnd, isLoading: subscriptionLoading, startCheckout, openCustomerPortal, checkSubscription } = useSubscription();
@@ -94,6 +100,21 @@ export default function Settings() {
       }
     } else {
       setSelectedCategories([...selectedCategories, category]);
+    }
+  };
+
+  const toggleDifficulty = (difficulty: DifficultyFilter) => {
+    if (selectedDifficulties.includes(difficulty)) {
+      if (selectedDifficulties.length > 1) {
+        setSelectedDifficulties(selectedDifficulties.filter((d) => d !== difficulty));
+      } else {
+        toast({
+          title: "Musisz wybrać przynajmniej jeden poziom trudności",
+          description: "Nie możesz odznaczyć wszystkich poziomów.",
+        });
+      }
+    } else {
+      setSelectedDifficulties([...selectedDifficulties, difficulty]);
     }
   };
 
@@ -259,6 +280,37 @@ export default function Settings() {
                 <span className="text-xl">{categoryIcons[category]}</span>
                 <span className="flex-1 text-left font-medium">{category}</span>
                 {selectedCategories.includes(category) && (
+                  <Check className="w-5 h-5 text-primary" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Difficulty */}
+        <div className="card-elevated p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Filter className="w-5 h-5 text-muted-foreground" />
+            <h2 className="font-heading font-semibold">Poziom trudności</h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Wybierz poziomy trudności fiszek
+          </p>
+          <div className="space-y-2">
+            {difficulties.map((difficulty) => (
+              <button
+                key={difficulty}
+                onClick={() => toggleDifficulty(difficulty)}
+                className={cn(
+                  "w-full flex items-center gap-3 p-3 rounded-xl transition-all",
+                  selectedDifficulties.includes(difficulty)
+                    ? "bg-primary/10 border-2 border-primary"
+                    : "bg-secondary border-2 border-transparent"
+                )}
+              >
+                <span className="text-xl">{difficultyIcons[difficulty]}</span>
+                <span className="flex-1 text-left font-medium">{difficultyLabels[difficulty]}</span>
+                {selectedDifficulties.includes(difficulty) && (
                   <Check className="w-5 h-5 text-primary" />
                 )}
               </button>

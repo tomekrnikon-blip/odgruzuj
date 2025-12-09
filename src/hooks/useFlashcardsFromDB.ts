@@ -1,7 +1,23 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocalStorage } from './useLocalStorage';
-import { Category, categories } from '@/data/flashcards';
+import { Category, categories, Difficulty } from '@/data/flashcards';
+
+export type DifficultyFilter = Difficulty;
+
+export const difficulties: DifficultyFilter[] = ['easy', 'medium', 'hard'];
+
+export const difficultyLabels: Record<DifficultyFilter, string> = {
+  easy: 'Łatwe',
+  medium: 'Średnie',
+  hard: 'Trudne',
+};
+
+export const difficultyIcons: Record<DifficultyFilter, string> = {
+  easy: '🌱',
+  medium: '🌿',
+  hard: '🌳',
+};
 
 export interface DBFlashcard {
   id: string;
@@ -19,9 +35,11 @@ interface UseFlashcardsFromDBReturn {
   currentFlashcard: DBFlashcard | null;
   isLoading: boolean;
   selectedCategories: Category[];
+  selectedDifficulties: DifficultyFilter[];
   completedTodayIds: string[];
   totalAvailable: number;
   setSelectedCategories: (categories: Category[]) => void;
+  setSelectedDifficulties: (difficulties: DifficultyFilter[]) => void;
   getNextFlashcard: () => void;
   skipFlashcard: () => void;
   markAsCompleted: (id: string) => void;
@@ -37,6 +55,10 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
   const [selectedCategories, setSelectedCategories] = useLocalStorage<Category[]>(
     "odgruzuj_categories",
     categories
+  );
+  const [selectedDifficulties, setSelectedDifficulties] = useLocalStorage<DifficultyFilter[]>(
+    "odgruzuj_difficulties",
+    difficulties
   );
   const [completedTodayIds, setCompletedTodayIds] = useLocalStorage<string[]>(
     "odgruzuj_completed_today_db",
@@ -92,15 +114,16 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
     fetchFlashcards();
   }, [fetchFlashcards]);
 
-  // Get available flashcards based on user's category selection
+  // Get available flashcards based on user's category and difficulty selection
   const getAvailableFlashcards = useCallback(() => {
     return flashcards.filter(
       (card) =>
         selectedCategories.includes(card.category as Category) &&
+        selectedDifficulties.includes(card.difficulty as DifficultyFilter) &&
         !completedTodayIds.includes(card.id) &&
         !skippedIds.includes(card.id)
     );
-  }, [flashcards, selectedCategories, completedTodayIds, skippedIds]);
+  }, [flashcards, selectedCategories, selectedDifficulties, completedTodayIds, skippedIds]);
 
   const getNextFlashcard = useCallback(() => {
     checkDailyReset();
@@ -113,6 +136,7 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
       available = flashcards.filter(
         (card) =>
           selectedCategories.includes(card.category as Category) &&
+          selectedDifficulties.includes(card.difficulty as DifficultyFilter) &&
           !completedTodayIds.includes(card.id)
       );
       
@@ -125,7 +149,7 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
     // Random selection
     const randomIndex = Math.floor(Math.random() * available.length);
     setCurrentFlashcard(available[randomIndex]);
-  }, [flashcards, selectedCategories, completedTodayIds, skippedIds, checkDailyReset, getAvailableFlashcards]);
+  }, [flashcards, selectedCategories, selectedDifficulties, completedTodayIds, skippedIds, checkDailyReset, getAvailableFlashcards]);
 
   const skipFlashcard = useCallback(() => {
     if (currentFlashcard) {
@@ -152,6 +176,7 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
       const available = flashcards.filter(
         (card) =>
           selectedCategories.includes(card.category as Category) &&
+          selectedDifficulties.includes(card.difficulty as DifficultyFilter) &&
           !completedTodayIds.includes(card.id)
       );
       if (available.length > 0) {
@@ -159,15 +184,17 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
         setCurrentFlashcard(available[randomIndex]);
       }
     }
-  }, [isLoading, flashcards, selectedCategories, completedTodayIds, currentFlashcard]);
+  }, [isLoading, flashcards, selectedCategories, selectedDifficulties, completedTodayIds, currentFlashcard]);
 
   return {
     currentFlashcard,
     isLoading,
     selectedCategories,
+    selectedDifficulties,
     completedTodayIds,
     totalAvailable: flashcards.length,
     setSelectedCategories,
+    setSelectedDifficulties,
     getNextFlashcard,
     skipFlashcard,
     markAsCompleted,
