@@ -1,26 +1,27 @@
 import { useState, useEffect } from "react";
-import { Plus, Check, SkipForward, Flame, Trophy, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Crown, Check, SkipForward, Flame, Trophy, Star } from "lucide-react";
 import { FlashCard } from "@/components/FlashCard";
 import { Timer } from "@/components/Timer";
-import { AddTaskModal } from "@/components/AddTaskModal";
 import { StatsCard } from "@/components/StatsCard";
 import { BadgeUnlockedModal } from "@/components/BadgeDisplay";
 import { useFlashcards } from "@/hooks/useFlashcards";
 import { useTimer } from "@/hooks/useTimer";
 import { useGameification, Badge } from "@/hooks/useGameification";
+import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const navigate = useNavigate();
   const [newBadge, setNewBadge] = useState<Badge | null>(null);
   const [startTime, setStartTime] = useState<number | null>(null);
+  const { subscribed } = useSubscription();
 
   const {
     currentFlashcard,
     completedTodayIds,
     getNextFlashcard,
     skipFlashcard,
-    addCustomFlashcard,
     markAsCompleted,
   } = useFlashcards();
 
@@ -102,12 +103,8 @@ export default function Dashboard() {
     skipFlashcard();
   };
 
-  const handleAddTask = (task: Parameters<typeof addCustomFlashcard>[0]) => {
-    addCustomFlashcard(task);
-    toast({
-      title: "Dodano zadanie!",
-      description: "Twoje zadanie zostało dodane do puli fiszek.",
-    });
+  const handleUpgrade = () => {
+    navigate('/settings?section=subscription');
   };
 
   const todayCount = getTodaysTasks().length;
@@ -124,13 +121,16 @@ export default function Dashboard() {
               Poziom {stats.level} • {stats.points} pkt
             </p>
           </div>
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="p-3 rounded-xl bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all active:scale-95"
-            aria-label="Dodaj zadanie"
-          >
-            <Plus className="w-5 h-5" />
-          </button>
+          {!subscribed && (
+            <button
+              onClick={handleUpgrade}
+              className="p-3 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg hover:opacity-90 transition-all active:scale-95 flex items-center gap-2"
+              aria-label="Ulepsz do Pro"
+            >
+              <Crown className="w-5 h-5" />
+              <span className="text-sm font-medium hidden sm:inline">Pro</span>
+            </button>
+          )}
         </div>
 
         {/* Level progress */}
@@ -217,25 +217,20 @@ export default function Dashboard() {
               Brawo! Wszystko zrobione!
             </h2>
             <p className="text-muted-foreground mb-4">
-              Na dziś nie ma więcej zadań. Wróć jutro lub dodaj własne!
+              Na dziś nie ma więcej zadań. Wróć jutro!
             </p>
-            <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="btn-primary"
-            >
-              <Plus className="w-5 h-5 inline mr-2" />
-              Dodaj zadanie
-            </button>
+            {!subscribed && (
+              <button
+                onClick={handleUpgrade}
+                className="btn-primary flex items-center justify-center gap-2"
+              >
+                <Crown className="w-5 h-5" />
+                Odblokuj więcej fiszek
+              </button>
+            )}
           </div>
         )}
       </main>
-
-      {/* Add task modal */}
-      <AddTaskModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAdd={handleAddTask}
-      />
 
       {/* Badge unlocked modal */}
       {newBadge && (
