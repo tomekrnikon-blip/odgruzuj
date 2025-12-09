@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Crown, Check, SkipForward, Flame, Trophy, Star } from "lucide-react";
+import { Crown, Check, SkipForward, Flame, Trophy, Star, Loader2 } from "lucide-react";
 import { FlashCard } from "@/components/FlashCard";
 import { Timer } from "@/components/Timer";
 import { StatsCard } from "@/components/StatsCard";
 import { BadgeUnlockedModal } from "@/components/BadgeDisplay";
-import { useFlashcards } from "@/hooks/useFlashcards";
+import { useFlashcardsFromDB } from "@/hooks/useFlashcardsFromDB";
 import { useTimer } from "@/hooks/useTimer";
 import { useGameification, Badge } from "@/hooks/useGameification";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -19,11 +19,13 @@ export default function Dashboard() {
 
   const {
     currentFlashcard,
+    isLoading,
     completedTodayIds,
+    totalAvailable,
     getNextFlashcard,
     skipFlashcard,
     markAsCompleted,
-  } = useFlashcards();
+  } = useFlashcardsFromDB();
 
   const { stats, completeTask, getTodaysTasks, getThisWeeksTasks, getLevelProgress } =
     useGameification();
@@ -52,7 +54,6 @@ export default function Dashboard() {
       });
     },
     onWarning: () => {
-      // Vibrate on warning
       if (navigator.vibrate) {
         navigator.vibrate(100);
       }
@@ -75,8 +76,21 @@ export default function Dashboard() {
     const timeSpent = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
     const completedInTime = isComplete || timeLeft <= 0;
 
+    // Adapt flashcard for gamification
+    const flashcardForGameification = {
+      id: parseInt(currentFlashcard.id.replace(/-/g, '').slice(0, 8), 16) || 1,
+      category: currentFlashcard.category as any,
+      task: currentFlashcard.task,
+      comment: currentFlashcard.comment,
+      difficulty: currentFlashcard.difficulty as any,
+      timeEstimate: currentFlashcard.timeEstimate,
+      timeUnit: currentFlashcard.timeUnit as any,
+      isTimedTask: currentFlashcard.isTimedTask,
+      isCustom: false,
+    };
+
     const { pointsEarned, newBadges } = completeTask(
-      currentFlashcard,
+      flashcardForGameification,
       timeSpent,
       completedInTime
     );
@@ -167,8 +181,20 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* Current flashcard */}
-        {currentFlashcard ? (
+        {/* Available flashcards info */}
+        {!subscribed && totalAvailable > 0 && (
+          <div className="text-center text-sm text-muted-foreground">
+            Dostępne fiszki: {totalAvailable}/300+
+          </div>
+        )}
+
+        {/* Loading state */}
+        {isLoading ? (
+          <div className="card-elevated p-8 flex flex-col items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
+            <p className="text-muted-foreground">Ładowanie fiszek...</p>
+          </div>
+        ) : currentFlashcard ? (
           <>
             <FlashCard flashcard={currentFlashcard} />
 
@@ -214,18 +240,21 @@ export default function Dashboard() {
               <Star className="w-8 h-8 text-success" />
             </div>
             <h2 className="text-xl font-heading font-semibold mb-2">
-              Brawo! Wszystko zrobione!
+              {totalAvailable === 0 ? "Brak fiszek" : "Brawo! Wszystko zrobione!"}
             </h2>
             <p className="text-muted-foreground mb-4">
-              Na dziś nie ma więcej zadań. Wróć jutro!
+              {totalAvailable === 0 
+                ? "Nie masz dostępnych fiszek w wybranych kategoriach."
+                : "Na dziś nie ma więcej zadań. Wróć jutro!"
+              }
             </p>
             {!subscribed && (
               <button
                 onClick={handleUpgrade}
-                className="btn-primary flex items-center justify-center gap-2"
+                className="btn-primary flex items-center justify-center gap-2 mx-auto"
               >
                 <Crown className="w-5 h-5" />
-                Odblokuj więcej fiszek
+                Odblokuj ponad 300 fiszek
               </button>
             )}
           </div>

@@ -174,11 +174,19 @@ export default function Settings() {
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-primary" />
-                  <span>Dostęp do wszystkich 300 fiszek</span>
+                  <span>Dostęp do ponad 300 fiszek</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-primary" />
+                  <span>Baza stale się powiększa!</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-primary" />
                   <span>Wszystkie kategorie zadań</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-primary" />
+                  <span>Losowe fiszki według Twoich ustawień</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-primary" />
