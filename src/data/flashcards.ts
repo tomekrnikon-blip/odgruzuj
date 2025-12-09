@@ -3,7 +3,9 @@ export type Category =
   | "Książki i Czasopisma" 
   | "Papiery i Dokumenty" 
   | "Kuchnia i Jedzenie" 
-  | "Łazienka i Higiena";
+  | "Łazienka i Higiena"
+  | "Garaż"
+  | "Pomieszczenie Gospodarcze";
 
 export type Difficulty = "easy" | "medium" | "hard";
 
@@ -25,6 +27,8 @@ export const categories: Category[] = [
   "Papiery i Dokumenty",
   "Kuchnia i Jedzenie",
   "Łazienka i Higiena",
+  "Garaż",
+  "Pomieszczenie Gospodarcze",
 ];
 
 export const categoryIcons: Record<Category, string> = {
@@ -33,6 +37,8 @@ export const categoryIcons: Record<Category, string> = {
   "Papiery i Dokumenty": "📄",
   "Kuchnia i Jedzenie": "🍳",
   "Łazienka i Higiena": "🧴",
+  "Garaż": "🔧",
+  "Pomieszczenie Gospodarcze": "🧹",
 };
 
 export const flashcards: Flashcard[] = [
