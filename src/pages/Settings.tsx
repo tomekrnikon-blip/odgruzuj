@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor, Crown, Loader2, ExternalLink, Filter, BellRing, BellOff } from "lucide-react";
+import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor, Crown, Loader2, ExternalLink, Filter, BellRing, BellOff, MessageCircle, Send } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
 import { useFlashcardsFromDB, difficulties, difficultyLabels, difficultyIcons, DifficultyFilter } from "@/hooks/useFlashcardsFromDB";
 import { useGameification } from "@/hooks/useGameification";
@@ -27,6 +29,7 @@ const defaultSettings: AppSettings = {
 
 export default function Settings() {
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
   const { 
     selectedCategories, 
     setSelectedCategories, 
@@ -43,6 +46,8 @@ export default function Settings() {
   );
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
+  const [supportMessage, setSupportMessage] = useState("");
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
   const { 
     isSupported: pushSupported, 
     isSubscribed: pushSubscribed, 
@@ -52,6 +57,37 @@ export default function Settings() {
     unsubscribe: unsubscribePush,
     updateNotificationTime 
   } = usePushNotifications();
+
+  const handleSendSupportMessage = async () => {
+    if (!supportMessage.trim() || !user) return;
+    
+    setIsSendingMessage(true);
+    try {
+      const { error } = await supabase
+        .from('support_messages')
+        .insert({
+          user_id: user.id,
+          user_email: user.email || '',
+          message: supportMessage.trim()
+        });
+      
+      if (error) throw error;
+      
+      setSupportMessage("");
+      toast({
+        title: "Wiadomość wysłana",
+        description: "Administrator otrzyma Twoją wiadomość.",
+      });
+    } catch (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się wysłać wiadomości. Spróbuj ponownie.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingMessage(false);
+    }
+  };
 
   // Handle upgrade success/cancel from URL params
   useEffect(() => {
@@ -520,6 +556,43 @@ export default function Settings() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Contact Admin */}
+        <div className="card-elevated p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <MessageCircle className="w-5 h-5 text-muted-foreground" />
+            <h2 className="font-heading font-semibold">Kontakt z administratorem</h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Masz pytanie lub sugestię? Napisz do nas!
+          </p>
+          <div className="space-y-3">
+            <textarea
+              value={supportMessage}
+              onChange={(e) => setSupportMessage(e.target.value)}
+              placeholder="Napisz swoją wiadomość..."
+              className="w-full min-h-[100px] px-4 py-3 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+              disabled={isSendingMessage}
+            />
+            <button
+              onClick={handleSendSupportMessage}
+              disabled={!supportMessage.trim() || isSendingMessage}
+              className="w-full btn-primary flex items-center justify-center gap-2"
+            >
+              {isSendingMessage ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Wysyłanie...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  Wyślij wiadomość
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* About */}
