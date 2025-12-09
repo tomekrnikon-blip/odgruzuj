@@ -2,6 +2,7 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { CategoryManager } from '@/components/admin/CategoryManager';
 import { FlashcardManager } from '@/components/admin/FlashcardManager';
 import { NotificationManager } from '@/components/admin/NotificationManager';
+import { UserManager } from '@/components/admin/UserManager';
 import { ShieldAlert, Loader2, ShieldCheck, Users, Crown } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -93,6 +94,9 @@ export default function Admin() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Users Section */}
+        <UserManager />
 
         {/* Notifications Section */}
         <NotificationManager />
