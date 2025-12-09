@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { Loader2, Mail, Lock } from 'lucide-react';
 import logo from '@/assets/logo.jpg';
@@ -24,6 +25,7 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
+  const [acceptedPolicy, setAcceptedPolicy] = useState(false);
 
   useEffect(() => {
     if (user && !authLoading) {
@@ -66,6 +68,12 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!acceptedPolicy) {
+      toast.error('Musisz zaakceptować politykę prywatności i RODO');
+      return;
+    }
+    
     if (!validateForm()) return;
     
     setIsLoading(true);
@@ -81,7 +89,7 @@ export default function Auth() {
       return;
     }
 
-    toast.success('Konto utworzone! Możesz się teraz zalogować.');
+    toast.success('Sprawdź swoją skrzynkę email i potwierdź rejestrację klikając w link.');
     setActiveTab('login');
   };
 
@@ -202,7 +210,33 @@ export default function Auth() {
                       />
                     </div>
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <div className="flex items-start space-x-3 py-2">
+                    <Checkbox
+                      id="accept-policy"
+                      checked={acceptedPolicy}
+                      onCheckedChange={(checked) => setAcceptedPolicy(checked === true)}
+                      disabled={isLoading}
+                    />
+                    <label
+                      htmlFor="accept-policy"
+                      className="text-sm text-muted-foreground leading-tight cursor-pointer"
+                    >
+                      Akceptuję{' '}
+                      <Link
+                        to="/privacy-policy"
+                        className="text-primary hover:underline"
+                        target="_blank"
+                      >
+                        Politykę Prywatności i RODO
+                      </Link>
+                      {' '}oraz wyrażam zgodę na przetwarzanie moich danych osobowych.
+                    </label>
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isLoading || !acceptedPolicy}
+                  >
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
