@@ -1,8 +1,9 @@
-import { Home, History, BarChart3, Settings, LogOut } from "lucide-react";
+import { Home, History, BarChart3, Settings, LogOut, ShieldCheck } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "./NotificationBell";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 import logo from "@/assets/logo.jpg";
 
 const navItems = [
@@ -14,12 +15,18 @@ const navItems = [
 
 export function Navigation() {
   const { signOut } = useAuth();
+  const { isAdmin } = useAdminAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     await signOut();
     navigate("/auth");
   };
+
+  // Build nav items dynamically based on admin status
+  const allNavItems = isAdmin 
+    ? [...navItems, { to: "/admin", icon: ShieldCheck, label: "Admin" }]
+    : navItems;
 
   return (
     <>
@@ -46,7 +53,7 @@ export function Navigation() {
       {/* Bottom navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-card/80 backdrop-blur-lg border-t border-border safe-area-pb z-40">
         <div className="flex items-center justify-around max-w-lg mx-auto px-2 py-2">
-          {navItems.map(({ to, icon: Icon, label }) => (
+          {allNavItems.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
