@@ -5,7 +5,9 @@ export type Category =
   | "Kuchnia i Jedzenie" 
   | "Łazienka i Higiena"
   | "Garaż"
-  | "Pomieszczenie Gospodarcze";
+  | "Pomieszczenie Gospodarcze"
+  | "Mam Dziecko"
+  | "Przestrzeń Biurowa";
 
 export type Difficulty = "easy" | "medium" | "hard";
 
@@ -29,6 +31,8 @@ export const categories: Category[] = [
   "Łazienka i Higiena",
   "Garaż",
   "Pomieszczenie Gospodarcze",
+  "Mam Dziecko",
+  "Przestrzeń Biurowa",
 ];
 
 export const categoryIcons: Record<Category, string> = {
@@ -39,6 +43,8 @@ export const categoryIcons: Record<Category, string> = {
   "Łazienka i Higiena": "🧴",
   "Garaż": "🔧",
   "Pomieszczenie Gospodarcze": "🧹",
+  "Mam Dziecko": "👶",
+  "Przestrzeń Biurowa": "💼",
 };
 
 export const flashcards: Flashcard[] = [
