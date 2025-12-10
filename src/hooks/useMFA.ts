@@ -61,21 +61,63 @@ export function useMFA() {
     try {
       setState(prev => ({ ...prev, isLoading: true }));
 
-      // First, unenroll any existing unverified factors
+      // First, check existing factors and unenroll ALL of them (including verified ones with same name)
       const { data: factors } = await supabase.auth.mfa.listFactors();
+      
+      // If already has a verified factor, user is already enrolled
+      const verifiedFactor = factors?.totp.find(f => f.status === 'verified');
+      if (verifiedFactor) {
+        setState(prev => ({ 
+          ...prev, 
+          isEnrolled: true,
+          factorId: verifiedFactor.id,
+          isLoading: false 
+        }));
+        toast.info('2FA jest już skonfigurowane. Aby zmienić, najpierw je wyłącz.');
+        return false;
+      }
+
+      // Unenroll any unverified factors
       for (const factor of factors?.totp || []) {
         if (factor.status !== 'verified') {
           await supabase.auth.mfa.unenroll({ factorId: factor.id });
         }
       }
 
+      // Generate unique friendly name to avoid conflicts
+      const timestamp = Date.now();
+      const friendlyName = `Authenticator App ${timestamp}`;
+
       // Enroll new factor
       const { data, error } = await supabase.auth.mfa.enroll({
         factorType: 'totp',
-        friendlyName: 'Authenticator App',
+        friendlyName,
       });
 
       if (error) {
+        // Handle name conflict by trying with different name
+        if (error.message.includes('factor_name_conflict')) {
+          const { data: retryData, error: retryError } = await supabase.auth.mfa.enroll({
+            factorType: 'totp',
+            friendlyName: `TOTP-${timestamp}`,
+          });
+          
+          if (retryError) {
+            toast.error('Błąd podczas konfiguracji 2FA: ' + retryError.message);
+            setState(prev => ({ ...prev, isLoading: false }));
+            return false;
+          }
+          
+          setState(prev => ({
+            ...prev,
+            factorId: retryData.id,
+            qrCode: retryData.totp.qr_code,
+            secret: retryData.totp.secret,
+            isLoading: false,
+          }));
+          return true;
+        }
+        
         toast.error('Błąd podczas konfiguracji 2FA: ' + error.message);
         setState(prev => ({ ...prev, isLoading: false }));
         return false;
