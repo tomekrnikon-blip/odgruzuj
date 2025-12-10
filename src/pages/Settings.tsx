@@ -572,9 +572,11 @@ export default function Settings() {
               value={supportMessage}
               onChange={(e) => setSupportMessage(e.target.value)}
               placeholder="Napisz swoją wiadomość..."
+              maxLength={2000}
               className="w-full min-h-[100px] px-4 py-3 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
               disabled={isSendingMessage}
             />
+            <p className="text-xs text-muted-foreground text-right">{supportMessage.length}/2000</p>
             <button
               onClick={handleSendSupportMessage}
               disabled={!supportMessage.trim() || isSendingMessage}
