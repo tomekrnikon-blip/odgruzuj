@@ -2,21 +2,20 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'pl.odgruzuj.app',
-  appName: 'odgruzuj.pl',
+  appName: 'odgruzuj',
   webDir: 'dist',
-  server: {
-    url: 'https://d07c6238-0cf3-4500-a6ea-0b013c9ca9e7.lovableproject.com?forceHideBadge=true',
-    cleartext: true
-  },
+  // Production config - no server URL, uses bundled files
   ios: {
     contentInset: 'automatic',
     backgroundColor: '#16a34a',
-    preferredContentMode: 'mobile'
+    preferredContentMode: 'mobile',
+    scheme: 'odgruzuj'
   },
   android: {
     backgroundColor: '#16a34a',
-    allowMixedContent: true,
-    captureInput: true
+    allowMixedContent: false,
+    captureInput: true,
+    useLegacyBridge: false
   },
   plugins: {
     PushNotifications: {
