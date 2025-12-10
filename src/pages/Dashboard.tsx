@@ -184,7 +184,7 @@ export default function Dashboard() {
         {/* Available flashcards info */}
         {!subscribed && totalAvailable > 0 && (
           <div className="text-center text-sm text-muted-foreground">
-            Dostępne fiszki: {totalAvailable}/300+
+            Dostępne fiszki: {totalAvailable}/500+
           </div>
         )}
 
