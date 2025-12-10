@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { cn } from '@/lib/utils';
+import { cn, maskEmail } from '@/lib/utils';
 
 interface Profile {
   id: string;
@@ -211,7 +211,7 @@ export function UserManager() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-medium text-foreground truncate">
-                            {user.display_name || user.email}
+                            {user.display_name || maskEmail(user.email)}
                           </p>
                           {getStatusBadge(user.subscription_status)}
                           {userIsAdmin && (
@@ -222,7 +222,7 @@ export function UserManager() {
                           )}
                         </div>
                         <p className="text-sm text-muted-foreground truncate">
-                          {user.email}
+                          {maskEmail(user.email)}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           Dołączył: {format(new Date(user.created_at), 'dd MMM yyyy', { locale: pl })}

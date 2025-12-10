@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, Mail, Trash2, Check, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+import { cn, maskEmail } from '@/lib/utils';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 
@@ -140,7 +140,7 @@ export function SupportMessagesManager() {
                         "font-medium truncate",
                         !message.is_read && "text-primary"
                       )}>
-                        {message.user_email}
+                        {maskEmail(message.user_email)}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {format(new Date(message.created_at), 'dd MMM yyyy, HH:mm', { locale: pl })}
