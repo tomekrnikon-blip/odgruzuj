@@ -1,9 +1,13 @@
+import { useState, useEffect } from 'react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { useMFA } from '@/hooks/useMFA';
 import { CategoryManager } from '@/components/admin/CategoryManager';
 import { FlashcardManager } from '@/components/admin/FlashcardManager';
 import { NotificationManager } from '@/components/admin/NotificationManager';
 import { UserManager } from '@/components/admin/UserManager';
 import { SupportMessagesManager } from '@/components/admin/SupportMessagesManager';
+import { MFASetup } from '@/components/admin/MFASetup';
+import { MFAVerification } from '@/components/admin/MFAVerification';
 import { ShieldAlert, Loader2, ShieldCheck, Users, Crown } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,6 +15,15 @@ import { Card, CardContent } from '@/components/ui/card';
 
 export default function Admin() {
   const { isAdmin, isLoading: authLoading } = useAdminAuth();
+  const { isEnrolled, isVerified, isLoading: mfaLoading, refreshStatus } = useMFA();
+  const [mfaVerified, setMfaVerified] = useState(false);
+
+  // Sync MFA verified state with hook
+  useEffect(() => {
+    if (isVerified) {
+      setMfaVerified(true);
+    }
+  }, [isVerified]);
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['admin-stats'],
@@ -25,10 +38,10 @@ export default function Admin() {
         proUsers: proResult.count ?? 0
       };
     },
-    enabled: isAdmin
+    enabled: isAdmin && (!isEnrolled || mfaVerified)
   });
 
-  if (authLoading) {
+  if (authLoading || mfaLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center pb-20">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -47,6 +60,18 @@ export default function Admin() {
           </p>
         </div>
       </div>
+    );
+  }
+
+  // If MFA is enrolled but not verified for this session, require verification
+  if (isEnrolled && !mfaVerified && !isVerified) {
+    return (
+      <MFAVerification 
+        onVerified={() => {
+          setMfaVerified(true);
+          refreshStatus();
+        }} 
+      />
     );
   }
 
@@ -94,6 +119,11 @@ export default function Admin() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Security - 2FA Section */}
+        <div className="mb-6">
+          <MFASetup />
         </div>
 
         {/* Support Messages Section */}
