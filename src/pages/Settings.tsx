@@ -241,7 +241,7 @@ export default function Settings() {
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-primary" />
-                  <span>Dostęp do ponad 300 fiszek</span>
+                  <span>Dostęp do ponad 500 fiszek</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-primary" />
