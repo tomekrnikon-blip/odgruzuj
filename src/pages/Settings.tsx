@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor, Crown, Loader2, ExternalLink, Filter, BellRing, BellOff, MessageCircle, Send } from "lucide-react";
+import { useSearchParams, Link } from "react-router-dom";
+import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor, Crown, Loader2, ExternalLink, Filter, BellRing, BellOff, MessageCircle, Send, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
@@ -593,6 +593,27 @@ export default function Settings() {
               )}
             </button>
           </div>
+        </div>
+
+        {/* Privacy Policy */}
+        <div className="card-elevated p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <FileText className="w-5 h-5 text-muted-foreground" />
+            <h2 className="font-heading font-semibold">Dokumenty prawne</h2>
+          </div>
+          <Link
+            to="/privacy-policy"
+            className="w-full flex items-center gap-3 p-3 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
+          >
+            <FileText className="w-5 h-5 text-muted-foreground" />
+            <div className="flex-1 text-left">
+              <p className="font-medium">Polityka prywatności i RODO</p>
+              <p className="text-sm text-muted-foreground">
+                Informacje o przetwarzaniu danych
+              </p>
+            </div>
+            <ExternalLink className="w-4 h-4 text-muted-foreground" />
+          </Link>
         </div>
 
         {/* About */}

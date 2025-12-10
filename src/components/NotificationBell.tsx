@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, Check, CheckCheck } from 'lucide-react';
+import { Bell, Check, CheckCheck, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -13,7 +13,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { pl } from 'date-fns/locale';
 
 export function NotificationBell() {
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, deleteAllNotifications } = useNotifications();
   const [open, setOpen] = useState(false);
 
   return (
@@ -31,17 +31,29 @@ export function NotificationBell() {
       <PopoverContent className="w-80 p-0" align="end">
         <div className="flex items-center justify-between p-4 border-b">
           <h3 className="font-semibold">Powiadomienia</h3>
-          {unreadCount > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={markAllAsRead}
-              className="text-xs h-7"
-            >
-              <CheckCheck className="h-3 w-3 mr-1" />
-              Oznacz wszystkie
-            </Button>
-          )}
+          <div className="flex gap-1">
+            {unreadCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={markAllAsRead}
+                className="text-xs h-7"
+              >
+                <CheckCheck className="h-3 w-3 mr-1" />
+                Przeczytane
+              </Button>
+            )}
+            {notifications.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={deleteAllNotifications}
+                className="text-xs h-7 text-destructive hover:text-destructive"
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
         </div>
         <ScrollArea className="h-[300px]">
           {notifications.length === 0 ? (
@@ -80,19 +92,32 @@ export function NotificationBell() {
                         })}
                       </p>
                     </div>
-                    {!notification.is_read && (
+                    <div className="flex gap-1 flex-shrink-0">
+                      {!notification.is_read && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            markAsRead(notification.user_notification_id);
+                          }}
+                        >
+                          <Check className="h-3 w-3" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 flex-shrink-0"
+                        className="h-6 w-6 text-destructive hover:text-destructive"
                         onClick={(e) => {
                           e.stopPropagation();
-                          markAsRead(notification.user_notification_id);
+                          deleteNotification(notification.user_notification_id);
                         }}
                       >
-                        <Check className="h-3 w-3" />
+                        <Trash2 className="h-3 w-3" />
                       </Button>
-                    )}
+                    </div>
                   </div>
                 </div>
               ))}
