@@ -1,7 +1,8 @@
-import { Home, History, BarChart3, Settings } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { Home, History, BarChart3, Settings, LogOut } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "./NotificationBell";
+import { useAuth } from "@/hooks/useAuth";
 import logo from "@/assets/logo.jpg";
 
 const navItems = [
@@ -12,6 +13,14 @@ const navItems = [
 ];
 
 export function Navigation() {
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/auth");
+  };
+
   return (
     <>
       {/* Top notification bar */}
@@ -21,7 +30,16 @@ export function Navigation() {
             <img src={logo} alt="odgruzuj.pl" className="w-8 h-8 rounded-lg" />
             <span className="font-heading font-bold text-foreground">odgruzuj.pl</span>
           </NavLink>
-          <NotificationBell />
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <button
+              onClick={handleLogout}
+              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              title="Wyloguj"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </div>
       
