@@ -8,15 +8,29 @@ import { UserManager } from '@/components/admin/UserManager';
 import { SupportMessagesManager } from '@/components/admin/SupportMessagesManager';
 import { MFASetup } from '@/components/admin/MFASetup';
 import { MFAVerification } from '@/components/admin/MFAVerification';
-import { ShieldAlert, Loader2, ShieldCheck, Users, Crown } from 'lucide-react';
+import { ShieldAlert, Loader2, ShieldCheck, Users, Crown, LogOut } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 export default function Admin() {
   const { isAdmin, isLoading: authLoading } = useAdminAuth();
   const { isEnrolled, isVerified, isLoading: mfaLoading, refreshStatus } = useMFA();
   const [mfaVerified, setMfaVerified] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error('Błąd podczas wylogowywania');
+    } else {
+      toast.success('Wylogowano pomyślnie');
+      navigate('/auth');
+    }
+  };
 
   // Sync MFA verified state with hook
   useEffect(() => {
@@ -80,11 +94,22 @@ export default function Admin() {
       <div className="max-w-2xl mx-auto px-4 py-6">
         {/* Header */}
         <header className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <ShieldCheck className="h-8 w-8 text-primary" />
-            <h1 className="font-heading text-3xl font-bold text-foreground">
-              Panel Administratora
-            </h1>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="h-8 w-8 text-primary" />
+              <h1 className="font-heading text-3xl font-bold text-foreground">
+                Panel Administratora
+              </h1>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleLogout}
+              className="gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Wyloguj
+            </Button>
           </div>
           <p className="text-muted-foreground">
             Zarządzaj kategoriami, fiszkami i powiadomieniami
