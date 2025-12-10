@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Users, Crown, Loader2, Search, ChevronDown } from 'lucide-react';
+import { Users, Crown, Loader2, Search, ChevronDown, Shield } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
@@ -19,6 +19,11 @@ interface Profile {
   subscription_status: 'free' | 'active' | 'cancelled' | 'expired';
   subscription_expires_at: string | null;
   created_at: string;
+}
+
+interface UserRole {
+  user_id: string;
+  role: 'admin' | 'moderator' | 'user';
 }
 
 export function UserManager() {
@@ -37,6 +42,18 @@ export function UserManager() {
 
       if (error) throw error;
       return data as Profile[];
+    }
+  });
+
+  const { data: userRoles } = useQuery({
+    queryKey: ['admin-user-roles'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (error) throw error;
+      return data as UserRole[];
     }
   });
 
@@ -80,6 +97,46 @@ export function UserManager() {
       });
     }
   });
+
+  const toggleAdminMutation = useMutation({
+    mutationFn: async ({ userId, isCurrentlyAdmin }: { userId: string; isCurrentlyAdmin: boolean }) => {
+      if (isCurrentlyAdmin) {
+        // Remove admin role
+        const { error } = await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', userId)
+          .eq('role', 'admin');
+
+        if (error) throw error;
+      } else {
+        // Add admin role
+        const { error } = await supabase
+          .from('user_roles')
+          .insert({ user_id: userId, role: 'admin' });
+
+        if (error) throw error;
+      }
+    },
+    onSuccess: (_, { isCurrentlyAdmin }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
+      toast({
+        title: 'Sukces',
+        description: isCurrentlyAdmin ? 'Usunięto uprawnienia administratora' : 'Nadano uprawnienia administratora',
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Błąd',
+        description: 'Nie udało się zmienić uprawnień',
+        variant: 'destructive',
+      });
+    }
+  });
+
+  const isUserAdmin = (userId: string) => {
+    return userRoles?.some(role => role.user_id === userId && role.role === 'admin') ?? false;
+  };
 
   const filteredUsers = users?.filter(user => 
     user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -144,52 +201,84 @@ export function UserManager() {
               </p>
             ) : (
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {filteredUsers?.map((user) => (
-                  <div
-                    key={user.id}
-                    className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium text-foreground truncate">
-                          {user.display_name || user.email}
+                {filteredUsers?.map((user) => {
+                  const userIsAdmin = isUserAdmin(user.user_id);
+                  return (
+                    <div
+                      key={user.id}
+                      className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-medium text-foreground truncate">
+                            {user.display_name || user.email}
+                          </p>
+                          {getStatusBadge(user.subscription_status)}
+                          {userIsAdmin && (
+                            <Badge className="bg-red-500/20 text-red-500 border-red-500/30">
+                              <Shield className="h-3 w-3 mr-1" />
+                              Admin
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground truncate">
+                          {user.email}
                         </p>
-                        {getStatusBadge(user.subscription_status)}
+                        <p className="text-xs text-muted-foreground">
+                          Dołączył: {format(new Date(user.created_at), 'dd MMM yyyy', { locale: pl })}
+                          {user.subscription_status === 'active' && user.subscription_expires_at && (
+                            <> • Pro do: {format(new Date(user.subscription_expires_at), 'dd MMM yyyy', { locale: pl })}</>
+                          )}
+                        </p>
                       </div>
-                      <p className="text-sm text-muted-foreground truncate">
-                        {user.email}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Dołączył: {format(new Date(user.created_at), 'dd MMM yyyy', { locale: pl })}
-                        {user.subscription_status === 'active' && user.subscription_expires_at && (
-                          <> • Pro do: {format(new Date(user.subscription_expires_at), 'dd MMM yyyy', { locale: pl })}</>
+                      <div className="flex gap-2 ml-4 flex-wrap">
+                        {userIsAdmin ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => toggleAdminMutation.mutate({ userId: user.user_id, isCurrentlyAdmin: true })}
+                            disabled={toggleAdminMutation.isPending}
+                            className="gap-1 border-red-500/30 text-red-500 hover:bg-red-500/10"
+                          >
+                            <Shield className="h-3 w-3" />
+                            Usuń Admin
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => toggleAdminMutation.mutate({ userId: user.user_id, isCurrentlyAdmin: false })}
+                            disabled={toggleAdminMutation.isPending}
+                            className="gap-1"
+                          >
+                            <Shield className="h-3 w-3" />
+                            Nadaj Admin
+                          </Button>
                         )}
-                      </p>
+                        {user.subscription_status === 'active' ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => updateStatusMutation.mutate({ userId: user.user_id, newStatus: 'free' })}
+                            disabled={updateStatusMutation.isPending}
+                          >
+                            Usuń Pro
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            onClick={() => updateStatusMutation.mutate({ userId: user.user_id, newStatus: 'active' })}
+                            disabled={updateStatusMutation.isPending}
+                            className="gap-1"
+                          >
+                            <Crown className="h-3 w-3" />
+                            Nadaj Pro
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex gap-2 ml-4">
-                      {user.subscription_status === 'active' ? (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => updateStatusMutation.mutate({ userId: user.user_id, newStatus: 'free' })}
-                          disabled={updateStatusMutation.isPending}
-                        >
-                          Usuń Pro
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          onClick={() => updateStatusMutation.mutate({ userId: user.user_id, newStatus: 'active' })}
-                          disabled={updateStatusMutation.isPending}
-                          className="gap-1"
-                        >
-                          <Crown className="h-3 w-3" />
-                          Nadaj Pro
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
