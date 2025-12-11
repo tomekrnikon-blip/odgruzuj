@@ -704,25 +704,40 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Privacy Policy */}
+        {/* Legal Documents */}
         <div className="card-elevated p-6">
           <div className="flex items-center gap-3 mb-4">
             <FileText className="w-5 h-5 text-muted-foreground" />
             <h2 className="font-heading font-semibold">Dokumenty prawne</h2>
           </div>
-          <Link
-            to="/privacy-policy"
-            className="w-full flex items-center gap-3 p-3 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
-          >
-            <FileText className="w-5 h-5 text-muted-foreground" />
-            <div className="flex-1 text-left">
-              <p className="font-medium">Polityka prywatności i RODO</p>
-              <p className="text-sm text-muted-foreground">
-                Informacje o przetwarzaniu danych
-              </p>
-            </div>
-            <ExternalLink className="w-4 h-4 text-muted-foreground" />
-          </Link>
+          <div className="space-y-2">
+            <Link
+              to="/privacy-policy"
+              className="w-full flex items-center gap-3 p-3 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
+            >
+              <FileText className="w-5 h-5 text-muted-foreground" />
+              <div className="flex-1 text-left">
+                <p className="font-medium">Polityka prywatności i RODO</p>
+                <p className="text-sm text-muted-foreground">
+                  Informacje o przetwarzaniu danych
+                </p>
+              </div>
+              <ExternalLink className="w-4 h-4 text-muted-foreground" />
+            </Link>
+            <Link
+              to="/terms"
+              className="w-full flex items-center gap-3 p-3 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
+            >
+              <FileText className="w-5 h-5 text-muted-foreground" />
+              <div className="flex-1 text-left">
+                <p className="font-medium">Regulamin użytkowania</p>
+                <p className="text-sm text-muted-foreground">
+                  Zasady korzystania z aplikacji
+                </p>
+              </div>
+              <ExternalLink className="w-4 h-4 text-muted-foreground" />
+            </Link>
+          </div>
         </div>
 
         {/* About */}
