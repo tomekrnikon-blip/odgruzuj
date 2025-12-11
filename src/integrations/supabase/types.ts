@@ -455,6 +455,18 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_push_subscriptions_decrypted_service: {
+        Args: never
+        Returns: {
+          auth: string
+          endpoint: string
+          id: string
+          is_active: boolean
+          notification_time: string
+          p256dh: string
+          user_id: string
+        }[]
+      }
       get_support_messages_for_admin: {
         Args: never
         Returns: {
