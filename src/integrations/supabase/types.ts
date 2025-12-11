@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_activity_logs: {
+        Row: {
+          action_type: string
+          admin_user_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: string | null
+          target_id: string | null
+          target_table: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_user_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          target_id?: string | null
+          target_table?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_user_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          target_id?: string | null
+          target_table?: string | null
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -422,6 +455,17 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_support_messages_for_admin: {
+        Args: never
+        Returns: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          user_email: string
+          user_id: string
+        }[]
+      }
       get_user_email_for_admin: {
         Args: { target_user_id: string }
         Returns: string
@@ -434,6 +478,16 @@ export type Database = {
         Returns: boolean
       }
       is_premium: { Args: { _user_id: string }; Returns: boolean }
+      log_admin_activity: {
+        Args: {
+          p_action_type: string
+          p_admin_user_id: string
+          p_details?: Json
+          p_target_id?: string
+          p_target_table?: string
+        }
+        Returns: undefined
+      }
       mask_email: { Args: { email: string }; Returns: string }
     }
     Enums: {

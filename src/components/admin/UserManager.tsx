@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -28,6 +29,7 @@ interface UserRole {
 }
 
 export function UserManager() {
+  const { user: currentUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
@@ -83,6 +85,17 @@ export function UserManager() {
         .eq('user_id', userId);
 
       if (error) throw error;
+
+      // Log admin activity
+      if (currentUser?.id) {
+        await supabase.rpc('log_admin_activity', {
+          p_admin_user_id: currentUser.id,
+          p_action_type: newStatus === 'active' ? 'grant_pro_subscription' : 'revoke_pro_subscription',
+          p_target_table: 'profiles',
+          p_target_id: userId,
+          p_details: { new_status: newStatus }
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
@@ -119,6 +132,17 @@ export function UserManager() {
           .insert({ user_id: userId, role: 'admin' });
 
         if (error) throw error;
+      }
+
+      // Log admin activity
+      if (currentUser?.id) {
+        await supabase.rpc('log_admin_activity', {
+          p_admin_user_id: currentUser.id,
+          p_action_type: isCurrentlyAdmin ? 'revoke_admin_role' : 'grant_admin_role',
+          p_target_table: 'user_roles',
+          p_target_id: userId,
+          p_details: null
+        });
       }
     },
     onSuccess: (_, { isCurrentlyAdmin }) => {

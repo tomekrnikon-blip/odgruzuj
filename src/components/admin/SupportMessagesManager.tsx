@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, Mail, Trash2, Check, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
@@ -19,19 +20,19 @@ interface SupportMessage {
 }
 
 export function SupportMessagesManager() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const { data: messages = [], isLoading } = useQuery({
     queryKey: ['support-messages'],
     queryFn: async () => {
+      // Use secure RPC function that handles email decryption server-side
       const { data, error } = await supabase
-        .from('support_messages')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .rpc('get_support_messages_for_admin');
       
       if (error) throw error;
-      return data as SupportMessage[];
+      return (data || []) as SupportMessage[];
     }
   });
 
@@ -57,6 +58,17 @@ export function SupportMessagesManager() {
         .eq('id', id);
       
       if (error) throw error;
+      
+      // Log admin activity
+      if (user?.id) {
+        await supabase.rpc('log_admin_activity', {
+          p_admin_user_id: user.id,
+          p_action_type: 'delete_support_message',
+          p_target_table: 'support_messages',
+          p_target_id: id,
+          p_details: null
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['support-messages'] });
