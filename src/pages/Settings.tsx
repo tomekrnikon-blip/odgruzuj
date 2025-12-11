@@ -46,6 +46,7 @@ export default function Settings() {
   );
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('yearly');
   const [supportMessage, setSupportMessage] = useState("");
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const { 
@@ -110,7 +111,7 @@ export default function Settings() {
   const handleUpgrade = async () => {
     setIsUpgrading(true);
     try {
-      await startCheckout();
+      await startCheckout(selectedPlan);
     } catch (error) {
       toast({
         title: "Błąd",
@@ -260,6 +261,40 @@ export default function Settings() {
                   <span>Synchronizacja między urządzeniami</span>
                 </li>
               </ul>
+
+              {/* Plan selection */}
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => setSelectedPlan('monthly')}
+                  className={cn(
+                    "p-4 rounded-xl border-2 transition-all text-left",
+                    selectedPlan === 'monthly'
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-secondary hover:border-primary/50"
+                  )}
+                >
+                  <p className="font-semibold">Miesięcznie</p>
+                  <p className="text-lg font-bold text-primary">9,90 zł</p>
+                  <p className="text-xs text-muted-foreground">/miesiąc</p>
+                </button>
+                <button
+                  onClick={() => setSelectedPlan('yearly')}
+                  className={cn(
+                    "p-4 rounded-xl border-2 transition-all text-left relative",
+                    selectedPlan === 'yearly'
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-secondary hover:border-primary/50"
+                  )}
+                >
+                  <span className="absolute -top-2 right-2 px-2 py-0.5 bg-primary text-primary-foreground text-xs font-semibold rounded-full">
+                    -58%
+                  </span>
+                  <p className="font-semibold">Rocznie</p>
+                  <p className="text-lg font-bold text-primary">49,90 zł</p>
+                  <p className="text-xs text-muted-foreground">/rok (~4,16 zł/mies.)</p>
+                </button>
+              </div>
+
               <button
                 onClick={handleUpgrade}
                 disabled={isUpgrading}
@@ -273,7 +308,7 @@ export default function Settings() {
                 ) : (
                   <>
                     <Crown className="w-4 h-4" />
-                    Ulepsz do Pro
+                    Ulepsz do Pro - {selectedPlan === 'monthly' ? '9,90 zł/mies.' : '49,90 zł/rok'}
                   </>
                 )}
               </button>
