@@ -31,10 +31,9 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const vapidPublicKey = Deno.env.get("VAPID_PUBLIC_KEY");
-    const vapidPrivateKey = Deno.env.get("VAPID_PRIVATE_KEY");
 
-    if (!vapidPublicKey || !vapidPrivateKey) {
-      logStep("ERROR: VAPID keys not configured");
+    if (!vapidPublicKey) {
+      logStep("ERROR: VAPID public key not configured");
       return new Response(
         JSON.stringify({ error: "VAPID keys not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -145,7 +144,14 @@ const handler = async (req: Request): Promise<Response> => {
       filteredSubs = filteredSubs.filter(sub => sub.user_id === targetUserId);
     }
 
-    logStep("Found subscriptions", { count: filteredSubs.length });
+    logStep("Found active subscriptions", { 
+      count: filteredSubs.length,
+      decrypted: filteredSubs.map(s => ({
+        hasEndpoint: !!s.endpoint,
+        hasAuth: !!s.auth && s.auth.length > 10,
+        hasP256dh: !!s.p256dh && s.p256dh.length > 10
+      }))
+    });
 
     if (filteredSubs.length === 0) {
       return new Response(
@@ -167,31 +173,36 @@ const handler = async (req: Request): Promise<Response> => {
     for (const sub of filteredSubs) {
       try {
         logStep("Sending to subscription", { 
-          endpoint: sub.endpoint.substring(0, 50) + "...",
-          hasAuth: !!sub.auth,
-          hasP256dh: !!sub.p256dh
+          endpoint: sub.endpoint.substring(0, 60) + "...",
+          authLength: sub.auth?.length || 0,
+          p256dhLength: sub.p256dh?.length || 0
         });
 
-        // Simple push notification - for full Web Push we'd need web-push library
-        // This is a simplified version that works with some endpoints
+        // Send push notification with VAPID public key header
         const response = await fetch(sub.endpoint, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "TTL": "86400",
+            "Urgency": "normal",
+            "Crypto-Key": `p256ecdsa=${vapidPublicKey}`,
           },
           body: payload,
         });
 
         if (response.ok || response.status === 201) {
           successCount++;
-          logStep("Push sent successfully", { endpoint: sub.endpoint.substring(0, 30) });
+          logStep("Push sent successfully", { 
+            endpoint: sub.endpoint.substring(0, 30),
+            status: response.status 
+          });
         } else {
           const responseText = await response.text();
           logStep("Push failed", { 
             status: response.status, 
-            endpoint: sub.endpoint.substring(0, 30),
-            response: responseText.substring(0, 100)
+            statusText: response.statusText,
+            endpoint: sub.endpoint.substring(0, 40),
+            response: responseText.substring(0, 300)
           });
           failCount++;
           
