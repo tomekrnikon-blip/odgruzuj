@@ -16,12 +16,14 @@ interface BeforeInstallPromptEvent extends Event {
 interface InstallConsents {
   acceptedPrivacy: boolean;
   acceptedTerms: boolean;
+  confirmed: boolean;
   acceptedAt: string | null;
 }
 
 const defaultConsents: InstallConsents = {
   acceptedPrivacy: false,
   acceptedTerms: false,
+  confirmed: false,
   acceptedAt: null,
 };
 
@@ -33,13 +35,14 @@ export default function Install() {
   const [isStandalone, setIsStandalone] = useState(false);
   const [consents, setConsents] = useLocalStorage<InstallConsents>("odgruzuj_install_consents", defaultConsents);
 
-  const allConsentsAccepted = consents.acceptedPrivacy && consents.acceptedTerms;
+  const allCheckboxesChecked = consents.acceptedPrivacy && consents.acceptedTerms;
+  const consentsConfirmed = allCheckboxesChecked && consents.confirmed;
 
   const handlePrivacyChange = (checked: boolean) => {
     setConsents(prev => ({
       ...prev,
       acceptedPrivacy: checked,
-      acceptedAt: checked && prev.acceptedTerms ? new Date().toISOString() : prev.acceptedAt,
+      confirmed: false, // Reset confirmation when checkbox changes
     }));
   };
 
@@ -47,8 +50,18 @@ export default function Install() {
     setConsents(prev => ({
       ...prev,
       acceptedTerms: checked,
-      acceptedAt: prev.acceptedPrivacy && checked ? new Date().toISOString() : prev.acceptedAt,
+      confirmed: false, // Reset confirmation when checkbox changes
     }));
+  };
+
+  const handleConfirmConsents = () => {
+    if (allCheckboxesChecked) {
+      setConsents(prev => ({
+        ...prev,
+        confirmed: true,
+        acceptedAt: new Date().toISOString(),
+      }));
+    }
   };
 
   useEffect(() => {
@@ -176,22 +189,36 @@ export default function Install() {
                 aplikacji odgruzuj.pl.
               </label>
             </div>
-            {!allConsentsAccepted && (
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <FileText className="h-3 w-3" />
-                Zaakceptuj powyższe zgody, aby kontynuować instalację
-              </p>
+            {!consentsConfirmed && (
+              <>
+                {!allCheckboxesChecked && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <FileText className="h-3 w-3" />
+                    Zaznacz powyższe zgody, aby kontynuować
+                  </p>
+                )}
+                <Button
+                  onClick={handleConfirmConsents}
+                  disabled={!allCheckboxesChecked}
+                  className="w-full gap-2"
+                  size="lg"
+                >
+                  <Check className="h-5 w-5" />
+                  Potwierdzam i akceptuję
+                </Button>
+              </>
             )}
-            {consents.acceptedAt && (
-              <p className="text-xs text-muted-foreground">
-                ✓ Zgody zaakceptowane: {new Date(consents.acceptedAt).toLocaleDateString('pl-PL')}
+            {consents.acceptedAt && consentsConfirmed && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <Check className="h-3 w-3 text-primary" />
+                Zgody zaakceptowane: {new Date(consents.acceptedAt).toLocaleDateString('pl-PL')}
               </p>
             )}
           </CardContent>
         </Card>
 
-        {/* Installation section - only visible after accepting consents */}
-        {allConsentsAccepted ? (
+        {/* Installation section - only visible after confirming consents */}
+        {consentsConfirmed ? (
           <>
             {/* Install Button for Android/Chrome */}
             {deferredPrompt && (
