@@ -78,14 +78,28 @@ serve(async (req) => {
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
       
-      // Safely convert subscription end date
-      if (subscription.current_period_end && typeof subscription.current_period_end === 'number') {
-        try {
-          subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-        } catch (dateError) {
-          logStep("Error parsing subscription end date", { current_period_end: subscription.current_period_end });
-          subscriptionEnd = null;
+      // Log raw subscription data for debugging
+      logStep("Raw subscription data", { 
+        subscriptionId: subscription.id,
+        current_period_end: subscription.current_period_end,
+        current_period_end_type: typeof subscription.current_period_end
+      });
+      
+      // Handle current_period_end - Stripe returns it as a Unix timestamp (number)
+      try {
+        const periodEnd = subscription.current_period_end;
+        if (periodEnd) {
+          // Stripe returns Unix timestamp in seconds
+          const timestamp = typeof periodEnd === 'number' ? periodEnd : Number(periodEnd);
+          if (!isNaN(timestamp) && timestamp > 0) {
+            subscriptionEnd = new Date(timestamp * 1000).toISOString();
+          }
         }
+      } catch (dateError) {
+        logStep("Error parsing subscription end date", { 
+          error: dateError instanceof Error ? dateError.message : String(dateError),
+          current_period_end: subscription.current_period_end 
+        });
       }
       
       logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
