@@ -234,16 +234,18 @@ export function UserManager() {
                       </div>
                       <div className="flex gap-2 ml-4 flex-wrap">
                         {userIsAdmin ? (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => toggleAdminMutation.mutate({ userId: user.user_id, isCurrentlyAdmin: true })}
-                            disabled={toggleAdminMutation.isPending}
-                            className="gap-1 border-red-500/30 text-red-500 hover:bg-red-500/10"
-                          >
-                            <Shield className="h-3 w-3" />
-                            Usuń Admin
-                          </Button>
+                          user.user_number !== 1 && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => toggleAdminMutation.mutate({ userId: user.user_id, isCurrentlyAdmin: true })}
+                              disabled={toggleAdminMutation.isPending}
+                              className="gap-1 border-red-500/30 text-red-500 hover:bg-red-500/10"
+                            >
+                              <Shield className="h-3 w-3" />
+                              Usuń Admin
+                            </Button>
+                          )
                         ) : (
                           <Button
                             size="sm"
