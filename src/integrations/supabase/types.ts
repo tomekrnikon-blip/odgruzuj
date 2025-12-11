@@ -378,7 +378,42 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      push_subscriptions_safe: {
+        Row: {
+          auth: string | null
+          created_at: string | null
+          endpoint: string | null
+          id: string | null
+          is_active: boolean | null
+          notification_time: string | null
+          p256dh: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          auth?: never
+          created_at?: string | null
+          endpoint?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          notification_time?: string | null
+          p256dh?: never
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          auth?: never
+          created_at?: string | null
+          endpoint?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          notification_time?: string | null
+          p256dh?: never
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       decrypt_email: { Args: { encrypted_email: string }; Returns: string }
