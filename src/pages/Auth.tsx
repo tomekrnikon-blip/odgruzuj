@@ -25,7 +25,10 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
-  const [acceptedPolicy, setAcceptedPolicy] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  const allConsentsAccepted = acceptedPrivacy && acceptedTerms;
 
   useEffect(() => {
     if (user && !authLoading) {
@@ -69,8 +72,8 @@ export default function Auth() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!acceptedPolicy) {
-      toast.error('Musisz zaakceptować politykę prywatności i RODO');
+    if (!allConsentsAccepted) {
+      toast.error('Musisz zaakceptować politykę prywatności, RODO oraz regulamin');
       return;
     }
     
@@ -210,32 +213,56 @@ export default function Auth() {
                       />
                     </div>
                   </div>
-                  <div className="flex items-start space-x-3 py-2">
-                    <Checkbox
-                      id="accept-policy"
-                      checked={acceptedPolicy}
-                      onCheckedChange={(checked) => setAcceptedPolicy(checked === true)}
-                      disabled={isLoading}
-                    />
-                    <label
-                      htmlFor="accept-policy"
-                      className="text-sm text-muted-foreground leading-tight cursor-pointer"
-                    >
-                      Akceptuję{' '}
-                      <Link
-                        to="/privacy-policy"
-                        className="text-primary hover:underline"
-                        target="_blank"
+                  <div className="space-y-3 py-2">
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="accept-privacy"
+                        checked={acceptedPrivacy}
+                        onCheckedChange={(checked) => setAcceptedPrivacy(checked === true)}
+                        disabled={isLoading}
+                      />
+                      <label
+                        htmlFor="accept-privacy"
+                        className="text-sm text-muted-foreground leading-tight cursor-pointer"
                       >
-                        Politykę Prywatności i RODO
-                      </Link>
-                      {' '}oraz wyrażam zgodę na przetwarzanie moich danych osobowych.
-                    </label>
+                        Akceptuję{' '}
+                        <Link
+                          to="/privacy-policy"
+                          className="text-primary hover:underline"
+                          target="_blank"
+                        >
+                          Politykę Prywatności i RODO
+                        </Link>
+                        {' '}oraz wyrażam zgodę na przetwarzanie moich danych osobowych.
+                      </label>
+                    </div>
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="accept-terms"
+                        checked={acceptedTerms}
+                        onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                        disabled={isLoading}
+                      />
+                      <label
+                        htmlFor="accept-terms"
+                        className="text-sm text-muted-foreground leading-tight cursor-pointer"
+                      >
+                        Akceptuję{' '}
+                        <Link
+                          to="/terms"
+                          className="text-primary hover:underline"
+                          target="_blank"
+                        >
+                          Regulamin
+                        </Link>
+                        {' '}użytkowania aplikacji.
+                      </label>
+                    </div>
                   </div>
                   <Button 
                     type="submit" 
                     className="w-full" 
-                    disabled={isLoading || !acceptedPolicy}
+                    disabled={isLoading || !allConsentsAccepted}
                   >
                     {isLoading ? (
                       <>
