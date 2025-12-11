@@ -213,6 +213,16 @@ export default function Dashboard() {
                   formatTime={formatTime}
                   totalTime={timerDuration}
                 />
+                <button
+                  onClick={() => {
+                    reset();
+                    setStartTime(null);
+                    getNextFlashcard();
+                  }}
+                  className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
+                >
+                  pomiń
+                </button>
               </div>
             )}
 
