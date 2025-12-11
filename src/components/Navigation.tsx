@@ -33,7 +33,7 @@ export function Navigation() {
   return (
     <>
       {/* Top notification bar */}
-      <div className="fixed top-0 left-0 right-0 bg-card/80 backdrop-blur-lg border-b border-border z-40">
+      <div className="fixed top-0 left-0 right-0 bg-card/80 backdrop-blur-lg border-b border-border z-40 safe-area-pt">
         <div className="flex items-center justify-between max-w-lg mx-auto px-4 py-2">
           <NavLink to="/" className="flex items-center gap-2">
             <img src={logo} alt="odgruzuj.pl" className="w-8 h-8 rounded-lg" />

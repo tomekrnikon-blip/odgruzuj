@@ -65,7 +65,7 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24 pt-14">
+    <div className="min-h-screen bg-background pb-24 pt-nav">
       <div className="max-w-2xl mx-auto px-4 py-6">
         {/* Header */}
         <header className="mb-8">
