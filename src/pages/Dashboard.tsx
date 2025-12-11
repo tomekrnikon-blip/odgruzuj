@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Crown, Check, SkipForward, Flame, Trophy, Star, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -119,16 +119,6 @@ export default function Dashboard() {
     skipFlashcard();
   };
 
-  // Silent skip (no stats impact) with animation
-  const handleSilentSkip = useCallback(() => {
-    setIsTransitioning(true);
-    reset();
-    setStartTime(null);
-    setTimeout(() => {
-      getNextFlashcard();
-      setIsTransitioning(false);
-    }, 200);
-  }, [reset, getNextFlashcard]);
 
   const handleUpgrade = () => {
     navigate('/settings?section=subscription');
@@ -226,7 +216,6 @@ export default function Dashboard() {
                   onStart={start}
                   onPause={pause}
                   onReset={reset}
-                  onSkip={handleSilentSkip}
                   formatTime={formatTime}
                   totalTime={timerDuration}
                 />
