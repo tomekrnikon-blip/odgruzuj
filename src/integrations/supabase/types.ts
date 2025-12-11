@@ -407,6 +407,7 @@ export type Database = {
           subscription_status: Database["public"]["Enums"]["subscription_status"]
           updated_at: string
           user_id: string
+          user_number: number
         }[]
       }
       get_push_subscriptions_decrypted: {
