@@ -6,12 +6,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Bell, Send, Loader2 } from 'lucide-react';
+import { Bell, Send, Loader2, Smartphone } from 'lucide-react';
 
 export function NotificationManager() {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [isSendingPush, setIsSendingPush] = useState(false);
 
   const handleSendNotification = async () => {
     if (!title.trim() || !message.trim()) {
@@ -41,6 +42,39 @@ export function NotificationManager() {
       toast.error('Błąd podczas wysyłania powiadomienia');
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handleTestPushNotification = async () => {
+    setIsSendingPush(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        toast.error('Brak autoryzacji - zaloguj się ponownie');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('send-push-notification', {
+        body: {
+          title: 'Test powiadomienia push',
+          body: 'To jest testowe powiadomienie z panelu admina 🔔',
+          sendToAll: true
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.sent > 0) {
+        toast.success(`Push wysłany do ${data.sent} urządzeń!`);
+      } else {
+        toast.info('Brak aktywnych subskrypcji push');
+      }
+    } catch (error: any) {
+      console.error('Error sending push notification:', error);
+      toast.error(`Błąd push: ${error.message || 'Nieznany błąd'}`);
+    } finally {
+      setIsSendingPush(false);
     }
   };
 
@@ -74,23 +108,42 @@ export function NotificationManager() {
             disabled={isSending}
           />
         </div>
-        <Button 
-          onClick={handleSendNotification} 
-          disabled={isSending || !title.trim() || !message.trim()}
-          className="w-full"
-        >
-          {isSending ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Wysyłanie...
-            </>
-          ) : (
-            <>
-              <Send className="h-4 w-4 mr-2" />
-              Wyślij do wszystkich użytkowników
-            </>
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={handleSendNotification} 
+            disabled={isSending || !title.trim() || !message.trim()}
+            className="flex-1"
+          >
+            {isSending ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Wysyłanie...
+              </>
+            ) : (
+              <>
+                <Send className="h-4 w-4 mr-2" />
+                Wyślij in-app
+              </>
+            )}
+          </Button>
+          <Button 
+            onClick={handleTestPushNotification} 
+            disabled={isSendingPush}
+            variant="outline"
+          >
+            {isSendingPush ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Test...
+              </>
+            ) : (
+              <>
+                <Smartphone className="h-4 w-4 mr-2" />
+                Test Push
+              </>
+            )}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
