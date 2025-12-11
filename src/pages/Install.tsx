@@ -5,11 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import logo from "@/assets/logo.jpg";
+
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
+
+interface InstallConsents {
+  acceptedPrivacy: boolean;
+  acceptedTerms: boolean;
+  acceptedAt: string | null;
+}
+
+const defaultConsents: InstallConsents = {
+  acceptedPrivacy: false,
+  acceptedTerms: false,
+  acceptedAt: null,
+};
 
 export default function Install() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
@@ -17,10 +31,25 @@ export default function Install() {
   const [isIOS, setIsIOS] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
-  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [consents, setConsents] = useLocalStorage<InstallConsents>("odgruzuj_install_consents", defaultConsents);
 
-  const allConsentsAccepted = acceptedPrivacy && acceptedTerms;
+  const allConsentsAccepted = consents.acceptedPrivacy && consents.acceptedTerms;
+
+  const handlePrivacyChange = (checked: boolean) => {
+    setConsents(prev => ({
+      ...prev,
+      acceptedPrivacy: checked,
+      acceptedAt: checked && prev.acceptedTerms ? new Date().toISOString() : prev.acceptedAt,
+    }));
+  };
+
+  const handleTermsChange = (checked: boolean) => {
+    setConsents(prev => ({
+      ...prev,
+      acceptedTerms: checked,
+      acceptedAt: prev.acceptedPrivacy && checked ? new Date().toISOString() : prev.acceptedAt,
+    }));
+  };
 
   useEffect(() => {
     // Check if already installed
@@ -120,8 +149,8 @@ export default function Install() {
             <div className="flex items-start gap-3">
               <Checkbox
                 id="privacy"
-                checked={acceptedPrivacy}
-                onCheckedChange={(checked) => setAcceptedPrivacy(checked === true)}
+                checked={consents.acceptedPrivacy}
+                onCheckedChange={(checked) => handlePrivacyChange(checked === true)}
                 className="mt-0.5"
               />
               <label htmlFor="privacy" className="text-sm cursor-pointer">
@@ -135,13 +164,13 @@ export default function Install() {
             <div className="flex items-start gap-3">
               <Checkbox
                 id="terms"
-                checked={acceptedTerms}
-                onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                checked={consents.acceptedTerms}
+                onCheckedChange={(checked) => handleTermsChange(checked === true)}
                 className="mt-0.5"
               />
               <label htmlFor="terms" className="text-sm cursor-pointer">
                 Akceptuję{" "}
-                <Link to="/privacy-policy" className="text-primary hover:underline font-medium">
+                <Link to="/terms" className="text-primary hover:underline font-medium">
                   Regulamin użytkowania
                 </Link>{" "}
                 aplikacji odgruzuj.pl.
@@ -151,6 +180,11 @@ export default function Install() {
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <FileText className="h-3 w-3" />
                 Zaakceptuj powyższe zgody, aby kontynuować instalację
+              </p>
+            )}
+            {consents.acceptedAt && (
+              <p className="text-xs text-muted-foreground">
+                ✓ Zgody zaakceptowane: {new Date(consents.acceptedAt).toLocaleDateString('pl-PL')}
               </p>
             )}
           </CardContent>
