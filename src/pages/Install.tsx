@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { Download, Smartphone, Share, MoreVertical, Plus, Check, Apple, Chrome, ArrowDown } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Download, Smartphone, Share, MoreVertical, Plus, Check, Apple, Chrome, ArrowDown, FileText, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo.jpg";
-
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
@@ -16,6 +17,10 @@ export default function Install() {
   const [isIOS, setIsIOS] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  const allConsentsAccepted = acceptedPrivacy && acceptedTerms;
 
   useEffect(() => {
     // Check if already installed
@@ -103,20 +108,75 @@ export default function Install() {
           </p>
         </div>
 
+        {/* Consent Section */}
+        <Card className="mb-6 border-primary/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Shield className="h-5 w-5 text-primary" />
+              Wymagane zgody
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="privacy"
+                checked={acceptedPrivacy}
+                onCheckedChange={(checked) => setAcceptedPrivacy(checked === true)}
+                className="mt-0.5"
+              />
+              <label htmlFor="privacy" className="text-sm cursor-pointer">
+                Akceptuję{" "}
+                <Link to="/privacy-policy" className="text-primary hover:underline font-medium">
+                  Politykę Prywatności
+                </Link>{" "}
+                oraz wyrażam zgodę na przetwarzanie danych osobowych zgodnie z RODO.
+              </label>
+            </div>
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="terms"
+                checked={acceptedTerms}
+                onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                className="mt-0.5"
+              />
+              <label htmlFor="terms" className="text-sm cursor-pointer">
+                Akceptuję{" "}
+                <Link to="/privacy-policy" className="text-primary hover:underline font-medium">
+                  Regulamin użytkowania
+                </Link>{" "}
+                aplikacji odgruzuj.pl.
+              </label>
+            </div>
+            {!allConsentsAccepted && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <FileText className="h-3 w-3" />
+                Zaakceptuj powyższe zgody, aby kontynuować instalację
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Install Button for Android/Chrome */}
         {deferredPrompt && (
-          <Card className="mb-6 border-primary/50 bg-primary/5">
+          <Card className={cn(
+            "mb-6 transition-all",
+            allConsentsAccepted ? "border-primary/50 bg-primary/5" : "border-muted bg-muted/30 opacity-60"
+          )}>
             <CardContent className="p-6">
               <Button 
                 onClick={handleInstallClick} 
                 size="lg" 
                 className="w-full gap-2 text-lg h-14"
+                disabled={!allConsentsAccepted}
               >
                 <Download className="h-5 w-5" />
                 Zainstaluj teraz
               </Button>
               <p className="text-center text-sm text-muted-foreground mt-3">
-                Instalacja jest szybka i nie wymaga sklepu z aplikacjami
+                {allConsentsAccepted 
+                  ? "Instalacja jest szybka i nie wymaga sklepu z aplikacjami"
+                  : "Zaakceptuj zgody powyżej, aby zainstalować aplikację"
+                }
               </p>
             </CardContent>
           </Card>
@@ -124,7 +184,10 @@ export default function Install() {
 
         {/* iOS Instructions */}
         {isIOS && !deferredPrompt && (
-          <Card className="mb-6">
+          <Card className={cn(
+            "mb-6 transition-all",
+            !allConsentsAccepted && "opacity-60"
+          )}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Apple className="h-5 w-5" />
@@ -132,37 +195,44 @@ export default function Install() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                  1
+              {!allConsentsAccepted && (
+                <p className="text-sm text-destructive font-medium">
+                  Zaakceptuj wymagane zgody powyżej, aby kontynuować instalację.
+                </p>
+              )}
+              <div className={cn("space-y-4", !allConsentsAccepted && "pointer-events-none")}>
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                    1
+                  </div>
+                  <div>
+                    <p className="font-medium">Kliknij ikonę Udostępnij</p>
+                    <p className="text-sm text-muted-foreground">
+                      Na dole ekranu (Safari) kliknij ikonę <Share className="inline h-4 w-4" />
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium">Kliknij ikonę Udostępnij</p>
-                  <p className="text-sm text-muted-foreground">
-                    Na dole ekranu (Safari) kliknij ikonę <Share className="inline h-4 w-4" />
-                  </p>
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                    2
+                  </div>
+                  <div>
+                    <p className="font-medium">Przewiń i wybierz "Dodaj do ekranu początkowego"</p>
+                    <p className="text-sm text-muted-foreground">
+                      Ikona <Plus className="inline h-4 w-4" /> pojawi się na liście opcji
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                  2
-                </div>
-                <div>
-                  <p className="font-medium">Przewiń i wybierz "Dodaj do ekranu początkowego"</p>
-                  <p className="text-sm text-muted-foreground">
-                    Ikona <Plus className="inline h-4 w-4" /> pojawi się na liście opcji
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                  3
-                </div>
-                <div>
-                  <p className="font-medium">Potwierdź instalację</p>
-                  <p className="text-sm text-muted-foreground">
-                    Kliknij "Dodaj" w prawym górnym rogu
-                  </p>
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                    3
+                  </div>
+                  <div>
+                    <p className="font-medium">Potwierdź instalację</p>
+                    <p className="text-sm text-muted-foreground">
+                      Kliknij "Dodaj" w prawym górnym rogu
+                    </p>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -171,7 +241,10 @@ export default function Install() {
 
         {/* Android Instructions (fallback) */}
         {isAndroid && !deferredPrompt && (
-          <Card className="mb-6">
+          <Card className={cn(
+            "mb-6 transition-all",
+            !allConsentsAccepted && "opacity-60"
+          )}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Chrome className="h-5 w-5" />
@@ -179,37 +252,44 @@ export default function Install() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                  1
+              {!allConsentsAccepted && (
+                <p className="text-sm text-destructive font-medium">
+                  Zaakceptuj wymagane zgody powyżej, aby kontynuować instalację.
+                </p>
+              )}
+              <div className={cn("space-y-4", !allConsentsAccepted && "pointer-events-none")}>
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                    1
+                  </div>
+                  <div>
+                    <p className="font-medium">Kliknij menu przeglądarki</p>
+                    <p className="text-sm text-muted-foreground">
+                      Kliknij ikonę <MoreVertical className="inline h-4 w-4" /> w prawym górnym rogu
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium">Kliknij menu przeglądarki</p>
-                  <p className="text-sm text-muted-foreground">
-                    Kliknij ikonę <MoreVertical className="inline h-4 w-4" /> w prawym górnym rogu
-                  </p>
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                    2
+                  </div>
+                  <div>
+                    <p className="font-medium">Wybierz "Zainstaluj aplikację" lub "Dodaj do ekranu głównego"</p>
+                    <p className="text-sm text-muted-foreground">
+                      Opcja może się różnić w zależności od przeglądarki
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                  2
-                </div>
-                <div>
-                  <p className="font-medium">Wybierz "Zainstaluj aplikację" lub "Dodaj do ekranu głównego"</p>
-                  <p className="text-sm text-muted-foreground">
-                    Opcja może się różnić w zależności od przeglądarki
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                  3
-                </div>
-                <div>
-                  <p className="font-medium">Potwierdź instalację</p>
-                  <p className="text-sm text-muted-foreground">
-                    Ikona aplikacji pojawi się na ekranie głównym
-                  </p>
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                    3
+                  </div>
+                  <div>
+                    <p className="font-medium">Potwierdź instalację</p>
+                    <p className="text-sm text-muted-foreground">
+                      Ikona aplikacji pojawi się na ekranie głównym
+                    </p>
+                  </div>
                 </div>
               </div>
             </CardContent>
