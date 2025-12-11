@@ -101,6 +101,13 @@ export default function Auth() {
       return;
     }
     
+    // Validate password confirmation
+    const passwordResult = passwordSchema.safeParse({ password, confirmPassword });
+    if (!passwordResult.success) {
+      toast.error(passwordResult.error.errors[0].message);
+      return;
+    }
+    
     if (!validateForm()) return;
     
     setIsLoading(true);
@@ -118,6 +125,8 @@ export default function Auth() {
 
     toast.success('Sprawdź swoją skrzynkę email i potwierdź rejestrację klikając w link.');
     setActiveTab('login');
+    setPassword('');
+    setConfirmPassword('');
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
@@ -374,6 +383,22 @@ export default function Auth() {
                         placeholder="Min. 6 znaków"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        className="pl-10"
+                        disabled={isLoading}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="register-confirm-password">Potwierdź hasło</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="register-confirm-password"
+                        type="password"
+                        placeholder="Powtórz hasło"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
                         className="pl-10"
                         disabled={isLoading}
                         required
