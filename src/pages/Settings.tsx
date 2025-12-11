@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor, Crown, Loader2, ExternalLink, Filter, BellRing, BellOff, MessageCircle, Send, FileText, Smartphone, AlertTriangle } from "lucide-react";
+import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor, Crown, Loader2, ExternalLink, Filter, BellRing, BellOff, MessageCircle, Send, FileText, Smartphone, AlertTriangle, PlayCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
@@ -13,7 +13,6 @@ import { categories, categoryIcons, Category } from "@/data/flashcards";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { ReminderClock } from "@/components/ReminderClock";
-
 interface AppSettings {
   notificationsEnabled: boolean;
   notificationTime: string;
@@ -50,6 +49,7 @@ export default function Settings() {
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('yearly');
   const [supportMessage, setSupportMessage] = useState("");
   const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
   const { 
     isSupported: pushSupported, 
     isSubscribed: pushSubscribed, 
@@ -61,6 +61,74 @@ export default function Settings() {
     unsubscribe: unsubscribePush,
     updateNotificationTime 
   } = usePushNotifications();
+
+  // Test sound function using Web Audio API
+  const playTestSound = useCallback(() => {
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      
+      const ctx = audioContextRef.current;
+      
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+      
+      // First beep
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      oscillator.frequency.value = 800;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      
+      oscillator.start(ctx.currentTime);
+      oscillator.stop(ctx.currentTime + 0.5);
+      
+      // Second beep
+      setTimeout(() => {
+        if (!audioContextRef.current) return;
+        const ctx2 = audioContextRef.current;
+        const oscillator2 = ctx2.createOscillator();
+        const gainNode2 = ctx2.createGain();
+        
+        oscillator2.connect(gainNode2);
+        gainNode2.connect(ctx2.destination);
+        
+        oscillator2.frequency.value = 1000;
+        oscillator2.type = 'sine';
+        
+        gainNode2.gain.setValueAtTime(0.3, ctx2.currentTime);
+        gainNode2.gain.exponentialRampToValueAtTime(0.01, ctx2.currentTime + 0.5);
+        
+        oscillator2.start(ctx2.currentTime);
+        oscillator2.stop(ctx2.currentTime + 0.5);
+      }, 300);
+
+      // Test vibration if enabled
+      if (settings.vibrationEnabled && navigator.vibrate) {
+        navigator.vibrate([200, 100, 200]);
+      }
+
+      toast({
+        title: "Test dźwięku",
+        description: settings.vibrationEnabled ? "Dźwięk i wibracje odtworzone!" : "Dźwięk odtworzony!",
+      });
+    } catch (error) {
+      console.error('Error playing test sound:', error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się odtworzyć dźwięku. Sprawdź ustawienia urządzenia.",
+        variant: "destructive",
+      });
+    }
+  }, [settings.vibrationEnabled]);
 
   const handleSendSupportMessage = async () => {
     if (!supportMessage.trim() || !user) return;
@@ -535,6 +603,21 @@ export default function Settings() {
                 />
               </button>
             </div>
+
+            {/* Test sound button */}
+            <button
+              onClick={playTestSound}
+              disabled={!settings.soundEnabled && !settings.vibrationEnabled}
+              className={cn(
+                "w-full flex items-center justify-center gap-2 p-3 rounded-xl transition-all",
+                settings.soundEnabled || settings.vibrationEnabled
+                  ? "bg-primary/10 text-primary hover:bg-primary/20"
+                  : "bg-muted text-muted-foreground cursor-not-allowed"
+              )}
+            >
+              <PlayCircle className="w-5 h-5" />
+              <span className="font-medium">Przetestuj alarm</span>
+            </button>
           </div>
         </div>
 
