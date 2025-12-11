@@ -153,6 +153,7 @@ export type Database = {
           subscription_status: Database["public"]["Enums"]["subscription_status"]
           updated_at: string
           user_id: string
+          user_number: number
         }
         Insert: {
           created_at?: string
@@ -163,6 +164,7 @@ export type Database = {
           subscription_status?: Database["public"]["Enums"]["subscription_status"]
           updated_at?: string
           user_id: string
+          user_number?: number
         }
         Update: {
           created_at?: string
@@ -173,6 +175,7 @@ export type Database = {
           subscription_status?: Database["public"]["Enums"]["subscription_status"]
           updated_at?: string
           user_id?: string
+          user_number?: number
         }
         Relationships: []
       }
