@@ -381,7 +381,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      decrypt_email: { Args: { encrypted_email: string }; Returns: string }
       decrypt_push_data: { Args: { encrypted_text: string }; Returns: string }
+      encrypt_email: { Args: { plain_email: string }; Returns: string }
       encrypt_push_data: { Args: { plain_text: string }; Returns: string }
       get_admin_profiles: {
         Args: never
@@ -407,6 +409,10 @@ export type Database = {
           p256dh: string
           user_id: string
         }[]
+      }
+      get_user_email_for_admin: {
+        Args: { target_user_id: string }
+        Returns: string
       }
       has_role: {
         Args: {
