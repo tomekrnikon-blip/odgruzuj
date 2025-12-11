@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Download, Smartphone, Share, MoreVertical, Plus, Check, Apple, Chrome, ArrowDown, FileText, Shield } from "lucide-react";
+import { Download, Smartphone, Share, MoreVertical, Plus, Check, Apple, Chrome, ArrowDown, FileText, Shield, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -190,170 +190,186 @@ export default function Install() {
           </CardContent>
         </Card>
 
-        {/* Install Button for Android/Chrome */}
-        {deferredPrompt && (
-          <Card className={cn(
-            "mb-6 transition-all",
-            allConsentsAccepted ? "border-primary/50 bg-primary/5" : "border-muted bg-muted/30 opacity-60"
-          )}>
-            <CardContent className="p-6">
-              <Button 
-                onClick={handleInstallClick} 
-                size="lg" 
-                className="w-full gap-2 text-lg h-14"
-                disabled={!allConsentsAccepted}
-              >
-                <Download className="h-5 w-5" />
-                Zainstaluj teraz
-              </Button>
-              <p className="text-center text-sm text-muted-foreground mt-3">
-                {allConsentsAccepted 
-                  ? "Instalacja jest szybka i nie wymaga sklepu z aplikacjami"
-                  : "Zaakceptuj zgody powyżej, aby zainstalować aplikację"
-                }
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* iOS Instructions */}
-        {isIOS && !deferredPrompt && (
-          <Card className={cn(
-            "mb-6 transition-all",
-            !allConsentsAccepted && "opacity-60"
-          )}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Apple className="h-5 w-5" />
-                Instrukcja dla iPhone/iPad
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {!allConsentsAccepted && (
-                <p className="text-sm text-destructive font-medium">
-                  Zaakceptuj wymagane zgody powyżej, aby kontynuować instalację.
-                </p>
-              )}
-              <div className={cn("space-y-4", !allConsentsAccepted && "pointer-events-none")}>
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    1
-                  </div>
-                  <div>
-                    <p className="font-medium">Kliknij ikonę Udostępnij</p>
-                    <p className="text-sm text-muted-foreground">
-                      Na dole ekranu (Safari) kliknij ikonę <Share className="inline h-4 w-4" />
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    2
-                  </div>
-                  <div>
-                    <p className="font-medium">Przewiń i wybierz "Dodaj do ekranu początkowego"</p>
-                    <p className="text-sm text-muted-foreground">
-                      Ikona <Plus className="inline h-4 w-4" /> pojawi się na liście opcji
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    3
-                  </div>
-                  <div>
-                    <p className="font-medium">Potwierdź instalację</p>
-                    <p className="text-sm text-muted-foreground">
-                      Kliknij "Dodaj" w prawym górnym rogu
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Android Instructions (fallback) */}
-        {isAndroid && !deferredPrompt && (
-          <Card className={cn(
-            "mb-6 transition-all",
-            !allConsentsAccepted && "opacity-60"
-          )}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Chrome className="h-5 w-5" />
-                Instrukcja dla Android
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {!allConsentsAccepted && (
-                <p className="text-sm text-destructive font-medium">
-                  Zaakceptuj wymagane zgody powyżej, aby kontynuować instalację.
-                </p>
-              )}
-              <div className={cn("space-y-4", !allConsentsAccepted && "pointer-events-none")}>
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    1
-                  </div>
-                  <div>
-                    <p className="font-medium">Kliknij menu przeglądarki</p>
-                    <p className="text-sm text-muted-foreground">
-                      Kliknij ikonę <MoreVertical className="inline h-4 w-4" /> w prawym górnym rogu
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    2
-                  </div>
-                  <div>
-                    <p className="font-medium">Wybierz "Zainstaluj aplikację" lub "Dodaj do ekranu głównego"</p>
-                    <p className="text-sm text-muted-foreground">
-                      Opcja może się różnić w zależności od przeglądarki
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    3
-                  </div>
-                  <div>
-                    <p className="font-medium">Potwierdź instalację</p>
-                    <p className="text-sm text-muted-foreground">
-                      Ikona aplikacji pojawi się na ekranie głównym
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Desktop Instructions */}
-        {!isIOS && !isAndroid && !deferredPrompt && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Chrome className="h-5 w-5" />
-                Instrukcja instalacji
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-muted-foreground">
-                Otwórz tę stronę na telefonie, aby zobaczyć opcje instalacji mobilnej.
-              </p>
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                  1
-                </div>
-                <div>
-                  <p className="font-medium">W przeglądarce Chrome</p>
-                  <p className="text-sm text-muted-foreground">
-                    Kliknij ikonę instalacji w pasku adresu lub menu przeglądarki
+        {/* Installation section - only visible after accepting consents */}
+        {allConsentsAccepted ? (
+          <>
+            {/* Install Button for Android/Chrome */}
+            {deferredPrompt && (
+              <Card className="mb-6 border-primary/50 bg-primary/5">
+                <CardContent className="p-6">
+                  <Button 
+                    onClick={handleInstallClick} 
+                    size="lg" 
+                    className="w-full gap-2 text-lg h-14"
+                  >
+                    <Download className="h-5 w-5" />
+                    Zainstaluj teraz
+                  </Button>
+                  <p className="text-center text-sm text-muted-foreground mt-3">
+                    Instalacja jest szybka i nie wymaga sklepu z aplikacjami
                   </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* iOS Instructions */}
+            {isIOS && !deferredPrompt && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Apple className="h-5 w-5" />
+                    Instrukcja dla iPhone/iPad
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                      1
+                    </div>
+                    <div>
+                      <p className="font-medium">Kliknij ikonę Udostępnij</p>
+                      <p className="text-sm text-muted-foreground">
+                        Na dole ekranu (Safari) kliknij ikonę <Share className="inline h-4 w-4" />
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                      2
+                    </div>
+                    <div>
+                      <p className="font-medium">Przewiń i wybierz "Dodaj do ekranu początkowego"</p>
+                      <p className="text-sm text-muted-foreground">
+                        Ikona <Plus className="inline h-4 w-4" /> pojawi się na liście opcji
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                      3
+                    </div>
+                    <div>
+                      <p className="font-medium">Potwierdź instalację</p>
+                      <p className="text-sm text-muted-foreground">
+                        Kliknij "Dodaj" w prawym górnym rogu
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Android Instructions (fallback) */}
+            {isAndroid && !deferredPrompt && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Chrome className="h-5 w-5" />
+                    Instrukcja dla Android
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                      1
+                    </div>
+                    <div>
+                      <p className="font-medium">Kliknij menu przeglądarki</p>
+                      <p className="text-sm text-muted-foreground">
+                        Kliknij ikonę <MoreVertical className="inline h-4 w-4" /> w prawym górnym rogu
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                      2
+                    </div>
+                    <div>
+                      <p className="font-medium">Wybierz "Zainstaluj aplikację" lub "Dodaj do ekranu głównego"</p>
+                      <p className="text-sm text-muted-foreground">
+                        Opcja może się różnić w zależności od przeglądarki
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                      3
+                    </div>
+                    <div>
+                      <p className="font-medium">Potwierdź instalację</p>
+                      <p className="text-sm text-muted-foreground">
+                        Ikona aplikacji pojawi się na ekranie głównym
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Desktop Instructions */}
+            {!isIOS && !isAndroid && !deferredPrompt && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Chrome className="h-5 w-5" />
+                    Instrukcja instalacji
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-muted-foreground">
+                    Otwórz tę stronę na telefonie, aby zobaczyć opcje instalacji mobilnej.
+                  </p>
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                      1
+                    </div>
+                    <div>
+                      <p className="font-medium">W przeglądarce Chrome</p>
+                      <p className="text-sm text-muted-foreground">
+                        Kliknij ikonę instalacji w pasku adresu lub menu przeglądarki
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Uninstall Instructions */}
+            <Card className="mb-6 border-muted">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Trash2 className="h-5 w-5 text-muted-foreground" />
+                  Jak odinstalować aplikację?
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3 text-sm text-muted-foreground">
+                  <div>
+                    <p className="font-medium text-foreground">Na iPhone/iPad:</p>
+                    <p>Przytrzymaj ikonę aplikacji → wybierz "Usuń aplikację" → potwierdź usunięcie.</p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">Na Android:</p>
+                    <p>Przytrzymaj ikonę aplikacji → wybierz "Odinstaluj" lub przeciągnij do "Usuń".</p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">Na komputerze (Chrome):</p>
+                    <p>Menu przeglądarki (⋮) → "Więcej narzędzi" → "Odinstaluj odgruzuj.pl".</p>
+                  </div>
                 </div>
-              </div>
+                <p className="text-xs text-muted-foreground">
+                  Odinstalowanie aplikacji nie usuwa Twojego konta. Aby usunąć konto i dane, skontaktuj się z administratorem przez ustawienia aplikacji.
+                </p>
+              </CardContent>
+            </Card>
+          </>
+        ) : (
+          <Card className="mb-6 border-muted bg-muted/30">
+            <CardContent className="p-6 text-center">
+              <Shield className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+              <p className="text-muted-foreground font-medium">
+                Zaakceptuj wymagane zgody powyżej, aby zobaczyć instrukcje instalacji
+              </p>
             </CardContent>
           </Card>
         )}

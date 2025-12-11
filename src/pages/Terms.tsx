@@ -104,7 +104,34 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mb-3">10. Zmiany regulaminu</h2>
+            <h2 className="text-xl font-semibold mb-3">10. Odinstalowanie aplikacji</h2>
+            <p className="text-muted-foreground mb-3">
+              Użytkownik może w każdej chwili odinstalować aplikację ze swojego urządzenia:
+            </p>
+            <ul className="list-disc list-inside text-muted-foreground space-y-2 mt-2">
+              <li>
+                <strong>iPhone/iPad:</strong> Przytrzymaj ikonę aplikacji na ekranie głównym, 
+                wybierz "Usuń aplikację", a następnie potwierdź usunięcie.
+              </li>
+              <li>
+                <strong>Android:</strong> Przytrzymaj ikonę aplikacji, wybierz "Odinstaluj" 
+                lub przeciągnij ikonę do obszaru "Usuń".
+              </li>
+              <li>
+                <strong>Przeglądarka Chrome (komputer):</strong> Kliknij menu przeglądarki (⋮), 
+                wybierz "Więcej narzędzi" → "Odinstaluj odgruzuj.pl".
+              </li>
+            </ul>
+            <p className="text-muted-foreground mt-3">
+              <strong>Uwaga:</strong> Odinstalowanie aplikacji nie powoduje usunięcia konta użytkownika 
+              ani jego danych. Aby całkowicie usunąć konto i związane z nim dane, należy skontaktować się 
+              z administratorem poprzez formularz wsparcia dostępny w ustawieniach aplikacji lub 
+              przed odinstalowaniem.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold mb-3">11. Zmiany regulaminu</h2>
             <p className="text-muted-foreground">
               Administrator zastrzega sobie prawo do zmiany niniejszego regulaminu. 
               O istotnych zmianach Użytkownicy zostaną poinformowani poprzez powiadomienie w Aplikacji.
@@ -113,7 +140,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mb-3">11. Postanowienia końcowe</h2>
+            <h2 className="text-xl font-semibold mb-3">12. Postanowienia końcowe</h2>
             <p className="text-muted-foreground">
               W sprawach nieuregulowanych niniejszym regulaminem zastosowanie mają przepisy prawa polskiego. 
               Wszelkie spory będą rozstrzygane przez sąd właściwy dla siedziby Administratora.
