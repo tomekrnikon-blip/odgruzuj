@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Loader2, Mail, Lock } from 'lucide-react';
+import { Loader2, Mail, Lock, ArrowLeft } from 'lucide-react';
 import logo from '@/assets/logo.jpg';
 import { z } from 'zod';
 
@@ -17,18 +17,42 @@ const authSchema = z.object({
   password: z.string().min(6, { message: "Hasło musi mieć co najmniej 6 znaków" }),
 });
 
+const emailSchema = z.object({
+  email: z.string().trim().email({ message: "Nieprawidłowy adres email" }),
+});
+
+const passwordSchema = z.object({
+  password: z.string().min(6, { message: "Hasło musi mieć co najmniej 6 znaków" }),
+  confirmPassword: z.string().min(6, { message: "Hasło musi mieć co najmniej 6 znaków" }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Hasła muszą być identyczne",
+  path: ["confirmPassword"],
+});
+
 export default function Auth() {
   const navigate = useNavigate();
-  const { user, isLoading: authLoading, signIn, signUp } = useAuth();
+  const [searchParams] = useSearchParams();
+  const { user, isLoading: authLoading, signIn, signUp, resetPassword, updatePassword } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const allConsentsAccepted = acceptedPrivacy && acceptedTerms;
+
+  // Check if user came from password reset email
+  useEffect(() => {
+    const mode = searchParams.get('mode');
+    if (mode === 'reset') {
+      setShowResetPassword(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (user && !authLoading) {
@@ -96,6 +120,52 @@ export default function Auth() {
     setActiveTab('login');
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const result = emailSchema.safeParse({ email });
+    if (!result.success) {
+      toast.error(result.error.errors[0].message);
+      return;
+    }
+    
+    setIsLoading(true);
+    const { error } = await resetPassword(email.trim());
+    setIsLoading(false);
+
+    if (error) {
+      toast.error('Nie udało się wysłać emaila z linkiem do resetowania hasła');
+      return;
+    }
+
+    toast.success('Sprawdź swoją skrzynkę email. Wysłaliśmy link do resetowania hasła.');
+    setShowForgotPassword(false);
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const result = passwordSchema.safeParse({ password, confirmPassword });
+    if (!result.success) {
+      toast.error(result.error.errors[0].message);
+      return;
+    }
+    
+    setIsLoading(true);
+    const { error } = await updatePassword(password);
+    setIsLoading(false);
+
+    if (error) {
+      toast.error('Nie udało się zmienić hasła. Spróbuj ponownie.');
+      return;
+    }
+
+    toast.success('Hasło zostało zmienione. Możesz się teraz zalogować.');
+    setShowResetPassword(false);
+    setPassword('');
+    setConfirmPassword('');
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -133,50 +203,147 @@ export default function Auth() {
               </TabsList>
               
               <TabsContent value="login">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="login-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="login-email"
-                        type="email"
-                        placeholder="twoj@email.pl"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10"
-                        disabled={isLoading}
-                        required
-                      />
+                {showForgotPassword ? (
+                  <form onSubmit={handleForgotPassword} className="space-y-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowForgotPassword(false)}
+                      className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      Powrót do logowania
+                    </button>
+                    <div className="space-y-2">
+                      <Label htmlFor="reset-email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="reset-email"
+                          type="email"
+                          placeholder="twoj@email.pl"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="pl-10"
+                          disabled={isLoading}
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="login-password">Hasło</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="login-password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10"
-                        disabled={isLoading}
-                        required
-                      />
+                    <p className="text-sm text-muted-foreground">
+                      Wyślemy Ci email z linkiem do resetowania hasła.
+                    </p>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Wysyłanie...
+                        </>
+                      ) : (
+                        'Wyślij link'
+                      )}
+                    </Button>
+                  </form>
+                ) : showResetPassword ? (
+                  <form onSubmit={handleResetPassword} className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Wprowadź nowe hasło dla swojego konta.
+                    </p>
+                    <div className="space-y-2">
+                      <Label htmlFor="new-password">Nowe hasło</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="new-password"
+                          type="password"
+                          placeholder="Min. 6 znaków"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="pl-10"
+                          disabled={isLoading}
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Logowanie...
-                      </>
-                    ) : (
-                      'Zaloguj się'
-                    )}
-                  </Button>
-                </form>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirm-new-password">Potwierdź nowe hasło</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="confirm-new-password"
+                          type="password"
+                          placeholder="Powtórz hasło"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          className="pl-10"
+                          disabled={isLoading}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Zmienianie hasła...
+                        </>
+                      ) : (
+                        'Zmień hasło'
+                      )}
+                    </Button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleSignIn} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="login-email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="login-email"
+                          type="email"
+                          placeholder="twoj@email.pl"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="pl-10"
+                          disabled={isLoading}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="login-password">Hasło</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="login-password"
+                          type="password"
+                          placeholder="••••••••"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="pl-10"
+                          disabled={isLoading}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowForgotPassword(true)}
+                      className="text-sm text-primary hover:underline"
+                    >
+                      Zapomniałem hasła
+                    </button>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Logowanie...
+                        </>
+                      ) : (
+                        'Zaloguj się'
+                      )}
+                    </Button>
+                  </form>
+                )}
               </TabsContent>
               
               <TabsContent value="register">
