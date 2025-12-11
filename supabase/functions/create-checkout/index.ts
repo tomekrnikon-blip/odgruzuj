@@ -7,6 +7,12 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Price IDs for subscription plans
+const PRICE_IDS = {
+  monthly: "price_1ScWPE9EWMAAADcflIpPIPRS", // 9.90 PLN/month
+  yearly: "price_1ScWRg9EWMAAADcfHNoeUUK7",  // 49.90 PLN/year
+};
+
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
@@ -24,6 +30,19 @@ serve(async (req) => {
 
   try {
     logStep("Function started");
+
+    // Parse request body to get plan type
+    let plan: "monthly" | "yearly" = "yearly";
+    try {
+      const body = await req.json();
+      if (body.plan === "monthly") {
+        plan = "monthly";
+      }
+    } catch {
+      // Default to yearly if no body
+    }
+
+    logStep("Plan selected", { plan });
 
     const authHeader = req.headers.get("Authorization")!;
     const token = authHeader.replace("Bearer ", "");
@@ -48,13 +67,15 @@ serve(async (req) => {
       logStep("Found existing customer", { customerId });
     }
 
-    // Annual Pro subscription - 49.90 PLN/year
+    const priceId = PRICE_IDS[plan];
+    logStep("Using price", { priceId, plan });
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price: "price_1ScWRg9EWMAAADcfHNoeUUK7",
+          price: priceId,
           quantity: 1,
         },
       ],
