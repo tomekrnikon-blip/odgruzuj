@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor, Crown, Loader2, ExternalLink, Filter, BellRing, BellOff, MessageCircle, Send, FileText } from "lucide-react";
+import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor, Crown, Loader2, ExternalLink, Filter, BellRing, BellOff, MessageCircle, Send, FileText, Smartphone, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
@@ -12,6 +12,7 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { categories, categoryIcons, Category } from "@/data/flashcards";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { ReminderClock } from "@/components/ReminderClock";
 
 interface AppSettings {
   notificationsEnabled: boolean;
@@ -54,6 +55,8 @@ export default function Settings() {
     isSubscribed: pushSubscribed, 
     isLoading: pushLoading, 
     permission: pushPermission,
+    isIOS,
+    isPWA,
     subscribe: subscribePush, 
     unsubscribe: unsubscribePush,
     updateNotificationTime 
@@ -399,90 +402,76 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Push Notifications */}
+        {/* Push Notifications with Clock */}
         <div className="card-elevated p-6">
-          <h2 className="font-heading font-semibold mb-4">Powiadomienia Push</h2>
+          <h2 className="font-heading font-semibold mb-4">Przypomnienia</h2>
           
-          {!pushSupported ? (
+          {/* iOS not in PWA mode warning */}
+          {isIOS && !isPWA && (
+            <div className="mb-4 p-4 bg-warning/10 border border-warning/30 rounded-xl">
+              <div className="flex items-start gap-3">
+                <Smartphone className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-warning">Zainstaluj aplikację</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Aby otrzymywać powiadomienia push na iOS, musisz zainstalować aplikację. 
+                    Kliknij <strong>Udostępnij</strong> → <strong>Dodaj do ekranu początkowego</strong>.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!pushSupported && !isIOS ? (
             <div className="p-4 bg-muted rounded-xl">
               <p className="text-sm text-muted-foreground">
                 Twoja przeglądarka nie obsługuje powiadomień push. Zainstaluj aplikację na urządzeniu mobilnym, aby otrzymywać powiadomienia.
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {pushSubscribed ? (
-                    <BellRing className="w-5 h-5 text-primary" />
-                  ) : (
-                    <BellOff className="w-5 h-5 text-muted-foreground" />
-                  )}
+            <div className="space-y-6">
+              {/* Reminder Clock Component */}
+              <ReminderClock
+                notificationTime={settings.notificationTime}
+                onTimeChange={(time) => {
+                  setSettings((prev) => ({
+                    ...prev,
+                    notificationTime: time,
+                  }));
+                  if (pushSubscribed) {
+                    updateNotificationTime(time + ':00');
+                  }
+                }}
+                isSubscribed={pushSubscribed}
+                onToggle={async () => {
+                  if (pushSubscribed) {
+                    await unsubscribePush();
+                  } else {
+                    await subscribePush(settings.notificationTime + ':00');
+                  }
+                }}
+                isLoading={pushLoading}
+                disabled={pushPermission === 'denied' || (isIOS && !isPWA)}
+              />
+
+              {/* Permission denied warning */}
+              {pushPermission === 'denied' && (
+                <div className="p-3 bg-destructive/10 rounded-xl flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-medium">Powiadomienia push</p>
-                    <p className="text-sm text-muted-foreground">
-                      {pushSubscribed 
-                        ? "Aktywne - otrzymasz codzienne przypomnienie" 
-                        : pushPermission === 'denied'
-                          ? "Zablokowane w przeglądarce"
-                          : "Włącz, by otrzymywać przypomnienia"}
+                    <p className="text-sm text-destructive font-medium">Powiadomienia zablokowane</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Zmień ustawienia w przeglądarce, aby włączyć powiadomienia.
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={async () => {
-                    if (pushSubscribed) {
-                      await unsubscribePush();
-                    } else {
-                      await subscribePush(settings.notificationTime + ':00');
-                    }
-                  }}
-                  disabled={pushLoading || pushPermission === 'denied'}
-                  className={cn(
-                    "w-12 h-7 rounded-full transition-all duration-200",
-                    pushSubscribed ? "bg-primary" : "bg-muted",
-                    (pushLoading || pushPermission === 'denied') && "opacity-50 cursor-not-allowed"
-                  )}
-                >
-                  {pushLoading ? (
-                    <div className="flex items-center justify-center h-full">
-                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                    </div>
-                  ) : (
-                    <div
-                      className={cn(
-                        "w-5 h-5 bg-white rounded-full shadow transition-transform duration-200",
-                        pushSubscribed ? "translate-x-6" : "translate-x-1"
-                      )}
-                    />
-                  )}
-                </button>
-              </div>
-
-              {pushSubscribed && (
-                <div className="pl-8">
-                  <label className="block text-sm text-muted-foreground mb-2">
-                    Pora powiadomienia
-                  </label>
-                  <input
-                    type="time"
-                    value={settings.notificationTime}
-                    onChange={(e) => {
-                      setSettings((prev) => ({
-                        ...prev,
-                        notificationTime: e.target.value,
-                      }));
-                      updateNotificationTime(e.target.value + ':00');
-                    }}
-                    className="px-4 py-2 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  />
-                </div>
               )}
 
-              {pushPermission === 'denied' && (
-                <div className="p-3 bg-destructive/10 rounded-xl">
-                  <p className="text-sm text-destructive">
-                    Powiadomienia są zablokowane. Zmień ustawienia w przeglądarce, aby je włączyć.
+              {/* iOS PWA success message */}
+              {isIOS && isPWA && pushSubscribed && (
+                <div className="p-3 bg-primary/10 rounded-xl">
+                  <p className="text-sm text-primary">
+                    ✓ Aplikacja zainstalowana jako PWA - powiadomienia będą działać poprawnie!
                   </p>
                 </div>
               )}

@@ -1,12 +1,14 @@
 // Service Worker for Push Notifications
+// Compatible with iOS Safari PWA and Android/Chrome
+
 self.addEventListener('push', function(event) {
   console.log('[SW] Push received:', event);
   
   let data = {
     title: 'odgruzuj.pl',
     body: 'Czas na porządki! 🧹',
-    icon: '/favicon.jpg',
-    badge: '/favicon.jpg',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
     data: { url: '/' }
   };
 
@@ -16,25 +18,38 @@ self.addEventListener('push', function(event) {
       data = { ...data, ...payload };
     } catch (e) {
       console.log('[SW] Could not parse push data:', e);
-      data.body = event.data.text();
+      try {
+        data.body = event.data.text();
+      } catch (textError) {
+        console.log('[SW] Could not get text data:', textError);
+      }
     }
   }
 
+  // iOS requires simpler notification options
+  const isIOS = /iPhone|iPad|iPod/.test(self.navigator?.userAgent || '');
+  
   const options = {
     body: data.body,
-    icon: data.icon || '/favicon.jpg',
-    badge: data.badge || '/favicon.jpg',
-    vibrate: [200, 100, 200],
+    icon: data.icon || '/icon-192.png',
+    badge: data.badge || '/icon-192.png',
     tag: 'odgruzuj-notification',
     renotify: true,
-    requireInteraction: true,
+    requireInteraction: !isIOS, // iOS doesn't support this well
     data: data.data || { url: '/' },
-    actions: [
-      { action: 'open', title: 'Otwórz aplikację' },
-      { action: 'dismiss', title: 'Odrzuć' }
-    ]
   };
 
+  // Only add vibrate and actions for non-iOS (iOS doesn't support these)
+  if (!isIOS) {
+    options.vibrate = [200, 100, 200];
+    options.actions = [
+      { action: 'open', title: 'Otwórz aplikację' },
+      { action: 'dismiss', title: 'Odrzuć' }
+    ];
+  }
+
+  // iOS Safari PWA requires the notification to be shown immediately
+  // within the waitUntil promise
   event.waitUntil(
     self.registration.showNotification(data.title, options)
   );

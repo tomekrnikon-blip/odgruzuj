@@ -87,6 +87,15 @@ const handler = async (req: Request): Promise<Response> => {
 
       const token = authHeader.replace("Bearer ", "");
       
+      // Validate token is not empty or malformed
+      if (!token || token.length < 10) {
+        logStep("ERROR: Invalid token format");
+        return new Response(
+          JSON.stringify({ error: "Unauthorized - invalid token format" }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
       // Create a client with the user's token to verify their identity
       const supabaseUser = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
         global: { headers: { Authorization: `Bearer ${token}` } }
@@ -94,10 +103,18 @@ const handler = async (req: Request): Promise<Response> => {
 
       const { data: userData, error: userError } = await supabaseUser.auth.getUser();
       
-      if (userError || !userData?.user) {
-        logStep("ERROR: Invalid token", { error: userError?.message });
+      if (userError) {
+        logStep("ERROR: Invalid token", { error: userError.message });
         return new Response(
-          JSON.stringify({ error: "Unauthorized - invalid token" }),
+          JSON.stringify({ error: `Unauthorized - ${userError.message}` }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      if (!userData?.user) {
+        logStep("ERROR: No user in token");
+        return new Response(
+          JSON.stringify({ error: "Unauthorized - no user found" }),
           { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }

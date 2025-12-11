@@ -28,13 +28,29 @@ export function usePushNotifications() {
   const [isLoading, setIsLoading] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [vapidKey, setVapidKey] = useState<string>('');
+  const [isIOS, setIsIOS] = useState(false);
+  const [isPWA, setIsPWA] = useState(false);
 
   useEffect(() => {
+    // Detect iOS
+    const iOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    setIsIOS(iOS);
+    
+    // Detect if running as PWA (standalone mode)
+    const standalone = window.matchMedia('(display-mode: standalone)').matches 
+      || (window.navigator as any).standalone === true;
+    setIsPWA(standalone);
+
     // Check if push notifications are supported
-    const supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+    // iOS Safari only supports push in PWA mode (Add to Home Screen)
+    const supported = 'serviceWorker' in navigator 
+      && 'PushManager' in window 
+      && 'Notification' in window
+      && (!iOS || standalone); // iOS only works in PWA mode
+    
     setIsSupported(supported);
 
-    if (supported) {
+    if ('Notification' in window) {
       setPermission(Notification.permission);
     }
 
@@ -202,6 +218,8 @@ export function usePushNotifications() {
     isSubscribed,
     isLoading,
     permission,
+    isIOS,
+    isPWA,
     subscribe,
     unsubscribe,
     updateNotificationTime,
