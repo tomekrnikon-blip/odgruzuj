@@ -1,6 +1,21 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { Play, Pause, RotateCcw, SkipForward } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+
+interface AppSettings {
+  notificationsEnabled: boolean;
+  notificationTime: string;
+  soundEnabled: boolean;
+  vibrationEnabled: boolean;
+}
+
+const defaultSettings: AppSettings = {
+  notificationsEnabled: true,
+  notificationTime: "09:00",
+  soundEnabled: true,
+  vibrationEnabled: true,
+};
 
 interface TimerProps {
   timeLeft: number;
@@ -29,29 +44,99 @@ export function Timer({
   formatTime,
   totalTime,
 }: TimerProps) {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const [settings] = useLocalStorage<AppSettings>("odgruzuj_settings", defaultSettings);
 
-  // Create audio element for completion sound
+  // Play beep sound using Web Audio API (works better on iOS)
+  const playBeep = useCallback(() => {
+    if (!settings.soundEnabled) return;
+    
+    try {
+      // Create or resume AudioContext
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      
+      const ctx = audioContextRef.current;
+      
+      // Resume context if suspended (required for iOS)
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+      
+      // Create oscillator for beep sound
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      oscillator.frequency.value = 800; // Hz
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      
+      oscillator.start(ctx.currentTime);
+      oscillator.stop(ctx.currentTime + 0.5);
+      
+      // Play second beep
+      setTimeout(() => {
+        if (!audioContextRef.current) return;
+        const ctx2 = audioContextRef.current;
+        const oscillator2 = ctx2.createOscillator();
+        const gainNode2 = ctx2.createGain();
+        
+        oscillator2.connect(gainNode2);
+        gainNode2.connect(ctx2.destination);
+        
+        oscillator2.frequency.value = 1000; // Higher pitch
+        oscillator2.type = 'sine';
+        
+        gainNode2.gain.setValueAtTime(0.3, ctx2.currentTime);
+        gainNode2.gain.exponentialRampToValueAtTime(0.01, ctx2.currentTime + 0.5);
+        
+        oscillator2.start(ctx2.currentTime);
+        oscillator2.stop(ctx2.currentTime + 0.5);
+      }, 300);
+    } catch (error) {
+      console.error('Error playing beep:', error);
+    }
+  }, [settings.soundEnabled]);
+
+  // Vibrate device
+  const vibrate = useCallback(() => {
+    if (!settings.vibrationEnabled) return;
+    
+    if (navigator.vibrate) {
+      navigator.vibrate([200, 100, 200]);
+    }
+  }, [settings.vibrationEnabled]);
+
+  // Play sound and vibration on completion
   useEffect(() => {
-    audioRef.current = new Audio();
-    audioRef.current.src = "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleS8LQ5HX4Ki8aB0GQX3T6rG+dC0KQ4nS57XBfDcMRoLQ57jBgDsMR4DQ57nAgj4MR3/Q57rAgkAMR3/P5rnAgEEMR3/P5bjAfkIMR3/O5bfAf0MMR3/O5bbAfkQMR3/O5LXAfkUMR3/N47TAf0YMR3/N47S/fkcMR3/N47O/fkgMR3/M4rO/f0kMR3/M4bK/f0oMR3/M4bK+f0sMR3/L4LG+f0wMR3/L37C+gE0MR3/K3rC+gE4MR3/K3a++gE8MR37J3K6+gFAMRn7I26y9gFEMRX3H2au8gFIMRHzG16m7gVMMQ3vF1ai6gVQMQnrE1Ka5glYMQHnC0qS4gl0MP3fAz6K2g2EMPXa/zZ+0g2cMO3S8y5yxg20MOXKzyJmug3MMNm+wxpWrg3kML2ytwZKng34MK2iqvY6kg4QMJ2Wnt4qggokMImGjsoaagpAMHV2frnqSgpYMFlmZpm9+gZ0MD1OSm2Ntf6AMBQ==";
+    if (isComplete) {
+      playBeep();
+      vibrate();
+    }
+  }, [isComplete, playBeep, vibrate]);
+
+  // Initialize AudioContext on first user interaction (required for iOS)
+  useEffect(() => {
+    const initAudio = () => {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+    };
+
+    document.addEventListener('touchstart', initAudio, { once: true });
+    document.addEventListener('click', initAudio, { once: true });
+
     return () => {
-      audioRef.current = null;
+      document.removeEventListener('touchstart', initAudio);
+      document.removeEventListener('click', initAudio);
     };
   }, []);
-
-  // Play sound on completion
-  useEffect(() => {
-    if (isComplete && audioRef.current) {
-      audioRef.current.play().catch(() => {
-        // Ignore autoplay errors
-      });
-      // Try vibration
-      if (navigator.vibrate) {
-        navigator.vibrate([200, 100, 200]);
-      }
-    }
-  }, [isComplete]);
 
   const progress = totalTime > 0 ? ((totalTime - timeLeft) / totalTime) * 100 : 0;
 
