@@ -33,18 +33,20 @@ self.addEventListener('push', function(event) {
     body: data.body,
     icon: data.icon || '/icon-192.png',
     badge: data.badge || '/icon-192.png',
-    tag: 'odgruzuj-notification',
-    renotify: true,
-    requireInteraction: !isIOS, // iOS doesn't support this well
+    tag: data.tag || 'odgruzuj-notification',
+    renotify: data.renotify !== undefined ? data.renotify : true,
+    requireInteraction: !isIOS && (data.requireInteraction !== undefined ? data.requireInteraction : true),
     data: data.data || { url: '/' },
+    silent: false, // Ensure notification plays system sound
   };
 
   // Only add vibrate and actions for non-iOS (iOS doesn't support these)
   if (!isIOS) {
-    options.vibrate = [200, 100, 200];
+    // Alarm-like vibration pattern: long-short-long-short-long
+    options.vibrate = [500, 200, 500, 200, 500, 200, 300, 100, 300];
     options.actions = [
-      { action: 'open', title: 'Otwórz aplikację' },
-      { action: 'dismiss', title: 'Odrzuć' }
+      { action: 'open', title: '🧹 Porządkuję!' },
+      { action: 'dismiss', title: '⏰ Później' }
     ];
   }
 
