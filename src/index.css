@@ -111,6 +111,28 @@
   .font-body {
     font-family: var(--font-body);
   }
+
+  /* Safe area utilities for mobile devices with notches/status bars */
+  .safe-area-pt {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .safe-area-pl {
+    padding-left: env(safe-area-inset-left, 0px);
+  }
+
+  .safe-area-pr {
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  /* Combined padding for top nav: base height (3.5rem/14) + safe area */
+  .pt-nav {
+    padding-top: calc(3.5rem + env(safe-area-inset-top, 0px));
+  }
 }
 
 @layer components {

@@ -45,7 +45,7 @@ export default function History() {
   const monthCount = getThisMonthsTasks().length;
 
   return (
-    <div className="min-h-screen bg-background pb-24 pt-14">
+    <div className="min-h-screen bg-background pb-24 pt-nav">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 px-4 py-4">
         <div className="max-w-lg mx-auto">
