@@ -381,6 +381,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_push_subscription_status: {
+        Args: { p_user_id: string }
+        Returns: {
+          has_subscription: boolean
+          is_active: boolean
+          notification_time: string
+        }[]
+      }
       decrypt_email: { Args: { encrypted_email: string }; Returns: string }
       decrypt_push_data: { Args: { encrypted_text: string }; Returns: string }
       encrypt_email: { Args: { plain_email: string }; Returns: string }
