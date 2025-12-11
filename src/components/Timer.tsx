@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Play, Pause, RotateCcw } from "lucide-react";
+import { Play, Pause, RotateCcw, SkipForward } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TimerProps {
@@ -11,6 +11,7 @@ interface TimerProps {
   onStart: () => void;
   onPause: () => void;
   onReset: () => void;
+  onSkip?: () => void;
   formatTime: (seconds: number) => string;
   totalTime: number;
 }
@@ -24,6 +25,7 @@ export function Timer({
   onStart,
   onPause,
   onReset,
+  onSkip,
   formatTime,
   totalTime,
 }: TimerProps) {
@@ -129,7 +131,17 @@ export function Timer({
           )}
         </button>
 
-        <div className="w-11" /> {/* Spacer for symmetry */}
+        {onSkip ? (
+          <button
+            onClick={onSkip}
+            className="p-3 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all duration-200 active:scale-95"
+            aria-label="Pomiń"
+          >
+            <SkipForward className="w-5 h-5" />
+          </button>
+        ) : (
+          <div className="w-11" />
+        )}
       </div>
     </div>
   );

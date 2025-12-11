@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Crown, Check, SkipForward, Flame, Trophy, Star, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { FlashCard } from "@/components/FlashCard";
 import { Timer } from "@/components/Timer";
 import { StatsCard } from "@/components/StatsCard";
@@ -15,6 +16,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [newBadge, setNewBadge] = useState<Badge | null>(null);
   const [startTime, setStartTime] = useState<number | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const { subscribed } = useSubscription();
 
   const {
@@ -117,6 +119,17 @@ export default function Dashboard() {
     skipFlashcard();
   };
 
+  // Silent skip (no stats impact) with animation
+  const handleSilentSkip = useCallback(() => {
+    setIsTransitioning(true);
+    reset();
+    setStartTime(null);
+    setTimeout(() => {
+      getNextFlashcard();
+      setIsTransitioning(false);
+    }, 200);
+  }, [reset, getNextFlashcard]);
+
   const handleUpgrade = () => {
     navigate('/settings?section=subscription');
   };
@@ -195,12 +208,15 @@ export default function Dashboard() {
             <p className="text-muted-foreground">Ładowanie fiszek...</p>
           </div>
         ) : currentFlashcard ? (
-          <>
+          <div className={cn(
+            "transition-all duration-200",
+            isTransitioning ? "opacity-0 translate-x-8" : "opacity-100 translate-x-0"
+          )}>
             <FlashCard flashcard={currentFlashcard} />
 
             {/* Timer */}
             {currentFlashcard.isTimedTask && (
-              <div className="card-elevated p-6 flex flex-col items-center">
+              <div className="card-elevated p-6 flex flex-col items-center mt-6">
                 <Timer
                   timeLeft={timeLeft}
                   isRunning={isRunning}
@@ -210,24 +226,15 @@ export default function Dashboard() {
                   onStart={start}
                   onPause={pause}
                   onReset={reset}
+                  onSkip={handleSilentSkip}
                   formatTime={formatTime}
                   totalTime={timerDuration}
                 />
-                <button
-                  onClick={() => {
-                    reset();
-                    setStartTime(null);
-                    getNextFlashcard();
-                  }}
-                  className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
-                >
-                  pomiń
-                </button>
               </div>
             )}
 
             {/* Action buttons */}
-            <div className="flex gap-3">
+            <div className="flex gap-3 mt-6">
               <button
                 onClick={handleSkip}
                 className="flex-1 btn-secondary flex items-center justify-center gap-2"
@@ -243,7 +250,7 @@ export default function Dashboard() {
                 Wykonane
               </button>
             </div>
-          </>
+          </div>
         ) : (
           <div className="card-elevated p-8 text-center">
             <div className="w-16 h-16 mx-auto mb-4 bg-success/10 rounded-full flex items-center justify-center">
