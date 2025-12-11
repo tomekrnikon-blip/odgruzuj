@@ -381,6 +381,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      decrypt_push_data: { Args: { encrypted_text: string }; Returns: string }
+      encrypt_push_data: { Args: { plain_text: string }; Returns: string }
       get_admin_profiles: {
         Args: never
         Returns: {
@@ -391,6 +393,18 @@ export type Database = {
           subscription_expires_at: string
           subscription_status: Database["public"]["Enums"]["subscription_status"]
           updated_at: string
+          user_id: string
+        }[]
+      }
+      get_push_subscriptions_decrypted: {
+        Args: never
+        Returns: {
+          auth: string
+          endpoint: string
+          id: string
+          is_active: boolean
+          notification_time: string
+          p256dh: string
           user_id: string
         }[]
       }
