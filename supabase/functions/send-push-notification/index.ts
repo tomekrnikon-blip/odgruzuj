@@ -43,14 +43,29 @@ const handler = async (req: Request): Promise<Response> => {
     // Create admin client for database operations
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Parse request body first to check for service key
+    // Check for service key in header (for cron/scheduled calls) - more secure than request body
+    const serviceKeyHeader = req.headers.get("X-Service-Key");
+    const isServiceCall = serviceKeyHeader === supabaseServiceKey;
+    
+    // Validate service calls don't come from browser origins (internal only)
+    if (isServiceCall) {
+      const origin = req.headers.get("origin");
+      if (origin !== null) {
+        logStep("ERROR: Service call with browser origin rejected");
+        return new Response(
+          JSON.stringify({ error: "Invalid origin for service call" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    // Parse request body
     let requestBody: { 
       userId?: string; 
       targetUserId?: string; 
       title?: string; 
       body?: string; 
       sendToAll?: boolean;
-      serviceKey?: string;
     } = {};
     
     try {
@@ -58,9 +73,6 @@ const handler = async (req: Request): Promise<Response> => {
     } catch {
       requestBody = {};
     }
-
-    // Check for service key (for cron/scheduled calls)
-    const isServiceCall = requestBody.serviceKey === supabaseServiceKey;
     
     if (!isServiceCall) {
       // Verify user authorization
