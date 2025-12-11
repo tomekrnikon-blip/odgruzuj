@@ -21,16 +21,33 @@ const logStep = (step: string, details?: Record<string, unknown>) => {
   console.log(`[SCHEDULED-PUSH ${timestamp}] ${step}`, details ? JSON.stringify(details) : "");
 };
 
-// Motivational messages in Polish
-const motivationalMessages = [
-  "Czas na porządki! 🧹 Dziś uporządkujesz kolejny kącik!",
-  "Hej! Twoja codzienna fiszka czeka! ✨",
-  "15 minut dziennie = wielka zmiana! 💪 Zaczynamy?",
-  "Mniej rzeczy = więcej spokoju! 🧘 Pora działać!",
-  "Każdy mały krok się liczy! 🏃‍♂️ Dziś kolejny!",
-  "Twoje przyszłe ja będzie wdzięczne! 🙏 Otwórz aplikację!",
-  "Nowy dzień, nowe wyzwanie! 🌅 Sprawdź swoją fiszkę!",
-  "Gotowy na mini-porządki? 🎯 Dzisiejsze zadanie czeka!",
+// Alarm titles in Polish
+const alarmTitles = [
+  "🚨 ALARM PORZĄDKOWY! 🚨",
+  "⏰ CZAS NA AKCJĘ! ⏰",
+  "🔔 DZWONI PORZĄDEK! 🔔",
+  "📢 UWAGA! UWAGA! 📢",
+  "🆘 CHAOS WYKRYTY! 🆘",
+  "⚡ MISJA PORZĄDKOWA! ⚡",
+];
+
+// Funny motivational comments in Polish
+const funnyComments = [
+  "Twoja szuflada płacze po nocach... Idź ją pocieszyć! 😭",
+  "Kurz właśnie zapytał czy może zostać na stałe. Powiedz mu NIE! 🙅‍♂️",
+  "Rupieciki szepcą: 'Uwolnij nas!' Czas działać! 🗣️",
+  "Bałagan myśli że wygrał. Udowodnij mu że się myli! 💪",
+  "Szafa pęka w szwach! Ratuj sytuację! 🆘",
+  "Twoje przyszłe ja będzie Ci dzisiaj dziękować! 🙏",
+  "15 minut i jesteś bohaterem! Pluszowy miś wierzy w Ciebie! 🧸",
+  "Graty muszą odejść. Jesteś ich egzorcystą! 👻",
+  "Chaos level: OVER 9000! Czas obniżyć! 📉",
+  "Porządek zaprasza na kawę. Przyjmij zaproszenie! ☕",
+  "Dziś wyrzucisz coś, czego nawet nie pamiętasz! 🤔",
+  "Twój kącik chce wyglądać jak z Pinteresta! 📸",
+  "Minimalizm dzwoni. Odbierz! 📞",
+  "Mniej rzeczy = więcej miejsca na szczęście! 🌈",
+  "Nawet 5 minut robi różnicę! No dalej! 🚀",
 ];
 
 const handler = async (req: Request): Promise<Response> => {
@@ -152,14 +169,18 @@ const handler = async (req: Request): Promise<Response> => {
 
     logStep("Subscriptions to send", { count: subsToUse.length });
 
-    // Select a random motivational message
-    const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
+    // Select random alarm title and funny comment
+    const randomTitle = alarmTitles[Math.floor(Math.random() * alarmTitles.length)];
+    const randomComment = funnyComments[Math.floor(Math.random() * funnyComments.length)];
 
     const payload = JSON.stringify({
-      title: "odgruzuj.pl",
-      body: randomMessage,
+      title: randomTitle,
+      body: randomComment,
       icon: "/icon-192.png",
       badge: "/icon-192.png",
+      tag: "declutter-alarm",
+      renotify: true,
+      requireInteraction: true,
       data: { url: "/" },
     });
 
