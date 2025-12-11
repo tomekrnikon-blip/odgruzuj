@@ -6,16 +6,22 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface PushSubscription {
+interface DecryptedSubscription {
   id: string;
-  endpoint: string;
-  p256dh: string;
-  auth: string;
   user_id: string;
+  endpoint: string;
+  auth: string;
+  p256dh: string;
+  is_active: boolean;
+  notification_time: string;
 }
 
+const logStep = (step: string, details?: Record<string, unknown>) => {
+  console.log(`[SEND-PUSH] ${step}`, details ? JSON.stringify(details) : "");
+};
+
 const handler = async (req: Request): Promise<Response> => {
-  console.log("[SEND-PUSH] Function started");
+  logStep("Function started");
 
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -28,7 +34,7 @@ const handler = async (req: Request): Promise<Response> => {
     const vapidPrivateKey = Deno.env.get("VAPID_PRIVATE_KEY");
 
     if (!vapidPublicKey || !vapidPrivateKey) {
-      console.error("[SEND-PUSH] VAPID keys not configured");
+      logStep("ERROR: VAPID keys not configured");
       return new Response(
         JSON.stringify({ error: "VAPID keys not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -38,84 +44,115 @@ const handler = async (req: Request): Promise<Response> => {
     // Create admin client for database operations
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify authorization - require valid JWT token
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      console.error("[SEND-PUSH] No authorization header provided");
-      return new Response(
-        JSON.stringify({ error: "Unauthorized - no authorization header" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const token = authHeader.replace("Bearer ", "");
+    // Parse request body first to check for service key
+    let requestBody: { 
+      userId?: string; 
+      targetUserId?: string; 
+      title?: string; 
+      body?: string; 
+      sendToAll?: boolean;
+      serviceKey?: string;
+    } = {};
     
-    // Create a client with the user's token to verify their identity
-    const supabaseUser = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
-      global: { headers: { Authorization: `Bearer ${token}` } }
-    });
+    try {
+      requestBody = await req.json();
+    } catch {
+      requestBody = {};
+    }
 
-    const { data: userData, error: userError } = await supabaseUser.auth.getUser();
+    // Check for service key (for cron/scheduled calls)
+    const isServiceCall = requestBody.serviceKey === supabaseServiceKey;
     
-    if (userError || !userData?.user) {
-      console.error("[SEND-PUSH] Invalid token:", userError?.message);
-      return new Response(
-        JSON.stringify({ error: "Unauthorized - invalid token" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (!isServiceCall) {
+      // Verify user authorization
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader) {
+        logStep("ERROR: No authorization header");
+        return new Response(
+          JSON.stringify({ error: "Unauthorized - no authorization header" }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const token = authHeader.replace("Bearer ", "");
+      
+      // Create a client with the user's token to verify their identity
+      const supabaseUser = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+        global: { headers: { Authorization: `Bearer ${token}` } }
+      });
+
+      const { data: userData, error: userError } = await supabaseUser.auth.getUser();
+      
+      if (userError || !userData?.user) {
+        logStep("ERROR: Invalid token", { error: userError?.message });
+        return new Response(
+          JSON.stringify({ error: "Unauthorized - invalid token" }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const userId = userData.user.id;
+      logStep("Authenticated user", { userId });
+
+      // Check if user has admin role using the has_role function
+      const { data: isAdmin, error: roleError } = await supabaseAdmin.rpc("has_role", {
+        _user_id: userId,
+        _role: "admin"
+      });
+
+      if (roleError) {
+        logStep("ERROR: Checking admin role failed", { error: roleError.message });
+        return new Response(
+          JSON.stringify({ error: "Error verifying permissions" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (!isAdmin) {
+        logStep("ERROR: User is not admin", { userId });
+        return new Response(
+          JSON.stringify({ error: "Forbidden - admin access required" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      logStep("Admin authorization verified", { userId });
+    } else {
+      logStep("Service call authorized");
     }
 
-    const userId = userData.user.id;
-    console.log("[SEND-PUSH] Authenticated user:", userId);
+    const { targetUserId, title, body, sendToAll } = requestBody;
+    logStep("Request params", { targetUserId, title, body, sendToAll });
 
-    // Check if user has admin role using the has_role function
-    const { data: isAdmin, error: roleError } = await supabaseAdmin.rpc("has_role", {
-      _user_id: userId,
-      _role: "admin"
-    });
+    // Use the secure function to get decrypted subscriptions
+    const { data: subscriptions, error: subsError } = await supabaseAdmin.rpc(
+      "get_push_subscriptions_decrypted"
+    );
 
-    if (roleError) {
-      console.error("[SEND-PUSH] Error checking admin role:", roleError.message);
-      return new Response(
-        JSON.stringify({ error: "Error verifying permissions" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    if (!isAdmin) {
-      console.error("[SEND-PUSH] User is not an admin:", userId);
-      return new Response(
-        JSON.stringify({ error: "Forbidden - admin access required" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    console.log("[SEND-PUSH] Admin authorization verified for user:", userId);
-
-    const { userId: targetUserId, title, body, sendToAll } = await req.json();
-
-    console.log("[SEND-PUSH] Request:", { targetUserId, title, body, sendToAll });
-
-    let query = supabaseAdmin
-      .from("push_subscriptions")
-      .select("*")
-      .eq("is_active", true);
-
-    if (!sendToAll && targetUserId) {
-      query = query.eq("user_id", targetUserId);
-    }
-
-    const { data: subscriptions, error } = await query;
-
-    if (error) {
-      console.error("[SEND-PUSH] Error fetching subscriptions:", error);
+    if (subsError) {
+      logStep("ERROR: Fetching subscriptions failed", { error: subsError.message });
       return new Response(
         JSON.stringify({ error: "Failed to fetch subscriptions" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log(`[SEND-PUSH] Found ${subscriptions?.length || 0} subscriptions`);
+    // Filter subscriptions
+    let filteredSubs = (subscriptions as DecryptedSubscription[]) || [];
+    filteredSubs = filteredSubs.filter(sub => sub.is_active);
+    
+    if (!sendToAll && targetUserId) {
+      filteredSubs = filteredSubs.filter(sub => sub.user_id === targetUserId);
+    }
+
+    logStep("Found subscriptions", { count: filteredSubs.length });
+
+    if (filteredSubs.length === 0) {
+      return new Response(
+        JSON.stringify({ success: true, sent: 0, failed: 0, message: "No active subscriptions found" }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const payload = JSON.stringify({
       title: title || "odgruzuj.pl",
@@ -127,9 +164,16 @@ const handler = async (req: Request): Promise<Response> => {
     let successCount = 0;
     let failCount = 0;
 
-    for (const sub of (subscriptions as PushSubscription[]) || []) {
+    for (const sub of filteredSubs) {
       try {
-        // Simple push notification via endpoint
+        logStep("Sending to subscription", { 
+          endpoint: sub.endpoint.substring(0, 50) + "...",
+          hasAuth: !!sub.auth,
+          hasP256dh: !!sub.p256dh
+        });
+
+        // Simple push notification - for full Web Push we'd need web-push library
+        // This is a simplified version that works with some endpoints
         const response = await fetch(sub.endpoint, {
           method: "POST",
           headers: {
@@ -141,34 +185,41 @@ const handler = async (req: Request): Promise<Response> => {
 
         if (response.ok || response.status === 201) {
           successCount++;
-          console.log(`[SEND-PUSH] Sent to ${sub.endpoint}`);
+          logStep("Push sent successfully", { endpoint: sub.endpoint.substring(0, 30) });
         } else {
-          console.error(`[SEND-PUSH] Failed for ${sub.endpoint}: ${response.status}`);
+          const responseText = await response.text();
+          logStep("Push failed", { 
+            status: response.status, 
+            endpoint: sub.endpoint.substring(0, 30),
+            response: responseText.substring(0, 100)
+          });
           failCount++;
           
-          // Mark failed subscription as inactive if 404 or 410
+          // Mark failed subscription as inactive if 404 or 410 (expired)
           if (response.status === 404 || response.status === 410) {
             await supabaseAdmin
               .from("push_subscriptions")
               .update({ is_active: false })
               .eq("id", sub.id);
+            logStep("Marked subscription as inactive", { id: sub.id });
           }
         }
       } catch (err) {
-        console.error(`[SEND-PUSH] Error for ${sub.endpoint}:`, err);
+        const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        logStep("Push error", { endpoint: sub.endpoint.substring(0, 30), error: errorMessage });
         failCount++;
       }
     }
 
-    console.log(`[SEND-PUSH] Sent: ${successCount}, Failed: ${failCount}`);
+    logStep("Completed", { sent: successCount, failed: failCount });
 
     return new Response(
       JSON.stringify({ success: true, sent: successCount, failed: failCount }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
-    console.error("[SEND-PUSH] Error:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    logStep("ERROR: Unhandled exception", { error: errorMessage });
     return new Response(
       JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
