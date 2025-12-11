@@ -186,7 +186,7 @@ export type Database = {
           subscription_status: Database["public"]["Enums"]["subscription_status"]
           updated_at: string
           user_id: string
-          user_number: number
+          user_number: number | null
         }
         Insert: {
           created_at?: string
@@ -197,7 +197,7 @@ export type Database = {
           subscription_status?: Database["public"]["Enums"]["subscription_status"]
           updated_at?: string
           user_id: string
-          user_number?: number
+          user_number?: number | null
         }
         Update: {
           created_at?: string
@@ -208,7 +208,7 @@ export type Database = {
           subscription_status?: Database["public"]["Enums"]["subscription_status"]
           updated_at?: string
           user_id?: string
-          user_number?: number
+          user_number?: number | null
         }
         Relationships: []
       }
