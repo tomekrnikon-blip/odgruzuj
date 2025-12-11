@@ -15,8 +15,9 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.jpg", "logo.jpg", "icon-192.png", "icon-512.png"],
+      includeAssets: ["favicon.jpg", "logo.jpg", "icon-192.png", "icon-512.png", "apple-touch-icon.png"],
       manifest: {
+        id: "pl.odgruzuj.app",
         name: "odgruzuj.pl - Sprzątaj z uśmiechem",
         short_name: "odgruzuj",
         description: "Aplikacja do declutteringu z zabawnymi fiszkami, stoperem i grywalizacją. Porządkuj swój dom z uśmiechem!",
@@ -29,6 +30,7 @@ export default defineConfig(({ mode }) => ({
         categories: ["lifestyle", "productivity", "utilities"],
         lang: "pl",
         dir: "ltr",
+        prefer_related_applications: false,
         icons: [
           {
             src: "/icon-192.png",
@@ -53,6 +55,12 @@ export default defineConfig(({ mode }) => ({
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable",
+          },
+          {
+            src: "/apple-touch-icon.png",
+            sizes: "180x180",
+            type: "image/png",
+            purpose: "any",
           },
         ],
         screenshots: [

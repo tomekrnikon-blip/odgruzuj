@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocalStorage } from './useLocalStorage';
 import { Category, categories, Difficulty } from '@/data/flashcards';
@@ -110,8 +110,26 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
     }
   }, []);
 
+  // Track if we've loaded data once
+  const hasLoadedOnce = useRef(false);
+
   useEffect(() => {
     fetchFlashcards();
+    hasLoadedOnce.current = true;
+  }, [fetchFlashcards]);
+
+  // Auto-refresh when coming back online
+  useEffect(() => {
+    const handleOnline = () => {
+      console.log('Connection restored - refreshing flashcards...');
+      fetchFlashcards();
+    };
+
+    window.addEventListener('online', handleOnline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+    };
   }, [fetchFlashcards]);
 
   // Get available flashcards based on user's category and difficulty selection
