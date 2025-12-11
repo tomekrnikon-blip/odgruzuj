@@ -16,6 +16,7 @@ interface Profile {
   user_id: string;
   email: string;
   display_name: string | null;
+  user_number: number;
   subscription_status: 'free' | 'active' | 'cancelled' | 'expired';
   subscription_expires_at: string | null;
   created_at: string;
@@ -40,9 +41,9 @@ export function UserManager() {
         .rpc('get_admin_profiles');
 
       if (error) throw error;
-      // Sort by created_at descending
+      // Sort by user_number ascending (admin #1 first)
       return (data as Profile[])?.sort((a, b) => 
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        a.user_number - b.user_number
       ) ?? [];
     }
   });
@@ -141,7 +142,7 @@ export function UserManager() {
   };
 
   const filteredUsers = users?.filter(user => 
-    user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.user_number.toString().includes(searchQuery) ||
     user.display_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -186,7 +187,7 @@ export function UserManager() {
             <div className="relative pt-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 mt-2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Szukaj po emailu lub nazwie..."
+                placeholder="Szukaj po numerze lub nazwie..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -212,8 +213,9 @@ export function UserManager() {
                     >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-primary">#{user.user_number}</span>
                             <p className="font-medium text-foreground truncate">
-                              {user.display_name || user.email}
+                              {user.display_name || 'Użytkownik'}
                             </p>
                             {getStatusBadge(user.subscription_status)}
                             {userIsAdmin && (
@@ -223,9 +225,6 @@ export function UserManager() {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-sm text-muted-foreground truncate">
-                            {user.email}
-                          </p>
                         <p className="text-xs text-muted-foreground">
                           Dołączył: {format(new Date(user.created_at), 'dd MMM yyyy', { locale: pl })}
                           {user.subscription_status === 'active' && user.subscription_expires_at && (

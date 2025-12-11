@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { NotificationBell } from "./NotificationBell";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import logo from "@/assets/logo.jpg";
 
 const navItems = [
@@ -16,6 +17,7 @@ const navItems = [
 export function Navigation() {
   const { signOut } = useAuth();
   const { isAdmin } = useAdminAuth();
+  const { userNumber } = useUserProfile();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -38,6 +40,11 @@ export function Navigation() {
             <span className="font-heading font-bold text-foreground">odgruzuj.pl</span>
           </NavLink>
           <div className="flex items-center gap-2">
+            {userNumber && (
+              <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded-full">
+                #{userNumber}
+              </span>
+            )}
             <NotificationBell />
             <button
               onClick={handleLogout}
