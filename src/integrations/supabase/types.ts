@@ -378,47 +378,22 @@ export type Database = {
       }
     }
     Views: {
-      admin_profiles_view: {
-        Row: {
-          created_at: string | null
-          display_name: string | null
-          email: string | null
-          id: string | null
-          subscription_expires_at: string | null
-          subscription_status:
-            | Database["public"]["Enums"]["subscription_status"]
-            | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          display_name?: string | null
-          email?: never
-          id?: string | null
-          subscription_expires_at?: string | null
-          subscription_status?:
-            | Database["public"]["Enums"]["subscription_status"]
-            | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          display_name?: string | null
-          email?: never
-          id?: string | null
-          subscription_expires_at?: string | null
-          subscription_status?:
-            | Database["public"]["Enums"]["subscription_status"]
-            | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
+      get_admin_profiles: {
+        Args: never
+        Returns: {
+          created_at: string
+          display_name: string
+          email: string
+          id: string
+          subscription_expires_at: string
+          subscription_status: Database["public"]["Enums"]["subscription_status"]
+          updated_at: string
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
