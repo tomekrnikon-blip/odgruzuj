@@ -6,19 +6,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface EncryptedRecord {
-  id: string;
-  encrypted_value: string;
-}
-
 const logStep = (step: string, details?: Record<string, unknown>) => {
   const timestamp = new Date().toISOString();
   console.log(JSON.stringify({ timestamp, step, ...details }));
 };
 
-// Decrypt using old key with pgcrypto
+// Decrypt using old key with pgcrypto via RPC
 async function decryptWithOldKey(
-  supabase: ReturnType<typeof createClient>,
+  supabase: any,
   encryptedValue: string,
   oldKey: string
 ): Promise<string | null> {
@@ -44,9 +39,9 @@ async function decryptWithOldKey(
   }
 }
 
-// Encrypt using new key with pgcrypto
+// Encrypt using new key with pgcrypto via RPC
 async function encryptWithNewKey(
-  supabase: ReturnType<typeof createClient>,
+  supabase: any,
   plainValue: string,
   newKey: string
 ): Promise<string | null> {
