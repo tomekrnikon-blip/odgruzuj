@@ -14,6 +14,7 @@ interface DecryptedSubscription {
   p256dh: string;
   is_active: boolean;
   notification_time: string;
+  platform?: string;
 }
 
 const logStep = (step: string, details?: Record<string, unknown>) => {
@@ -50,6 +51,108 @@ const funnyComments = [
   "Nawet 5 minut robi różnicę! No dalej! 🚀",
 ];
 
+// Send Web Push notification (for PWA/browsers)
+async function sendWebPush(
+  sub: DecryptedSubscription,
+  payload: string,
+  vapidPublicKey: string
+): Promise<{ success: boolean; status?: number; error?: string }> {
+  try {
+    const response = await fetch(sub.endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "TTL": "86400",
+        "Urgency": "high",
+        "Crypto-Key": `p256ecdsa=${vapidPublicKey}`,
+      },
+      body: payload,
+    });
+
+    if (response.ok || response.status === 201) {
+      return { success: true, status: response.status };
+    }
+
+    const responseText = await response.text();
+    return { 
+      success: false, 
+      status: response.status, 
+      error: responseText.substring(0, 200) 
+    };
+  } catch (err) {
+    return { 
+      success: false, 
+      error: err instanceof Error ? err.message : "Unknown error" 
+    };
+  }
+}
+
+// Send FCM notification (for native Android apps)
+async function sendFCMPush(
+  token: string,
+  title: string,
+  body: string,
+  data?: Record<string, unknown>
+): Promise<{ success: boolean; error?: string }> {
+  const fcmServerKey = Deno.env.get("FCM_SERVER_KEY");
+  
+  if (!fcmServerKey) {
+    return { success: false, error: "FCM_SERVER_KEY not configured" };
+  }
+
+  try {
+    const response = await fetch("https://fcm.googleapis.com/fcm/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `key=${fcmServerKey}`,
+      },
+      body: JSON.stringify({
+        to: token,
+        notification: {
+          title,
+          body,
+          icon: "ic_notification",
+          sound: "default",
+          android_channel_id: "declutter_channel",
+        },
+        data: data || { url: "/" },
+        priority: "high",
+      }),
+    });
+
+    const result = await response.json();
+    
+    if (result.success === 1) {
+      return { success: true };
+    }
+    
+    if (result.failure === 1 && result.results?.[0]?.error) {
+      return { success: false, error: result.results[0].error };
+    }
+
+    return { success: false, error: JSON.stringify(result) };
+  } catch (err) {
+    return { 
+      success: false, 
+      error: err instanceof Error ? err.message : "Unknown error" 
+    };
+  }
+}
+
+// Send APNs notification (for native iOS apps) - placeholder
+async function sendAPNsPush(
+  token: string,
+  title: string,
+  body: string
+): Promise<{ success: boolean; error?: string }> {
+  logStep("WARNING: iOS APNs not fully implemented", { token: token.substring(0, 20) });
+  return { 
+    success: false, 
+    error: "iOS APNs not implemented - use Firebase Cloud Messaging for iOS instead" 
+  };
+}
+
 const handler = async (req: Request): Promise<Response> => {
   logStep("Scheduled notification function started");
 
@@ -70,7 +173,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Verify this is a legitimate cron call (check for Authorization header with anon key)
+    // Verify this is a legitimate cron call
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       logStep("ERROR: No authorization - rejecting request");
@@ -96,7 +199,7 @@ const handler = async (req: Request): Promise<Response> => {
       utcTime: now.toISOString()
     });
 
-    // Get all active subscriptions - we need to use service role to bypass RLS
+    // Get all active subscriptions
     const { data: subscriptions, error: subsError } = await supabaseAdmin
       .from("push_subscriptions")
       .select("*")
@@ -115,8 +218,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Filter subscriptions that match the current minute
     const matchingSubscriptions = (subscriptions || []).filter(sub => {
       if (!sub.notification_time) return false;
-      // notification_time is stored as "HH:MM:00" format
-      const subTime = sub.notification_time.substring(0, 5); // Get "HH:MM"
+      const subTime = sub.notification_time.substring(0, 5);
       const currentTime = `${currentHour}:${currentMinute}`;
       return subTime === currentTime;
     });
@@ -137,9 +239,6 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Need to decrypt the subscription keys
-    // We'll try to use direct decryption or fall back to raw keys
-    
     // Get decrypted subscriptions using service role
     const { data: decryptedSubs, error: decryptError } = await supabaseAdmin.rpc(
       "get_push_subscriptions_decrypted_service"
@@ -151,7 +250,6 @@ const handler = async (req: Request): Promise<Response> => {
       logStep("Note: Could not use decrypted function, using raw subscriptions", { 
         error: decryptError.message 
       });
-      // Fall back to raw subscriptions (keys might not be encrypted)
       subsToUse = matchingSubscriptions.map(s => ({
         id: s.id,
         user_id: s.user_id,
@@ -159,21 +257,27 @@ const handler = async (req: Request): Promise<Response> => {
         auth: s.auth,
         p256dh: s.p256dh,
         is_active: s.is_active,
-        notification_time: s.notification_time
+        notification_time: s.notification_time,
+        platform: s.platform || "web"
       }));
     } else {
-      // Filter decrypted subs to only matching ones
       const matchingIds = new Set(matchingSubscriptions.map(s => s.id));
       subsToUse = (decryptedSubs || []).filter((s: DecryptedSubscription) => matchingIds.has(s.id));
+      // Add platform info from original subscriptions
+      const platformMap = new Map(matchingSubscriptions.map(s => [s.id, s.platform || "web"]));
+      subsToUse = subsToUse.map(s => ({ ...s, platform: platformMap.get(s.id) || "web" }));
     }
 
-    logStep("Subscriptions to send", { count: subsToUse.length });
+    logStep("Subscriptions to send", { 
+      count: subsToUse.length,
+      platforms: subsToUse.map(s => s.platform)
+    });
 
     // Select random alarm title and funny comment
     const randomTitle = alarmTitles[Math.floor(Math.random() * alarmTitles.length)];
     const randomComment = funnyComments[Math.floor(Math.random() * funnyComments.length)];
 
-    const payload = JSON.stringify({
+    const webPayload = JSON.stringify({
       title: randomTitle,
       body: randomComment,
       icon: "/icon-192.png",
@@ -188,52 +292,49 @@ const handler = async (req: Request): Promise<Response> => {
     let failCount = 0;
 
     for (const sub of subsToUse) {
-      try {
-        logStep("Sending notification", { 
-          userId: sub.user_id,
-          endpoint: sub.endpoint.substring(0, 50) + "..."
-        });
+      const platform = sub.platform || "web";
+      logStep("Sending notification", { 
+        userId: sub.user_id,
+        platform,
+        endpoint: sub.endpoint.substring(0, 50) + "..."
+      });
 
-        // Send push notification
-        const response = await fetch(sub.endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "TTL": "86400",
-            "Urgency": "normal",
-            "Crypto-Key": `p256ecdsa=${vapidPublicKey}`,
-          },
-          body: payload,
-        });
+      let result: { success: boolean; status?: number; error?: string };
 
-        if (response.ok || response.status === 201) {
-          successCount++;
-          logStep("Push sent successfully", { 
-            userId: sub.user_id,
-            status: response.status 
-          });
-        } else {
-          const responseText = await response.text();
-          logStep("Push failed", { 
-            userId: sub.user_id,
-            status: response.status,
-            response: responseText.substring(0, 200)
-          });
-          failCount++;
-          
-          // Mark failed subscription as inactive if 404 or 410 (expired)
-          if (response.status === 404 || response.status === 410) {
-            await supabaseAdmin
-              .from("push_subscriptions")
-              .update({ is_active: false })
-              .eq("id", sub.id);
-            logStep("Marked subscription as inactive", { id: sub.id });
-          }
-        }
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Unknown error";
-        logStep("Push error", { userId: sub.user_id, error: errorMessage });
+      switch (platform) {
+        case "android":
+          result = await sendFCMPush(sub.endpoint, randomTitle, randomComment);
+          break;
+        
+        case "ios":
+          result = await sendAPNsPush(sub.endpoint, randomTitle, randomComment);
+          break;
+        
+        default:
+          result = await sendWebPush(sub, webPayload, vapidPublicKey);
+          break;
+      }
+
+      if (result.success) {
+        successCount++;
+        logStep("Push sent successfully", { userId: sub.user_id, platform });
+      } else {
         failCount++;
+        logStep("Push failed", { userId: sub.user_id, platform, error: result.error });
+        
+        // Mark subscription as inactive if expired
+        const expiredErrors = ["NotRegistered", "InvalidRegistration"];
+        if (
+          result.status === 404 || 
+          result.status === 410 ||
+          (result.error && expiredErrors.includes(result.error))
+        ) {
+          await supabaseAdmin
+            .from("push_subscriptions")
+            .update({ is_active: false })
+            .eq("id", sub.id);
+          logStep("Marked subscription as inactive", { id: sub.id });
+        }
       }
     }
 
