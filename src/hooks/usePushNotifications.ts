@@ -3,41 +3,89 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
 import { Capacitor } from '@capacitor/core';
-import { PushNotifications, Token } from '@capacitor/push-notifications';
+import { PushNotifications, Token, ActionPerformed } from '@capacitor/push-notifications';
 
 // Ten hook został zaktualizowany, aby korzystać z bezpiecznych funkcji RPC
 // do zapisu i szyfrowania danych subskrypcji w bazie danych.
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  // ... (ta funkcja pozostaje bez zmian)
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
 }
 
 export function usePushNotifications() {
   const { user } = useAuth();
+  const [isSupported, setIsSupported] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
-  // ... (reszta stanów bez zmian)
+  const [isLoading, setIsLoading] = useState(false);
+  const [permission, setPermission] = useState<string>('default');
+  const [vapidKey, setVapidKey] = useState<string>('');
 
   const isNative = Capacitor.isNativePlatform();
 
-  // ... (useEffect do sprawdzania wsparcia bez zmian)
+  useEffect(() => {
+    if (isNative) {
+      setIsSupported(true);
+      PushNotifications.checkPermissions().then(perm => setPermission(perm.receive));
+    } else {
+      const webSupported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+      setIsSupported(webSupported);
+      if (webSupported) {
+        setPermission(Notification.permission);
+        supabase.functions.invoke('get-vapid-key').then(({ data, error }) => {
+          if (!error && data?.publicKey) setVapidKey(data.publicKey);
+        });
+      }
+    }
+  }, [isNative]);
+
+  useEffect(() => {
+    if (!user || !isSupported) return;
+    const checkSubscription = async () => {
+      const { data } = await supabase.from('push_subscriptions').select('id').eq('user_id', user.id).limit(1);
+      setIsSubscribed(!!data && data.length > 0);
+    };
+    checkSubscription();
+  }, [user, isSupported]);
 
   const subscribe = useCallback(async (notificationTime?: string) => {
-    if (!user) return false;
-    // ... (logika proszenia o pozwolenie bez zmian)
+    if (!user || !isSupported) return false;
+    setIsLoading(true);
 
     try {
       if (isNative) {
-        // NATIVE PUSH: Rejestracja tokena jest obsługiwana przez listener
-        // Wystarczy poprosić o pozwolenie i zarejestrować urządzenie.
+        let permStatus = await PushNotifications.checkPermissions();
+        if (permStatus.receive === 'prompt') permStatus = await PushNotifications.requestPermissions();
+        if (permStatus.receive !== 'granted') {
+          toast.error('Musisz zezwolić na powiadomienia w ustawieniach aplikacji');
+          return false;
+        }
         await PushNotifications.register();
         return true;
       } else {
-        // WEB PUSH: Zapisujemy subskrypcję używając nowej funkcji RPC
+        const permissionResult = await Notification.requestPermission();
+        setPermission(permissionResult);
+        if (permissionResult !== 'granted') {
+          toast.error('Musisz zezwolić na powiadomienia w przeglądarce');
+          return false;
+        }
+        if (!vapidKey) {
+          toast.error('Klucz VAPID nie jest skonfigurowany');
+          return false;
+        }
+
         const registration = await navigator.serviceWorker.register('/sw-push.js');
-        // ... (reszta logiki subskrypcji web push)
+        await navigator.serviceWorker.ready;
+        const applicationServerKey = urlBase64ToUint8Array(vapidKey);
+        const subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey });
         const subJson = subscription.toJSON();
 
-        // ZMIANA: Zamiast upsert, wywołujemy bezpieczną funkcję RPC
         const { error } = await supabase.rpc('save_and_encrypt_subscription', {
           p_platform: 'web',
           p_endpoint: subJson.endpoint!,
@@ -52,37 +100,93 @@ export function usePushNotifications() {
         return true;
       }
     } catch (error) {
-      // ... (obsługa błędów bez zmian)
+      console.error('Error subscribing to push:', error);
+      toast.error('Nie udało się włączyć powiadomień');
+      return false;
+    } finally {
+      setIsLoading(false);
     }
-  }, [user, isNative, vapidKey]);
+  }, [user, isSupported, isNative, vapidKey]);
 
-  // Aktualizacja listenera dla powiadomień natywnych
+  const unsubscribe = useCallback(async () => {
+    if (!user) return false;
+    setIsLoading(true);
+    try {
+      if (!isNative) {
+         const registration = await navigator.serviceWorker.getRegistration('/sw-push.js');
+         const subscription = await registration?.pushManager.getSubscription();
+         await subscription?.unsubscribe();
+      }
+      await supabase.from('push_subscriptions').delete().eq('user_id', user.id);
+      setIsSubscribed(false);
+      toast.success('Powiadomienia push wyłączone');
+      return true;
+    } catch (error) {
+      console.error('Error unsubscribing:', error);
+      toast.error('Nie udało się wyłączyć powiadomień');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, isNative]);
+
   useEffect(() => {
     if (!isNative || !user) return;
 
-    PushNotifications.addListener('registration', async (token: Token) => {
-      // ZMIANA: Natywny token jest zapisywany przez tę samą funkcję RPC,
-      // ale przekazujemy puste wartości dla p256dh i auth, bo nie są one używane.
-      const { error } = await supabase.rpc('save_and_encrypt_subscription', {
-        p_platform: Capacitor.getPlatform(),
-        p_endpoint: token.value,
-        p_p256dh_plaintext: 'N/A', // Nie dotyczy platform natywnych
-        p_auth_plaintext: 'N/A',   // Nie dotyczy platform natywnych
-        p_notification_time: '09:00:00', // Domyślna wartość
-      });
+    PushNotifications.removeAllListeners().then(() => {
+        PushNotifications.addListener('registration', async (token: Token) => {
+            const { error } = await supabase.rpc('save_and_encrypt_subscription', {
+              p_platform: Capacitor.getPlatform(),
+              p_endpoint: token.value,
+              p_p256dh_plaintext: 'N/A',
+              p_auth_plaintext: 'N/A',
+              p_notification_time: '09:00:00',
+            });
 
-      if (error) {
-        toast.error(`Błąd zapisu tokena: ${error.message}`);
-      } else {
-        setIsSubscribed(true);
-        toast.success('Powiadomienia push włączone!');
-      }
+            if (error) {
+                toast.error(`Błąd zapisu tokena: ${error.message}`);
+            } else {
+                setIsSubscribed(true);
+                toast.success('Powiadomienia push włączone!');
+            }
+        });
+
+        PushNotifications.addListener('registrationError', (err: any) => {
+            toast.error(`Błąd rejestracji powiadomień: ${err.error}`);
+        });
+
+        PushNotifications.addListener('pushNotificationReceived', (notification) => {
+            console.log('Push received: ', notification);
+        });
+
+        PushNotifications.addListener('pushNotificationActionPerformed', (action: ActionPerformed) => {
+            console.log('Push action performed: ', action);
+        });
     });
 
-    // ... (reszta listenerów bez zmian)
+    return () => {
+        PushNotifications.removeAllListeners();
+    };
   }, [isNative, user]);
 
-  // ... (reszta hooka bez większych zmian)
+  const updateNotificationTime = useCallback(async (time: string) => {
+    if (!user) return false;
+    const { error } = await supabase.from('push_subscriptions').update({ notification_time: time }).eq('user_id', user.id);
+    if (error) {
+        toast.error("Błąd aktualizacji godziny");
+        return false;
+    }
+    toast.success('Godzina powiadomień zaktualizowana');
+    return true;
+  }, [user]);
 
-  return { /* ... */ };
+  return {
+    isSupported,
+    isSubscribed,
+    isLoading,
+    permission,
+    subscribe,
+    unsubscribe,
+    updateNotificationTime,
+  };
 }
