@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "467283777744",
+    "project_id": "odgruzuj",
+    "storage_bucket": "odgruzuj.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:467283777744:android:c4c39b65b176acbcbb26d5",
+        "android_client_info": {
+          "package_name": "pl.odgruzuj.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBi1vkLoGR_Jy031Yi197F-kf1ziFpQ6-8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

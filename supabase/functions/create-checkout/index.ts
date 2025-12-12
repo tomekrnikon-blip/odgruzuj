@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,6 +13,11 @@ const PRICE_IDS = {
   monthly: "price_1ScWPE9EWMAAADcflIpPIPRS", // 9.90 PLN/month
   yearly: "price_1ScWRg9EWMAAADcfHNoeUUK7",  // 49.90 PLN/year
 };
+
+// Zod schema for input validation
+const CheckoutSchema = z.object({
+  plan: z.enum(['monthly', 'yearly']).default('yearly'),
+});
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
@@ -31,16 +37,8 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    // Parse request body to get plan type
-    let plan: "monthly" | "yearly" = "yearly";
-    try {
-      const body = await req.json();
-      if (body.plan === "monthly") {
-        plan = "monthly";
-      }
-    } catch {
-      // Default to yearly if no body
-    }
+    const body = await req.json();
+    const { plan } = CheckoutSchema.parse(body);
 
     logStep("Plan selected", { plan });
 

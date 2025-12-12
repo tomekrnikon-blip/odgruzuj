@@ -4,11 +4,12 @@ const config: CapacitorConfig = {
   appId: 'pl.odgruzuj.app',
   appName: 'odgruzuj',
   webDir: 'dist',
-  // Development server for hot-reload testing
-  server: {
-    url: 'https://d07c6238-0cf3-4500-a6ea-0b013c9ca9e7.lovableproject.com?forceHideBadge=true',
-    cleartext: true
-  },
+  // The server section is used for development and live-reload only.
+  // It should be removed for production builds.
+  // server: {
+  //   url: 'https://d07c6238-0cf3-4500-a6ea-0b013c9ca9e7.lovableproject.com?forceHideBadge=true',
+  //   cleartext: true
+  // },
   ios: {
     contentInset: 'automatic',
     backgroundColor: '#16a34a',
