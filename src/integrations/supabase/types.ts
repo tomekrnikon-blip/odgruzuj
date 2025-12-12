@@ -221,6 +221,7 @@ export type Database = {
           is_active: boolean | null
           notification_time: string | null
           p256dh: string
+          platform: string | null
           updated_at: string
           user_id: string
         }
@@ -232,6 +233,7 @@ export type Database = {
           is_active?: boolean | null
           notification_time?: string | null
           p256dh: string
+          platform?: string | null
           updated_at?: string
           user_id: string
         }
@@ -243,6 +245,7 @@ export type Database = {
           is_active?: boolean | null
           notification_time?: string | null
           p256dh?: string
+          platform?: string | null
           updated_at?: string
           user_id?: string
         }
