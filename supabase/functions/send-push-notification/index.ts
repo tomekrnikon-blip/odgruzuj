@@ -14,11 +14,120 @@ interface DecryptedSubscription {
   p256dh: string;
   is_active: boolean;
   notification_time: string;
+  platform?: string;
 }
 
 const logStep = (step: string, details?: Record<string, unknown>) => {
   console.log(`[SEND-PUSH] ${step}`, details ? JSON.stringify(details) : "");
 };
+
+// Send Web Push notification (for PWA/browsers)
+async function sendWebPush(
+  sub: DecryptedSubscription,
+  payload: string,
+  vapidPublicKey: string
+): Promise<{ success: boolean; status?: number; error?: string }> {
+  try {
+    const response = await fetch(sub.endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "TTL": "86400",
+        "Urgency": "high",
+        "Crypto-Key": `p256ecdsa=${vapidPublicKey}`,
+      },
+      body: payload,
+    });
+
+    if (response.ok || response.status === 201) {
+      return { success: true, status: response.status };
+    }
+
+    const responseText = await response.text();
+    return { 
+      success: false, 
+      status: response.status, 
+      error: responseText.substring(0, 200) 
+    };
+  } catch (err) {
+    return { 
+      success: false, 
+      error: err instanceof Error ? err.message : "Unknown error" 
+    };
+  }
+}
+
+// Send FCM notification (for native Android apps)
+async function sendFCMPush(
+  token: string,
+  title: string,
+  body: string,
+  data?: Record<string, unknown>
+): Promise<{ success: boolean; error?: string }> {
+  const fcmServerKey = Deno.env.get("FCM_SERVER_KEY");
+  
+  if (!fcmServerKey) {
+    logStep("WARNING: FCM_SERVER_KEY not configured, skipping Android push");
+    return { success: false, error: "FCM_SERVER_KEY not configured" };
+  }
+
+  try {
+    const response = await fetch("https://fcm.googleapis.com/fcm/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `key=${fcmServerKey}`,
+      },
+      body: JSON.stringify({
+        to: token,
+        notification: {
+          title,
+          body,
+          icon: "ic_notification",
+          sound: "default",
+          android_channel_id: "declutter_channel",
+        },
+        data: data || { url: "/" },
+        priority: "high",
+      }),
+    });
+
+    const result = await response.json();
+    
+    if (result.success === 1) {
+      return { success: true };
+    }
+    
+    if (result.failure === 1 && result.results?.[0]?.error) {
+      return { success: false, error: result.results[0].error };
+    }
+
+    return { success: false, error: JSON.stringify(result) };
+  } catch (err) {
+    return { 
+      success: false, 
+      error: err instanceof Error ? err.message : "Unknown error" 
+    };
+  }
+}
+
+// Send APNs notification (for native iOS apps) - placeholder for future implementation
+async function sendAPNsPush(
+  token: string,
+  title: string,
+  body: string
+): Promise<{ success: boolean; error?: string }> {
+  // APNs requires more complex setup with Apple certificates
+  // This is a placeholder - full implementation requires:
+  // 1. APNs Auth Key (.p8 file) or Push Certificate
+  // 2. Key ID and Team ID from Apple Developer
+  // 3. JWT token generation for APNs authentication
+  logStep("WARNING: iOS APNs not fully implemented", { token: token.substring(0, 20) });
+  return { 
+    success: false, 
+    error: "iOS APNs not implemented - use Firebase Cloud Messaging for iOS instead" 
+  };
+}
 
 const handler = async (req: Request): Promise<Response> => {
   logStep("Function started");
@@ -43,11 +152,11 @@ const handler = async (req: Request): Promise<Response> => {
     // Create admin client for database operations
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check for service key in header (for cron/scheduled calls) - more secure than request body
+    // Check for service key in header (for cron/scheduled calls)
     const serviceKeyHeader = req.headers.get("X-Service-Key");
     const isServiceCall = serviceKeyHeader === supabaseServiceKey;
     
-    // Validate service calls don't come from browser origins (internal only)
+    // Validate service calls don't come from browser origins
     if (isServiceCall) {
       const origin = req.headers.get("origin");
       if (origin !== null) {
@@ -87,7 +196,6 @@ const handler = async (req: Request): Promise<Response> => {
 
       const token = authHeader.replace("Bearer ", "");
       
-      // Validate token is not empty or malformed
       if (!token || token.length < 10) {
         logStep("ERROR: Invalid token format");
         return new Response(
@@ -96,7 +204,6 @@ const handler = async (req: Request): Promise<Response> => {
         );
       }
       
-      // Create a client with the user's token to verify their identity
       const supabaseUser = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
         global: { headers: { Authorization: `Bearer ${token}` } }
       });
@@ -122,7 +229,6 @@ const handler = async (req: Request): Promise<Response> => {
       const userId = userData.user.id;
       logStep("Authenticated user", { userId });
 
-      // Check if user has admin role using the has_role function
       const { data: isAdmin, error: roleError } = await supabaseAdmin.rpc("has_role", {
         _user_id: userId,
         _role: "admin"
@@ -175,11 +281,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     logStep("Found active subscriptions", { 
       count: filteredSubs.length,
-      decrypted: filteredSubs.map(s => ({
-        hasEndpoint: !!s.endpoint,
-        hasAuth: !!s.auth && s.auth.length > 10,
-        hasP256dh: !!s.p256dh && s.p256dh.length > 10
-      }))
+      platforms: filteredSubs.map(s => s.platform || "web")
     });
 
     if (filteredSubs.length === 0) {
@@ -189,9 +291,12 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const payload = JSON.stringify({
-      title: title || "odgruzuj.pl",
-      body: body || "Czas na porządki! 🧹",
+    const notificationTitle = title || "odgruzuj.pl";
+    const notificationBody = body || "Czas na porządki! 🧹";
+
+    const webPayload = JSON.stringify({
+      title: notificationTitle,
+      body: notificationBody,
       icon: "/favicon.jpg",
       data: { url: "/" },
     });
@@ -200,54 +305,51 @@ const handler = async (req: Request): Promise<Response> => {
     let failCount = 0;
 
     for (const sub of filteredSubs) {
-      try {
-        logStep("Sending to subscription", { 
-          endpoint: sub.endpoint.substring(0, 60) + "...",
-          authLength: sub.auth?.length || 0,
-          p256dhLength: sub.p256dh?.length || 0
-        });
+      const platform = sub.platform || "web";
+      logStep("Sending to subscription", { 
+        platform,
+        endpoint: sub.endpoint.substring(0, 60) + "..."
+      });
 
-        // Send push notification with VAPID public key header
-        const response = await fetch(sub.endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "TTL": "86400",
-            "Urgency": "normal",
-            "Crypto-Key": `p256ecdsa=${vapidPublicKey}`,
-          },
-          body: payload,
-        });
+      let result: { success: boolean; status?: number; error?: string };
 
-        if (response.ok || response.status === 201) {
-          successCount++;
-          logStep("Push sent successfully", { 
-            endpoint: sub.endpoint.substring(0, 30),
-            status: response.status 
-          });
-        } else {
-          const responseText = await response.text();
-          logStep("Push failed", { 
-            status: response.status, 
-            statusText: response.statusText,
-            endpoint: sub.endpoint.substring(0, 40),
-            response: responseText.substring(0, 300)
-          });
-          failCount++;
-          
-          // Mark failed subscription as inactive if 404 or 410 (expired)
-          if (response.status === 404 || response.status === 410) {
-            await supabaseAdmin
-              .from("push_subscriptions")
-              .update({ is_active: false })
-              .eq("id", sub.id);
-            logStep("Marked subscription as inactive", { id: sub.id });
-          }
-        }
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Unknown error";
-        logStep("Push error", { endpoint: sub.endpoint.substring(0, 30), error: errorMessage });
+      switch (platform) {
+        case "android":
+          // FCM token is stored in endpoint field for Android
+          result = await sendFCMPush(sub.endpoint, notificationTitle, notificationBody);
+          break;
+        
+        case "ios":
+          // APNs token is stored in endpoint field for iOS
+          result = await sendAPNsPush(sub.endpoint, notificationTitle, notificationBody);
+          break;
+        
+        default:
+          // Web Push (PWA/browsers)
+          result = await sendWebPush(sub, webPayload, vapidPublicKey);
+          break;
+      }
+
+      if (result.success) {
+        successCount++;
+        logStep("Push sent successfully", { platform, status: result.status });
+      } else {
         failCount++;
+        logStep("Push failed", { platform, error: result.error });
+        
+        // Mark subscription as inactive if expired (404/410 for web, specific FCM errors)
+        const expiredErrors = ["NotRegistered", "InvalidRegistration"];
+        if (
+          result.status === 404 || 
+          result.status === 410 ||
+          (result.error && expiredErrors.includes(result.error))
+        ) {
+          await supabaseAdmin
+            .from("push_subscriptions")
+            .update({ is_active: false })
+            .eq("id", sub.id);
+          logStep("Marked subscription as inactive", { id: sub.id });
+        }
       }
     }
 
