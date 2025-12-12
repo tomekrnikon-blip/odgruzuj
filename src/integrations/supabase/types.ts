@@ -221,6 +221,7 @@ export type Database = {
           is_active: boolean | null
           notification_time: string | null
           p256dh: string
+          platform: string | null
           updated_at: string
           user_id: string
         }
@@ -232,6 +233,7 @@ export type Database = {
           is_active?: boolean | null
           notification_time?: string | null
           p256dh: string
+          platform?: string | null
           updated_at?: string
           user_id: string
         }
@@ -243,6 +245,7 @@ export type Database = {
           is_active?: boolean | null
           notification_time?: string | null
           p256dh?: string
+          platform?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -425,10 +428,19 @@ export type Database = {
           notification_time: string
         }[]
       }
+      cleanup_unconfirmed_users_logic: { Args: never; Returns: undefined }
       decrypt_email: { Args: { encrypted_email: string }; Returns: string }
       decrypt_push_data: { Args: { encrypted_text: string }; Returns: string }
+      decrypt_with_custom_key: {
+        Args: { encrypted_text: string; encryption_key: string }
+        Returns: string
+      }
       encrypt_email: { Args: { plain_email: string }; Returns: string }
       encrypt_push_data: { Args: { plain_text: string }; Returns: string }
+      encrypt_with_custom_key: {
+        Args: { encryption_key: string; plain_text: string }
+        Returns: string
+      }
       get_admin_profiles: {
         Args: never
         Returns: {
