@@ -17,3 +17,9 @@ verify_jwt = true
 
 [functions.send-scheduled-notifications]
 verify_jwt = false
+
+[functions.encrypt-user-email]
+verify_jwt = true
+
+[functions.encrypt-all-emails]
+verify_jwt = true
