@@ -425,6 +425,7 @@ export type Database = {
           notification_time: string
         }[]
       }
+      cleanup_unconfirmed_users_logic: { Args: never; Returns: undefined }
       decrypt_email: { Args: { encrypted_email: string }; Returns: string }
       decrypt_push_data: { Args: { encrypted_text: string }; Returns: string }
       encrypt_email: { Args: { plain_email: string }; Returns: string }
