@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Loader2, Mail, Lock, ArrowLeft } from 'lucide-react';
 import logo from '@/assets/logo.jpg';
 import { z } from 'zod';
+import { supabase } from '@/integrations/supabase/client';
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Nieprawidłowy adres email" }),
@@ -56,6 +57,8 @@ export default function Auth() {
 
   useEffect(() => {
     if (user && !authLoading) {
+      // Encrypt user's email after login/signup
+      supabase.functions.invoke('encrypt-user-email').catch(console.error);
       navigate('/');
     }
   }, [user, authLoading, navigate]);
