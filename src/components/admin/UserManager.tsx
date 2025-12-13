@@ -93,7 +93,8 @@ export function UserManager() {
           p_action_type: newStatus === 'active' ? 'grant_pro_subscription' : 'revoke_pro_subscription',
           p_target_table: 'profiles',
           p_target_id: userId,
-          p_details: { new_status: newStatus }
+          p_details: { new_status: newStatus },
+          p_ip_address: null
         });
       }
     },
@@ -143,7 +144,8 @@ export function UserManager() {
           p_action_type: isCurrentlyAdmin ? 'revoke_admin_role' : 'grant_admin_role',
           p_target_table: 'user_roles',
           p_target_id: userId,
-          p_details: null
+          p_details: null,
+          p_ip_address: null
         });
       }
     },
