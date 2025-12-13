@@ -294,10 +294,9 @@ export function UserManager() {
                         {user.subscription_status === 'active' ? (
                           <Button
                             size="sm"
-                            variant="outline"
                             onClick={() => updateStatusMutation.mutate({ userId: user.user_id, newStatus: 'free' })}
                             disabled={updateStatusMutation.isPending}
-                            className="gap-1 border-yellow-500 text-yellow-600 hover:bg-yellow-500/10 hover:text-yellow-700"
+                            className="gap-1 bg-green-500 hover:bg-green-600 text-white"
                           >
                             <Crown className="h-3 w-3" />
                             Usuń Pro
