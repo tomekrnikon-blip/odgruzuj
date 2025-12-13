@@ -45,25 +45,25 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
   );
 
   useEffect(() => {
-    // Phase 1: Logo appears (0-1s)
+    // Phase 1: Logo appears (0-0.5s)
     const sweepTimer = setTimeout(() => {
       setPhase('sweep');
-    }, 1000);
+    }, 500);
 
-    // Phase 2: Sweep done, show text (1.8s)
+    // Phase 2: Sweep done, show text (1.3s)
     const textTimer = setTimeout(() => {
       setPhase('text');
-    }, 1800);
+    }, 1300);
 
-    // Phase 3: Exit (3.5s)
+    // Phase 3: Exit (3.7s) - text stays longer
     const exitTimer = setTimeout(() => {
       setPhase('exit');
-    }, 3500);
+    }, 3700);
 
-    // Finish (4s)
+    // Finish (4.2s)
     const finishTimer = setTimeout(() => {
       onFinish();
-    }, 4000);
+    }, 4200);
 
     return () => {
       clearTimeout(sweepTimer);
