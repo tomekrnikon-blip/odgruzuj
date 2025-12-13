@@ -25,6 +25,9 @@ export default function Dashboard() {
     isLoading,
     completedTodayIds,
     totalAvailable,
+    dailyLimitReached,
+    dailyLimit,
+    completedTodayCount,
     getNextFlashcard,
     skipFlashcard,
     markAsCompleted,
@@ -186,9 +189,9 @@ export default function Dashboard() {
         </div>
 
         {/* Available flashcards info */}
-        {!subscribed && totalAvailable > 0 && (
+        {!subscribed && (
           <div className="text-center text-sm text-muted-foreground">
-            Dostępne fiszki: {totalAvailable}/500+
+            Dziś: {completedTodayCount}/{dailyLimit} fiszek • Dostępne: 55/{totalAvailable}
           </div>
         )}
 
@@ -197,6 +200,41 @@ export default function Dashboard() {
           <div className="card-elevated p-8 flex flex-col items-center justify-center">
             <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
             <p className="text-muted-foreground">Ładowanie fiszek...</p>
+          </div>
+        ) : !subscribed && dailyLimitReached ? (
+          /* Daily limit reached for free users */
+          <div className="card-elevated p-8 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-warning/10 rounded-full flex items-center justify-center">
+              <Crown className="w-8 h-8 text-warning" />
+            </div>
+            <h2 className="text-xl font-heading font-semibold mb-2">
+              Dzienny limit osiągnięty! 🎉
+            </h2>
+            <p className="text-muted-foreground mb-4">
+              Zrobiłeś dziś {dailyLimit} fiszki w darmowej wersji. Świetna robota!
+            </p>
+            <div className="bg-secondary/50 rounded-xl p-4 mb-6">
+              <p className="text-sm text-muted-foreground mb-2">
+                Chcesz więcej? Wykup subskrypcję Pro i odblokuj:
+              </p>
+              <ul className="text-sm text-left space-y-1 text-muted-foreground">
+                <li>✓ Nieograniczone fiszki dziennie</li>
+                <li>✓ Dostęp do 600+ zadań</li>
+                <li>✓ Wszystkie kategorie</li>
+              </ul>
+            </div>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleUpgrade}
+                className="btn-primary flex items-center justify-center gap-2"
+              >
+                <Crown className="w-5 h-5" />
+                Wykup subskrypcję Pro
+              </button>
+              <p className="text-xs text-muted-foreground">
+                ...lub wróć jutro po kolejne darmowe fiszki! 💚
+              </p>
+            </div>
           </div>
         ) : currentFlashcard ? (
           <div className={cn(
@@ -266,7 +304,7 @@ export default function Dashboard() {
                 className="btn-primary flex items-center justify-center gap-2 mx-auto"
               >
                 <Crown className="w-5 h-5" />
-                Odblokuj ponad 300 fiszek
+                Odblokuj ponad 500 fiszek
               </button>
             )}
           </div>
