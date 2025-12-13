@@ -288,3 +288,22 @@
 .font-poppins {
   font-family: 'Poppins', sans-serif;
 }
+
+/* Dust particle animation */
+@keyframes dust-particle {
+  0% {
+    opacity: 0;
+    transform: translateX(0) translateY(0) scale(1);
+  }
+  30% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50px) translateY(-30px) scale(0);
+  }
+}
+
+.animate-dust-particle {
+  animation: dust-particle 1s ease-out forwards;
+}
