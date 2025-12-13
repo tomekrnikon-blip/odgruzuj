@@ -235,34 +235,38 @@ export function SupportMessagesManager() {
                   <div className="px-4 pb-4 border-t border-border">
                     <div className="pt-4">
                       <p className="text-sm whitespace-pre-wrap mb-4">{message.message}</p>
-                      <div className="flex items-center gap-2 mb-3">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleReply(message)}
-                        >
-                          <Send className="h-4 w-4 mr-2" />
-                          {replyingTo === message.id ? 'Anuluj' : 'Odpowiedz w apce'}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => window.open(`mailto:${message.user_email}`, '_blank')}
-                        >
-                          <Mail className="h-4 w-4 mr-2" />
-                          Email
-                        </Button>
+                      <div className="flex flex-wrap items-center gap-2 mb-3">
                         <Button
                           variant="destructive"
-                          size="sm"
+                          size="icon"
+                          className="h-8 w-8"
                           onClick={() => deleteMutation.mutate(message.id)}
                           disabled={deleteMutation.isPending}
+                          title="Usuń wiadomość"
                         >
                           {deleteMutation.isPending ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
                           ) : (
                             <Trash2 className="h-4 w-4" />
                           )}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleReply(message)}
+                        >
+                          <Send className="h-4 w-4 mr-1" />
+                          <span className="hidden sm:inline">{replyingTo === message.id ? 'Anuluj' : 'Odpowiedz'}</span>
+                          <span className="sm:hidden">{replyingTo === message.id ? '✕' : '↩'}</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => window.open(`mailto:${message.user_email}`, '_blank')}
+                          title="Wyślij email"
+                        >
+                          <Mail className="h-4 w-4" />
                         </Button>
                       </div>
                       
