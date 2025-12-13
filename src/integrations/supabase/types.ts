@@ -534,17 +534,30 @@ export type Database = {
         }
         Returns: boolean
       }
+      hash_ip_address: { Args: { ip_address: string }; Returns: string }
       is_premium: { Args: { _user_id: string }; Returns: boolean }
-      log_admin_activity: {
-        Args: {
-          p_action_type: string
-          p_admin_user_id: string
-          p_details?: Json
-          p_target_id?: string
-          p_target_table?: string
-        }
-        Returns: undefined
-      }
+      log_admin_activity:
+        | {
+            Args: {
+              p_action_type: string
+              p_admin_user_id: string
+              p_details?: Json
+              p_target_id?: string
+              p_target_table?: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_action_type: string
+              p_admin_user_id: string
+              p_details?: Json
+              p_ip_address?: string
+              p_target_id?: string
+              p_target_table?: string
+            }
+            Returns: undefined
+          }
       mask_email: { Args: { email: string }; Returns: string }
       save_and_encrypt_subscription: {
         Args: {
