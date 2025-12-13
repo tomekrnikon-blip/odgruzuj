@@ -258,9 +258,10 @@ const handler = async (req: Request): Promise<Response> => {
     const { targetUserId, title, body, sendToAll } = requestBody;
     logStep("Request params", { targetUserId, title, body, sendToAll });
 
-    // Use the secure function to get decrypted subscriptions
+    // Use the service-level function to get decrypted subscriptions
+    // This bypasses auth.uid() check since we already verified admin/service access above
     const { data: subscriptions, error: subsError } = await supabaseAdmin.rpc(
-      "get_push_subscriptions_decrypted"
+      "get_push_subscriptions_decrypted_service"
     );
 
     if (subsError) {
