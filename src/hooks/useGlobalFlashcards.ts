@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 export interface GlobalFlashcard {
   id: string;
   category: string;
+  category2: string | null;
   task: string;
   comment: string;
   difficulty: string;
@@ -18,6 +19,7 @@ export interface GlobalFlashcard {
 
 export interface NewGlobalFlashcard {
   category: string;
+  category2?: string | null;
   task: string;
   comment: string;
   difficulty: string;

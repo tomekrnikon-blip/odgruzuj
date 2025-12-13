@@ -20,7 +20,7 @@ interface AddTaskModalProps {
 export function AddTaskModal({ isOpen, onClose, onAdd }: AddTaskModalProps) {
   const [taskName, setTaskName] = useState("");
   const [comment, setComment] = useState("");
-  const [category, setCategory] = useState<Category>("Ubrania i Moda");
+  const [category, setCategory] = useState<Category>("Garderoba");
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [timeEstimate, setTimeEstimate] = useState(10);
   const [timeUnit, setTimeUnit] = useState<"minutes" | "hours">("minutes");
@@ -43,7 +43,7 @@ export function AddTaskModal({ isOpen, onClose, onAdd }: AddTaskModalProps) {
     // Reset form
     setTaskName("");
     setComment("");
-    setCategory("Ubrania i Moda");
+    setCategory("Garderoba");
     setDifficulty("easy");
     setTimeEstimate(10);
     setTimeUnit("minutes");
