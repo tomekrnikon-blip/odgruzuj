@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Outfit:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -267,4 +267,24 @@
 
 .animate-confetti {
   animation: confetti 1s ease-out forwards;
+}
+
+/* Splash screen animations */
+@keyframes splash-logo-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-splash-logo-in {
+  animation: splash-logo-in 0.5s ease-out forwards;
+}
+
+.font-poppins {
+  font-family: 'Poppins', sans-serif;
 }
