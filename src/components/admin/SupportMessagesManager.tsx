@@ -4,7 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Mail, Trash2, Check, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { MessageCircle, Mail, Trash2, Loader2, ChevronDown, ChevronUp, Send } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { cn, maskEmail } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -23,6 +24,8 @@ export function SupportMessagesManager() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState<string>('');
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
   const { data: messages = [], isLoading } = useQuery({
     queryKey: ['support-messages'],
@@ -86,7 +89,64 @@ export function SupportMessagesManager() {
     }
   });
 
+  const replyMutation = useMutation({
+    mutationFn: async ({ userId, message }: { userId: string; message: string }) => {
+      // Create a direct notification to the specific user
+      const { error } = await supabase
+        .from('notifications')
+        .insert({
+          title: 'Odpowiedź od zespołu odgruzuj.pl',
+          message: message,
+          created_by: user?.id,
+          target_user_id: userId
+        });
+      
+      if (error) throw error;
+      
+      // Log admin activity
+      if (user?.id) {
+        await supabase.rpc('log_admin_activity', {
+          p_admin_user_id: user.id,
+          p_action_type: 'reply_support_message',
+          p_target_table: 'notifications',
+          p_target_id: userId,
+          p_details: { message_preview: message.substring(0, 100) }
+        });
+      }
+    },
+    onSuccess: () => {
+      setReplyText('');
+      setReplyingTo(null);
+      toast({
+        title: "Odpowiedź wysłana",
+        description: "Użytkownik otrzyma powiadomienie w aplikacji.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się wysłać odpowiedzi.",
+        variant: "destructive",
+      });
+    }
+  });
+
   const unreadCount = messages.filter(m => !m.is_read).length;
+
+  const handleReply = (messageData: SupportMessage) => {
+    if (replyingTo === messageData.id) {
+      setReplyingTo(null);
+      setReplyText('');
+    } else {
+      setReplyingTo(messageData.id);
+      setReplyText('');
+    }
+  };
+
+  const sendReply = (userId: string) => {
+    if (!replyText.trim()) return;
+    replyMutation.mutate({ userId, message: replyText.trim() });
+  };
 
   const toggleExpand = (id: string) => {
     if (expandedId === id) {
@@ -175,14 +235,22 @@ export function SupportMessagesManager() {
                   <div className="px-4 pb-4 border-t border-border">
                     <div className="pt-4">
                       <p className="text-sm whitespace-pre-wrap mb-4">{message.message}</p>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 mb-3">
                         <Button
                           variant="outline"
+                          size="sm"
+                          onClick={() => handleReply(message)}
+                        >
+                          <Send className="h-4 w-4 mr-2" />
+                          {replyingTo === message.id ? 'Anuluj' : 'Odpowiedz w apce'}
+                        </Button>
+                        <Button
+                          variant="ghost"
                           size="sm"
                           onClick={() => window.open(`mailto:${message.user_email}`, '_blank')}
                         >
                           <Mail className="h-4 w-4 mr-2" />
-                          Odpowiedz
+                          Email
                         </Button>
                         <Button
                           variant="destructive"
@@ -197,6 +265,29 @@ export function SupportMessagesManager() {
                           )}
                         </Button>
                       </div>
+                      
+                      {replyingTo === message.id && (
+                        <div className="space-y-2 pt-2 border-t border-border">
+                          <Textarea
+                            placeholder="Wpisz odpowiedź dla użytkownika..."
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            className="min-h-[80px]"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() => sendReply(message.user_id)}
+                            disabled={!replyText.trim() || replyMutation.isPending}
+                          >
+                            {replyMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            ) : (
+                              <Send className="h-4 w-4 mr-2" />
+                            )}
+                            Wyślij odpowiedź
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

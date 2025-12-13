@@ -158,6 +158,7 @@ export type Database = {
           created_by: string | null
           id: string
           message: string
+          target_user_id: string | null
           title: string
         }
         Insert: {
@@ -165,6 +166,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           message: string
+          target_user_id?: string | null
           title: string
         }
         Update: {
@@ -172,6 +174,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           message?: string
+          target_user_id?: string | null
           title?: string
         }
         Relationships: []
