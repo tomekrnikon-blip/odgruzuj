@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useGlobalFlashcards, type GlobalFlashcard, type NewGlobalFlashcard } from '@/hooks/useGlobalFlashcards';
 import { useCategories } from '@/hooks/useCategories';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import flashcardsData from '@/data/flashcards-import.json';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -40,7 +43,8 @@ import {
   Clock,
   Crown,
   Search,
-  ChevronDown
+  ChevronDown,
+  Upload
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -59,6 +63,7 @@ const TIME_UNITS = [
 
 const defaultFormData: NewGlobalFlashcard = {
   category: '',
+  category2: null,
   task: '',
   comment: '',
   difficulty: 'medium',
@@ -78,6 +83,7 @@ export function FlashcardManager() {
   const [selectedFlashcard, setSelectedFlashcard] = useState<GlobalFlashcard | null>(null);
   const [formData, setFormData] = useState<NewGlobalFlashcard>(defaultFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [isOpen, setIsOpen] = useState(false);
@@ -101,6 +107,7 @@ export function FlashcardManager() {
     setSelectedFlashcard(flashcard);
     setFormData({
       category: flashcard.category,
+      category2: flashcard.category2 || null,
       task: flashcard.task,
       comment: flashcard.comment,
       difficulty: flashcard.difficulty,
@@ -150,6 +157,40 @@ export function FlashcardManager() {
     }
   };
 
+  const { toast } = useToast();
+
+  const handleImportFlashcards = async () => {
+    if (!confirm('Czy na pewno chcesz zaimportować 600 fiszek? To usunie wszystkie istniejące fiszki i zastąpi je nowymi.')) {
+      return;
+    }
+    
+    setIsImporting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('import-flashcards', {
+        body: { flashcards: flashcardsData }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Sukces!',
+        description: data.message || 'Fiszki zostały zaimportowane',
+      });
+
+      // Refresh flashcards list
+      window.location.reload();
+    } catch (error: any) {
+      console.error('Import error:', error);
+      toast({
+        title: 'Błąd importu',
+        description: error.message || 'Nie udało się zaimportować fiszek',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   const getCategoryIcon = (categoryName: string) => {
     const category = categories.find(c => c.name === categoryName);
     return category?.icon || '📦';
@@ -162,7 +203,7 @@ export function FlashcardManager() {
   const FlashcardForm = () => (
     <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
       <div className="space-y-2">
-        <Label htmlFor="flashcard-category">Kategoria</Label>
+        <Label htmlFor="flashcard-category">Kategoria główna</Label>
         <Select
           value={formData.category}
           onValueChange={(value) => setFormData({ ...formData, category: value })}
@@ -172,6 +213,31 @@ export function FlashcardManager() {
           </SelectTrigger>
           <SelectContent>
             {categories.map((category) => (
+              <SelectItem key={category.id} value={category.name}>
+                <span className="flex items-center gap-2">
+                  <span>{category.icon}</span>
+                  <span>{category.name}</span>
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="flashcard-category2">Druga kategoria (opcjonalna)</Label>
+        <Select
+          value={formData.category2 || "none"}
+          onValueChange={(value) => setFormData({ ...formData, category2: value === "none" ? null : value })}
+        >
+          <SelectTrigger id="flashcard-category2">
+            <SelectValue placeholder="Brak drugiej kategorii" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">
+              <span className="text-muted-foreground">Brak drugiej kategorii</span>
+            </SelectItem>
+            {categories.filter(c => c.name !== formData.category).map((category) => (
               <SelectItem key={category.id} value={category.name}>
                 <span className="flex items-center gap-2">
                   <span>{category.icon}</span>
@@ -294,7 +360,19 @@ export function FlashcardManager() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleImportFlashcards();
+                }} 
+                size="sm"
+                variant="outline"
+                disabled={isImporting}
+              >
+                {isImporting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
+                Import 600
+              </Button>
               <Button 
                 onClick={(e) => {
                   e.stopPropagation();
@@ -365,6 +443,13 @@ export function FlashcardManager() {
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <span className="text-lg">{getCategoryIcon(flashcard.category)}</span>
                       <span className="text-sm text-muted-foreground">{flashcard.category}</span>
+                      {flashcard.category2 && (
+                        <>
+                          <span className="text-muted-foreground">+</span>
+                          <span className="text-lg">{getCategoryIcon(flashcard.category2)}</span>
+                          <span className="text-sm text-muted-foreground">{flashcard.category2}</span>
+                        </>
+                      )}
                       <Badge className={cn("text-xs", difficultyInfo.color)} variant="secondary">
                         {difficultyInfo.label}
                       </Badge>

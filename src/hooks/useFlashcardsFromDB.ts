@@ -22,6 +22,7 @@ export const difficultyIcons: Record<DifficultyFilter, string> = {
 export interface DBFlashcard {
   id: string;
   category: string;
+  category2: string | null;
   task: string;
   comment: string;
   difficulty: string;
@@ -93,6 +94,7 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
       const mapped: DBFlashcard[] = (data || []).map(card => ({
         id: card.id,
         category: card.category,
+        category2: card.category2 || null,
         task: card.task,
         comment: card.comment,
         difficulty: card.difficulty,
@@ -133,13 +135,17 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
   }, [fetchFlashcards]);
 
   // Get available flashcards based on user's category and difficulty selection
+  // A flashcard matches if either category or category2 matches the selected categories
   const getAvailableFlashcards = useCallback(() => {
     return flashcards.filter(
-      (card) =>
-        selectedCategories.includes(card.category as Category) &&
-        selectedDifficulties.includes(card.difficulty as DifficultyFilter) &&
-        !completedTodayIds.includes(card.id) &&
-        !skippedIds.includes(card.id)
+      (card) => {
+        const matchesCategory = selectedCategories.includes(card.category as Category) || 
+          (card.category2 && selectedCategories.includes(card.category2 as Category));
+        return matchesCategory &&
+          selectedDifficulties.includes(card.difficulty as DifficultyFilter) &&
+          !completedTodayIds.includes(card.id) &&
+          !skippedIds.includes(card.id);
+      }
     );
   }, [flashcards, selectedCategories, selectedDifficulties, completedTodayIds, skippedIds]);
 
@@ -152,10 +158,13 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
       // Reset skipped if no cards available
       setSkippedIds([]);
       available = flashcards.filter(
-        (card) =>
-          selectedCategories.includes(card.category as Category) &&
-          selectedDifficulties.includes(card.difficulty as DifficultyFilter) &&
-          !completedTodayIds.includes(card.id)
+        (card) => {
+          const matchesCategory = selectedCategories.includes(card.category as Category) || 
+            (card.category2 && selectedCategories.includes(card.category2 as Category));
+          return matchesCategory &&
+            selectedDifficulties.includes(card.difficulty as DifficultyFilter) &&
+            !completedTodayIds.includes(card.id);
+        }
       );
       
       if (available.length === 0) {
@@ -192,10 +201,13 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
   useEffect(() => {
     if (!isLoading && flashcards.length > 0 && currentFlashcard === null) {
       const available = flashcards.filter(
-        (card) =>
-          selectedCategories.includes(card.category as Category) &&
-          selectedDifficulties.includes(card.difficulty as DifficultyFilter) &&
-          !completedTodayIds.includes(card.id)
+        (card) => {
+          const matchesCategory = selectedCategories.includes(card.category as Category) || 
+            (card.category2 && selectedCategories.includes(card.category2 as Category));
+          return matchesCategory &&
+            selectedDifficulties.includes(card.difficulty as DifficultyFilter) &&
+            !completedTodayIds.includes(card.id);
+        }
       );
       if (available.length > 0) {
         const randomIndex = Math.floor(Math.random() * available.length);

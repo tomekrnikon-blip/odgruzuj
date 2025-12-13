@@ -23,6 +23,7 @@ const getDifficultyLabel = (difficulty: string): string => {
 
 export function FlashCard({ flashcard, className }: FlashCardProps) {
   const icon = categoryIcons[flashcard.category as keyof typeof categoryIcons] || "📦";
+  const icon2 = flashcard.category2 ? (categoryIcons[flashcard.category2 as keyof typeof categoryIcons] || "📦") : null;
   
   return (
     <div className={cn("flashcard animate-fade-up", className)}>
@@ -33,6 +34,15 @@ export function FlashCard({ flashcard, className }: FlashCardProps) {
           <span className="text-sm font-medium text-muted-foreground">
             {flashcard.category}
           </span>
+          {flashcard.category2 && icon2 && (
+            <>
+              <span className="text-muted-foreground">+</span>
+              <span className="text-2xl">{icon2}</span>
+              <span className="text-sm font-medium text-muted-foreground">
+                {flashcard.category2}
+              </span>
+            </>
+          )}
         </div>
         <span
           className={cn(

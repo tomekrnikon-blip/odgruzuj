@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plus, Edit2, Trash2, Clock } from "lucide-react";
 import { useFlashcards } from "@/hooks/useFlashcards";
-import { categoryIcons, getDifficultyLabel, Category, Difficulty } from "@/data/flashcards";
+import { categoryIcons, Category, Difficulty } from "@/data/flashcards";
 import { AddTaskModal } from "@/components/AddTaskModal";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -81,7 +81,7 @@ export default function MyTasks() {
                         task.difficulty === "hard" && "bg-destructive/10 text-destructive"
                       )}
                     >
-                      {getDifficultyLabel(task.difficulty)}
+                      {task.difficulty === "easy" ? "Łatwe" : task.difficulty === "medium" ? "Średnie" : "Trudne"}
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />

@@ -113,6 +113,7 @@ export type Database = {
       global_flashcards: {
         Row: {
           category: string
+          category2: string | null
           comment: string
           created_at: string
           difficulty: string
@@ -126,6 +127,7 @@ export type Database = {
         }
         Insert: {
           category: string
+          category2?: string | null
           comment: string
           created_at?: string
           difficulty: string
@@ -139,6 +141,7 @@ export type Database = {
         }
         Update: {
           category?: string
+          category2?: string | null
           comment?: string
           created_at?: string
           difficulty?: string

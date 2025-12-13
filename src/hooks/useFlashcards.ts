@@ -4,8 +4,7 @@ import {
   Flashcard, 
   Category, 
   categories, 
-  flashcards as defaultFlashcards,
-  getRandomFlashcard 
+  flashcards as defaultFlashcards
 } from "@/data/flashcards";
 
 interface UseFlashcardsReturn {
