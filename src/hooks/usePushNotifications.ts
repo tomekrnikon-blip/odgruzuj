@@ -28,6 +28,9 @@ export function usePushNotifications() {
   const [vapidKey, setVapidKey] = useState<string>('');
 
   const isNative = Capacitor.isNativePlatform();
+  const isIOS = Capacitor.getPlatform() === 'ios' || /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+                (window.navigator as any).standalone === true;
 
   useEffect(() => {
     if (isNative) {
@@ -48,8 +51,12 @@ export function usePushNotifications() {
   useEffect(() => {
     if (!user || !isSupported) return;
     const checkSubscription = async () => {
-      const { data } = await supabase.from('push_subscriptions').select('id').eq('user_id', user.id).limit(1);
-      setIsSubscribed(!!data && data.length > 0);
+      const { data, error } = await supabase.rpc('check_push_subscription_status', { p_user_id: user.id });
+      if (!error && data && data.length > 0) {
+        setIsSubscribed(data[0].has_subscription && data[0].is_active);
+      } else {
+        setIsSubscribed(false);
+      }
     };
     checkSubscription();
   }, [user, isSupported]);
@@ -82,7 +89,7 @@ export function usePushNotifications() {
 
         const registration = await navigator.serviceWorker.register('/sw-push.js');
         await navigator.serviceWorker.ready;
-        const applicationServerKey = urlBase64ToUint8Array(vapidKey);
+        const applicationServerKey = urlBase64ToUint8Array(vapidKey) as BufferSource;
         const subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey });
         const subJson = subscription.toJSON();
 
@@ -185,6 +192,8 @@ export function usePushNotifications() {
     isSubscribed,
     isLoading,
     permission,
+    isIOS,
+    isPWA,
     subscribe,
     unsubscribe,
     updateNotificationTime,
