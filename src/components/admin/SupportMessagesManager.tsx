@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { MessageCircle, Mail, Trash2, Loader2, ChevronDown, ChevronUp, Send } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { cn, maskEmail } from '@/lib/utils';
@@ -26,11 +27,11 @@ export function SupportMessagesManager() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState<string>('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const { data: messages = [], isLoading } = useQuery({
     queryKey: ['support-messages'],
     queryFn: async () => {
-      // Use secure RPC function that handles email decryption server-side
       const { data, error } = await supabase
         .rpc('get_support_messages_for_admin');
       
@@ -62,7 +63,6 @@ export function SupportMessagesManager() {
       
       if (error) throw error;
       
-      // Log admin activity
       if (user?.id) {
         await supabase.rpc('log_admin_activity', {
           p_admin_user_id: user.id,
@@ -89,9 +89,44 @@ export function SupportMessagesManager() {
     }
   });
 
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase
+        .from('support_messages')
+        .delete()
+        .in('id', ids);
+      
+      if (error) throw error;
+      
+      if (user?.id) {
+        await supabase.rpc('log_admin_activity', {
+          p_admin_user_id: user.id,
+          p_action_type: 'bulk_delete_support_messages',
+          p_target_table: 'support_messages',
+          p_target_id: null,
+          p_details: { deleted_count: ids.length }
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['support-messages'] });
+      setSelectedIds(new Set());
+      toast({
+        title: "Wiadomości usunięte",
+        description: `Usunięto ${selectedIds.size} wiadomości.`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się usunąć wiadomości.",
+        variant: "destructive",
+      });
+    }
+  });
+
   const replyMutation = useMutation({
     mutationFn: async ({ userId, message }: { userId: string; message: string }) => {
-      // Create a direct notification to the specific user
       const { error } = await supabase
         .from('notifications')
         .insert({
@@ -103,7 +138,6 @@ export function SupportMessagesManager() {
       
       if (error) throw error;
       
-      // Log admin activity
       if (user?.id) {
         await supabase.rpc('log_admin_activity', {
           p_admin_user_id: user.id,
@@ -160,6 +194,30 @@ export function SupportMessagesManager() {
     }
   };
 
+  const toggleSelect = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === messages.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(messages.map(m => m.id)));
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.size === 0) return;
+    bulkDeleteMutation.mutate(Array.from(selectedIds));
+  };
+
   return (
     <Card className="bg-card border-border mb-8">
       <CardHeader>
@@ -184,120 +242,168 @@ export function SupportMessagesManager() {
             <p>Brak wiadomości od użytkowników</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={cn(
-                  "border rounded-xl overflow-hidden transition-colors",
-                  message.is_read ? "border-border bg-background" : "border-primary/50 bg-primary/5"
-                )}
-              >
-                <button
-                  onClick={() => toggleExpand(message.id)}
-                  className="w-full p-4 flex items-center justify-between text-left"
+          <>
+            {/* Bulk actions bar */}
+            <div className="flex items-center gap-3 mb-4 p-3 bg-muted/50 rounded-lg">
+              <Checkbox
+                checked={selectedIds.size === messages.length && messages.length > 0}
+                onCheckedChange={toggleSelectAll}
+                aria-label="Zaznacz wszystkie"
+              />
+              <span className="text-sm text-muted-foreground">
+                {selectedIds.size > 0 
+                  ? `Zaznaczono: ${selectedIds.size}` 
+                  : 'Zaznacz wszystkie'}
+              </span>
+              {selectedIds.size > 0 && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleBulkDelete}
+                  disabled={bulkDeleteMutation.isPending}
+                  className="ml-auto"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className={cn(
-                      "p-2 rounded-full flex-shrink-0",
-                      message.is_read ? "bg-muted" : "bg-primary/20"
-                    )}>
-                      <Mail className={cn(
-                        "h-4 w-4",
-                        message.is_read ? "text-muted-foreground" : "text-primary"
-                      )} />
+                  {bulkDeleteMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-2" />
+                  )}
+                  Usuń zaznaczone ({selectedIds.size})
+                </Button>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={cn(
+                    "border rounded-xl overflow-hidden transition-colors",
+                    message.is_read ? "border-border bg-background" : "border-primary/50 bg-primary/5",
+                    selectedIds.has(message.id) && "ring-2 ring-primary"
+                  )}
+                >
+                  <div className="flex items-center">
+                    {/* Checkbox */}
+                    <div 
+                      className="p-4 flex-shrink-0"
+                      onClick={(e) => toggleSelect(message.id, e)}
+                    >
+                      <Checkbox
+                        checked={selectedIds.has(message.id)}
+                        onCheckedChange={() => {}}
+                        aria-label="Zaznacz wiadomość"
+                      />
                     </div>
-                    <div className="min-w-0">
-                      <p className={cn(
-                        "font-medium truncate",
-                        !message.is_read && "text-primary"
-                      )}>
-                        {maskEmail(message.user_email)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {format(new Date(message.created_at), 'dd MMM yyyy, HH:mm', { locale: pl })}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {!message.is_read && (
-                      <span className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
-                    )}
-                    {expandedId === message.id ? (
-                      <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                    ) : (
-                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                    )}
-                  </div>
-                </button>
-                
-                {expandedId === message.id && (
-                  <div className="px-4 pb-4 border-t border-border">
-                    <div className="pt-4">
-                      <p className="text-sm whitespace-pre-wrap mb-4">{message.message}</p>
-                      <div className="flex flex-wrap items-center gap-2 mb-3">
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => deleteMutation.mutate(message.id)}
-                          disabled={deleteMutation.isPending}
-                          title="Usuń wiadomość"
-                        >
-                          {deleteMutation.isPending ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleReply(message)}
-                        >
-                          <Send className="h-4 w-4 mr-1" />
-                          <span className="hidden sm:inline">{replyingTo === message.id ? 'Anuluj' : 'Odpowiedz'}</span>
-                          <span className="sm:hidden">{replyingTo === message.id ? '✕' : '↩'}</span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => window.open(`mailto:${message.user_email}`, '_blank')}
-                          title="Wyślij email"
-                        >
-                          <Mail className="h-4 w-4" />
-                        </Button>
+                    
+                    {/* Message header button */}
+                    <button
+                      onClick={() => toggleExpand(message.id)}
+                      className="flex-1 p-4 pl-0 flex items-center justify-between text-left"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={cn(
+                          "p-2 rounded-full flex-shrink-0",
+                          message.is_read ? "bg-muted" : "bg-primary/20"
+                        )}>
+                          <Mail className={cn(
+                            "h-4 w-4",
+                            message.is_read ? "text-muted-foreground" : "text-primary"
+                          )} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className={cn(
+                            "font-medium truncate",
+                            !message.is_read && "text-primary"
+                          )}>
+                            {maskEmail(message.user_email)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(message.created_at), 'dd MMM yyyy, HH:mm', { locale: pl })}
+                          </p>
+                        </div>
                       </div>
-                      
-                      {replyingTo === message.id && (
-                        <div className="space-y-2 pt-2 border-t border-border">
-                          <Textarea
-                            placeholder="Wpisz odpowiedź dla użytkownika..."
-                            value={replyText}
-                            onChange={(e) => setReplyText(e.target.value)}
-                            className="min-h-[80px]"
-                          />
+                      <div className="flex items-center gap-2">
+                        {!message.is_read && (
+                          <span className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
+                        )}
+                        {expandedId === message.id ? (
+                          <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                        )}
+                      </div>
+                    </button>
+                  </div>
+                  
+                  {expandedId === message.id && (
+                    <div className="px-4 pb-4 border-t border-border">
+                      <div className="pt-4">
+                        <p className="text-sm whitespace-pre-wrap mb-4">{message.message}</p>
+                        <div className="flex flex-wrap items-center gap-2 mb-3">
                           <Button
-                            size="sm"
-                            onClick={() => sendReply(message.user_id)}
-                            disabled={!replyText.trim() || replyMutation.isPending}
+                            variant="destructive"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => deleteMutation.mutate(message.id)}
+                            disabled={deleteMutation.isPending}
+                            title="Usuń wiadomość"
                           >
-                            {replyMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            {deleteMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
-                              <Send className="h-4 w-4 mr-2" />
+                              <Trash2 className="h-4 w-4" />
                             )}
-                            Wyślij odpowiedź
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleReply(message)}
+                          >
+                            <Send className="h-4 w-4 mr-1" />
+                            <span className="hidden sm:inline">{replyingTo === message.id ? 'Anuluj' : 'Odpowiedz'}</span>
+                            <span className="sm:hidden">{replyingTo === message.id ? '✕' : '↩'}</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => window.open(`mailto:${message.user_email}`, '_blank')}
+                            title="Wyślij email"
+                          >
+                            <Mail className="h-4 w-4" />
                           </Button>
                         </div>
-                      )}
+                        
+                        {replyingTo === message.id && (
+                          <div className="space-y-2 pt-2 border-t border-border">
+                            <Textarea
+                              placeholder="Wpisz odpowiedź dla użytkownika..."
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              className="min-h-[80px]"
+                            />
+                            <Button
+                              size="sm"
+                              onClick={() => sendReply(message.user_id)}
+                              disabled={!replyText.trim() || replyMutation.isPending}
+                            >
+                              {replyMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                              ) : (
+                                <Send className="h-4 w-4 mr-2" />
+                              )}
+                              Wyślij odpowiedź
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
