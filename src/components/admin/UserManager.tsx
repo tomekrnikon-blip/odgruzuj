@@ -97,12 +97,14 @@ export function UserManager() {
         });
       }
     },
-    onSuccess: () => {
+    onSuccess: (_, { newStatus }) => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       toast({
-        title: 'Sukces',
-        description: 'Status użytkownika został zaktualizowany',
+        title: newStatus === 'active' ? '✅ Pro nadane!' : '❌ Pro usunięte',
+        description: newStatus === 'active' 
+          ? 'Użytkownik ma teraz dostęp do wszystkich 580 fiszek przez rok'
+          : 'Użytkownik ma teraz dostęp tylko do 63 darmowych fiszek',
       });
     },
     onError: () => {
@@ -148,8 +150,10 @@ export function UserManager() {
     onSuccess: (_, { isCurrentlyAdmin }) => {
       queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
       toast({
-        title: 'Sukces',
-        description: isCurrentlyAdmin ? 'Usunięto uprawnienia administratora' : 'Nadano uprawnienia administratora',
+        title: isCurrentlyAdmin ? '❌ Admin usunięty' : '✅ Admin nadany!',
+        description: isCurrentlyAdmin 
+          ? 'Użytkownik nie ma już dostępu do panelu admina'
+          : 'Użytkownik ma teraz pełny dostęp do panelu administracyjnego',
       });
     },
     onError: () => {
@@ -173,13 +177,18 @@ export function UserManager() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30">Pro</Badge>;
+        return (
+          <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30 font-bold">
+            <Crown className="h-3 w-3 mr-1" />
+            PRO AKTYWNE
+          </Badge>
+        );
       case 'expired':
         return <Badge variant="destructive">Wygasło</Badge>;
       case 'cancelled':
         return <Badge variant="secondary">Anulowane</Badge>;
       default:
-        return <Badge variant="outline">Free</Badge>;
+        return <Badge variant="outline" className="text-muted-foreground">Free</Badge>;
     }
   };
 
@@ -243,9 +252,9 @@ export function UserManager() {
                             </p>
                             {getStatusBadge(user.subscription_status)}
                             {userIsAdmin && (
-                              <Badge className="bg-red-500/20 text-red-500 border-red-500/30">
+                              <Badge className="bg-red-500/20 text-red-500 border-red-500/30 font-bold">
                                 <Shield className="h-3 w-3 mr-1" />
-                                Admin
+                                ADMIN AKTYWNY
                               </Badge>
                             )}
                           </div>
