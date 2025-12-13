@@ -297,7 +297,9 @@ export function UserManager() {
                             variant="outline"
                             onClick={() => updateStatusMutation.mutate({ userId: user.user_id, newStatus: 'free' })}
                             disabled={updateStatusMutation.isPending}
+                            className="gap-1 border-yellow-500 text-yellow-600 hover:bg-yellow-500/10 hover:text-yellow-700"
                           >
+                            <Crown className="h-3 w-3" />
                             Usuń Pro
                           </Button>
                         ) : (
@@ -305,7 +307,7 @@ export function UserManager() {
                             size="sm"
                             onClick={() => updateStatusMutation.mutate({ userId: user.user_id, newStatus: 'active' })}
                             disabled={updateStatusMutation.isPending}
-                            className="gap-1"
+                            className="gap-1 bg-yellow-500 hover:bg-yellow-600 text-black"
                           >
                             <Crown className="h-3 w-3" />
                             Nadaj Pro
