@@ -513,6 +513,16 @@ export type Database = {
         Returns: undefined
       }
       mask_email: { Args: { email: string }; Returns: string }
+      save_and_encrypt_subscription: {
+        Args: {
+          p_auth_plaintext: string
+          p_endpoint: string
+          p_notification_time: string
+          p_p256dh_plaintext: string
+          p_platform: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
