@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { FlashCard } from "@/components/FlashCard";
 import { Timer } from "@/components/Timer";
 import { StatsCard } from "@/components/StatsCard";
+import { ShoppingList } from "@/components/ShoppingList";
 import { BadgeUnlockedModal } from "@/components/BadgeDisplay";
 import { useFlashcardsFromDB } from "@/hooks/useFlashcardsFromDB";
 import { useTimer } from "@/hooks/useTimer";
@@ -238,6 +239,11 @@ export default function Dashboard() {
                 <Check className="w-5 h-5" />
                 Wykonane
               </button>
+            </div>
+
+            {/* Shopping List */}
+            <div className="mt-6">
+              <ShoppingList />
             </div>
           </div>
         ) : (
