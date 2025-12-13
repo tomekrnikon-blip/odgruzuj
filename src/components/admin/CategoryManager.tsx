@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useCategories, type NewCategory, type Category } from '@/hooks/useCategories';
+import { useGlobalFlashcards } from '@/hooks/useGlobalFlashcards';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,8 +23,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Pencil, Trash2, FolderPlus, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, FolderPlus, Loader2, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 const EMOJI_OPTIONS = ['📦', '👕', '📚', '📄', '🍳', '🛁', '🏠', '💼', '🎮', '🎨', '🎵', '🌿', '❤️', '⭐'];
 
@@ -36,6 +38,20 @@ export function CategoryManager() {
     deleteCategory,
     toggleCategoryActive 
   } = useCategories();
+  
+  const { flashcards } = useGlobalFlashcards();
+
+  // Calculate flashcard stats per category
+  const getCategoryStats = (categoryName: string) => {
+    const categoryFlashcards = flashcards.filter(
+      f => f.category === categoryName || f.category2 === categoryName
+    );
+    return {
+      total: categoryFlashcards.length,
+      free: categoryFlashcards.filter(f => !f.is_premium).length,
+      premium: categoryFlashcards.filter(f => f.is_premium).length
+    };
+  };
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -131,9 +147,16 @@ export function CategoryManager() {
                 <span className="text-2xl">{category.icon}</span>
                 <div>
                   <p className="font-medium">{category.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Kolejność: {category.display_order}
-                  </p>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span>{getCategoryStats(category.name).total} fiszek</span>
+                    <span>•</span>
+                    <span className="text-success">{getCategoryStats(category.name).free} darmowych</span>
+                    <span>•</span>
+                    <Badge variant="secondary" className="bg-warning/10 text-warning text-xs px-1.5 py-0">
+                      <Crown className="h-3 w-3 mr-0.5" />
+                      {getCategoryStats(category.name).premium}
+                    </Badge>
+                  </div>
                 </div>
               </div>
 
