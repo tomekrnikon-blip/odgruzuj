@@ -45,20 +45,20 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
   );
 
   useEffect(() => {
-    // Phase 1: Logo appears (0-1s)
+    // Phase 1: Logo appears (0-1.2s)
     const textTimer = setTimeout(() => {
       setPhase('text');
-    }, 1000);
+    }, 1200);
 
-    // Phase 3: Exit (2.5s)
+    // Phase 3: Exit (3.5s)
     const exitTimer = setTimeout(() => {
       setPhase('exit');
-    }, 2500);
+    }, 3500);
 
-    // Finish (3s)
+    // Finish (4s)
     const finishTimer = setTimeout(() => {
       onFinish();
-    }, 3000);
+    }, 4000);
 
     return () => {
       clearTimeout(textTimer);
