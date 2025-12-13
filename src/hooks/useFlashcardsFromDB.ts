@@ -39,6 +39,9 @@ interface UseFlashcardsFromDBReturn {
   selectedDifficulties: DifficultyFilter[];
   completedTodayIds: string[];
   totalAvailable: number;
+  dailyLimitReached: boolean;
+  dailyLimit: number;
+  completedTodayCount: number;
   setSelectedCategories: (categories: Category[]) => void;
   setSelectedDifficulties: (difficulties: DifficultyFilter[]) => void;
   getNextFlashcard: () => void;
@@ -216,6 +219,11 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
     }
   }, [isLoading, flashcards, selectedCategories, selectedDifficulties, completedTodayIds, currentFlashcard]);
 
+  // Free users have a daily limit of 2 flashcards
+  const FREE_DAILY_LIMIT = 2;
+  const completedTodayCount = completedTodayIds.length;
+  const dailyLimitReached = completedTodayCount >= FREE_DAILY_LIMIT;
+
   return {
     currentFlashcard,
     isLoading,
@@ -223,6 +231,9 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
     selectedDifficulties,
     completedTodayIds,
     totalAvailable: flashcards.length,
+    dailyLimitReached,
+    dailyLimit: FREE_DAILY_LIMIT,
+    completedTodayCount,
     setSelectedCategories,
     setSelectedDifficulties,
     getNextFlashcard,
