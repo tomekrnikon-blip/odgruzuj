@@ -218,7 +218,7 @@ export function ShoppingList() {
         </div>
       ) : items.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-4">
-          Twoja lista jest pusta. Dodaj produkty podczas przeglądania półek!
+          Twoja lista jest pusta. Dodaj produkty które są Ci NIEZBĘDNE w domu, skończyły się lub są przeterminowane.
         </p>
       ) : (
         <ul className="space-y-2 max-h-48 overflow-y-auto">
