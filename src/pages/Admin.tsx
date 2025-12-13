@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
 export default function Admin() {
-  const { isAdmin, isLoading: authLoading } = useAdminAuth();
+  const { isAdmin, isSuperAdmin, isLoading: authLoading } = useAdminAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -87,48 +87,53 @@ export default function Admin() {
             </Button>
           </div>
           <p className="text-muted-foreground">
-            Zarządzaj kategoriami, fiszkami i powiadomieniami
+            {isSuperAdmin 
+              ? 'Zarządzaj kategoriami, fiszkami, użytkownikami i powiadomieniami'
+              : 'Zarządzaj kategoriami i fiszkami (tryb moderatora)'
+            }
           </p>
         </header>
 
-        {/* Stats Section */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          <Card className="bg-card border-border">
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="p-3 rounded-full bg-primary/10">
-                <Users className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Zarejestrowani</p>
-                <p className="text-2xl font-bold text-foreground">
-                  {statsLoading ? '...' : stats?.totalUsers ?? 0}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-border">
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="p-3 rounded-full bg-yellow-500/10">
-                <Crown className="h-6 w-6 text-yellow-500" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Pakiety Pro</p>
-                <p className="text-2xl font-bold text-foreground">
-                  {statsLoading ? '...' : stats?.proUsers ?? 0}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Stats Section - only for super admin */}
+        {isSuperAdmin && (
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <Card className="bg-card border-border">
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className="p-3 rounded-full bg-primary/10">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Zarejestrowani</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {statsLoading ? '...' : stats?.totalUsers ?? 0}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-card border-border">
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className="p-3 rounded-full bg-yellow-500/10">
+                  <Crown className="h-6 w-6 text-yellow-500" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Pakiety Pro</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {statsLoading ? '...' : stats?.proUsers ?? 0}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
-        {/* Support Messages Section */}
-        <SupportMessagesManager />
+        {/* Support Messages Section - only for super admin */}
+        {isSuperAdmin && <SupportMessagesManager />}
 
-        {/* Users Section */}
-        <UserManager />
+        {/* Users Section - only for super admin */}
+        {isSuperAdmin && <UserManager />}
 
-        {/* Notifications Section */}
-        <NotificationManager />
+        {/* Notifications Section - only for super admin */}
+        {isSuperAdmin && <NotificationManager />}
 
         {/* Categories Section */}
         <CategoryManager />
