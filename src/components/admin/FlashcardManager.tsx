@@ -83,6 +83,15 @@ export function FlashcardManager() {
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [isOpen, setIsOpen] = useState(false);
 
+  // Calculate statistics
+  const premiumCount = flashcards.filter(f => f.is_premium).length;
+  const freeCount = flashcards.filter(f => !f.is_premium).length;
+  const categoryStats = categories.map(cat => ({
+    name: cat.name,
+    icon: cat.icon,
+    count: flashcards.filter(f => f.category === cat.name || f.category2 === cat.name).length
+  })).sort((a, b) => b.count - a.count);
+
   const filteredFlashcards = flashcards.filter((flashcard) => {
     const matchesSearch = flashcard.task.toLowerCase().includes(searchQuery.toLowerCase()) ||
       flashcard.comment.toLowerCase().includes(searchQuery.toLowerCase());
@@ -317,7 +326,7 @@ export function FlashcardManager() {
               <div className="text-left">
                 <h3 className="font-semibold text-foreground">Fiszki globalne</h3>
                 <p className="text-sm text-muted-foreground">
-                  {flashcards.length} fiszek
+                  {flashcards.length} fiszek • <span className="text-success">{freeCount} darmowych</span> • <span className="text-warning">{premiumCount} premium</span>
                 </p>
               </div>
             </div>
@@ -342,8 +351,30 @@ export function FlashcardManager() {
         
         <CollapsibleContent>
           <div className="p-4 pt-0 space-y-4 border-t border-border">
+            {/* Statistics */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 pt-4">
+              {categoryStats.map(stat => (
+                <div 
+                  key={stat.name} 
+                  className={cn(
+                    "flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-colors",
+                    filterCategory === stat.name 
+                      ? "border-primary bg-primary/10" 
+                      : "border-border hover:bg-muted/50"
+                  )}
+                  onClick={() => setFilterCategory(filterCategory === stat.name ? 'all' : stat.name)}
+                >
+                  <span className="text-lg">{stat.icon}</span>
+                  <div className="min-w-0">
+                    <p className="text-xs text-muted-foreground truncate">{stat.name}</p>
+                    <p className="font-semibold text-sm">{stat.count}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             {/* Filters */}
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
