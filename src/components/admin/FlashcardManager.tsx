@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { useGlobalFlashcards, type GlobalFlashcard, type NewGlobalFlashcard } from '@/hooks/useGlobalFlashcards';
 import { useCategories } from '@/hooks/useCategories';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import flashcardsData from '@/data/flashcards-import.json';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -43,8 +40,7 @@ import {
   Clock,
   Crown,
   Search,
-  ChevronDown,
-  Upload
+  ChevronDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -83,7 +79,6 @@ export function FlashcardManager() {
   const [selectedFlashcard, setSelectedFlashcard] = useState<GlobalFlashcard | null>(null);
   const [formData, setFormData] = useState<NewGlobalFlashcard>(defaultFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [isOpen, setIsOpen] = useState(false);
@@ -154,40 +149,6 @@ export function FlashcardManager() {
     if (success) {
       setIsDeleteDialogOpen(false);
       setSelectedFlashcard(null);
-    }
-  };
-
-  const { toast } = useToast();
-
-  const handleImportFlashcards = async () => {
-    if (!confirm('Czy na pewno chcesz zaimportować 600 fiszek? To usunie wszystkie istniejące fiszki i zastąpi je nowymi.')) {
-      return;
-    }
-    
-    setIsImporting(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('import-flashcards', {
-        body: { flashcards: flashcardsData }
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: 'Sukces!',
-        description: data.message || 'Fiszki zostały zaimportowane',
-      });
-
-      // Refresh flashcards list
-      window.location.reload();
-    } catch (error: any) {
-      console.error('Import error:', error);
-      toast({
-        title: 'Błąd importu',
-        description: error.message || 'Nie udało się zaimportować fiszek',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsImporting(false);
     }
   };
 
