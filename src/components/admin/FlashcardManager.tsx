@@ -364,18 +364,6 @@ export function FlashcardManager() {
               <Button 
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleImportFlashcards();
-                }} 
-                size="sm"
-                variant="outline"
-                disabled={isImporting}
-              >
-                {isImporting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
-                Import 600
-              </Button>
-              <Button 
-                onClick={(e) => {
-                  e.stopPropagation();
                   handleOpenAddModal();
                 }} 
                 size="sm"
