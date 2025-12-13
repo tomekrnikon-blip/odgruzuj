@@ -14,15 +14,23 @@ const navItems = [
   { to: "/settings", icon: Settings, label: "Ustawienia" },
 ];
 
-export function Navigation() {
+interface NavigationProps {
+  onSignOut?: () => Promise<void>;
+}
+
+export function Navigation({ onSignOut }: NavigationProps) {
   const { signOut } = useAuth();
   const { isAdmin } = useAdminAuth();
   const { userNumber } = useUserProfile();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await signOut();
-    navigate("/auth");
+    if (onSignOut) {
+      await onSignOut();
+    } else {
+      await signOut();
+      navigate("/auth");
+    }
   };
 
   // Build nav items dynamically based on admin status
