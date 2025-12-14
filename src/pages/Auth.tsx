@@ -53,6 +53,25 @@ export default function Auth() {
     if (mode === 'reset') {
       setShowResetPassword(true);
     }
+    
+    // Also check for recovery token in URL hash (Supabase password recovery flow)
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const type = hashParams.get('type');
+    const accessToken = hashParams.get('access_token');
+    
+    if (type === 'recovery' && accessToken) {
+      // Set the session from the recovery token
+      supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: hashParams.get('refresh_token') || '',
+      }).then(({ error }) => {
+        if (!error) {
+          setShowResetPassword(true);
+        } else {
+          toast.error('Link do resetowania hasła wygasł lub jest nieprawidłowy');
+        }
+      });
+    }
   }, [searchParams]);
 
   useEffect(() => {
