@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Lock, Loader2, ShieldCheck } from "lucide-react";
+import { Lock, Loader2, Mail } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useMFA } from "@/hooks/useMFA";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 
 const passwordSchema = z.object({
@@ -16,48 +16,20 @@ const passwordSchema = z.object({
   path: ["confirmPassword"],
 });
 
+type Step = "password" | "code-sent" | "verify";
+
 export function ChangePasswordSection() {
-  const { updatePassword } = useAuth();
-  const { isEnrolled, isVerified, verifyMFA, isLoading: mfaLoading } = useMFA();
+  const { updatePassword, user } = useAuth();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [mfaCode, setMfaCode] = useState("");
-  const [showMfaInput, setShowMfaInput] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [expectedCode, setExpectedCode] = useState("");
+  const [codeExpiresAt, setCodeExpiresAt] = useState<Date | null>(null);
+  const [step, setStep] = useState<Step>("password");
 
-  const handleVerifyMFA = async () => {
-    if (mfaCode.length !== 6) {
-      toast({
-        title: "Błąd",
-        description: "Wprowadź 6-cyfrowy kod z aplikacji",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const success = await verifyMFA(mfaCode);
-    if (success) {
-      setShowMfaInput(false);
-      setMfaCode("");
-      toast({
-        title: "Sukces",
-        description: "Weryfikacja MFA pomyślna. Możesz teraz zmienić hasło.",
-      });
-    }
-  };
-
-  const handleChangePassword = async (e: React.FormEvent) => {
+  const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // If MFA is enrolled but not verified for this session, require verification first
-    if (isEnrolled && !isVerified) {
-      setShowMfaInput(true);
-      toast({
-        title: "Wymagana weryfikacja",
-        description: "Wprowadź kod z aplikacji uwierzytelniającej, aby zmienić hasło.",
-      });
-      return;
-    }
     
     const result = passwordSchema.safeParse({ password, confirmPassword });
     if (!result.success) {
@@ -68,20 +40,112 @@ export function ChangePasswordSection() {
       });
       return;
     }
+
+    if (!user?.email) {
+      toast({
+        title: "Błąd",
+        description: "Nie można pobrać adresu email użytkownika.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
     
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      
+      if (!accessToken) {
+        toast({
+          title: "Błąd",
+          description: "Brak autoryzacji. Zaloguj się ponownie.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("send-password-change-code", {
+        body: { email: user.email },
+      });
+
+      if (error) {
+        console.error("Error sending code:", error);
+        toast({
+          title: "Błąd",
+          description: "Nie udało się wysłać kodu weryfikacyjnego.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (data?.success && data?.code) {
+        setExpectedCode(data.code);
+        setCodeExpiresAt(new Date(data.expiresAt));
+        setStep("verify");
+        toast({
+          title: "Kod wysłany",
+          description: "Sprawdź swoją skrzynkę email i wprowadź kod weryfikacyjny.",
+        });
+      } else {
+        toast({
+          title: "Błąd",
+          description: "Nie udało się wysłać kodu weryfikacyjnego.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        title: "Błąd",
+        description: "Wystąpił nieoczekiwany błąd.",
+        variant: "destructive",
+      });
+    }
+    
+    setIsLoading(false);
+  };
+
+  const handleVerifyAndChangePassword = async () => {
+    if (verificationCode.length !== 6) {
+      toast({
+        title: "Błąd",
+        description: "Wprowadź 6-cyfrowy kod weryfikacyjny.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if code expired
+    if (codeExpiresAt && new Date() > codeExpiresAt) {
+      toast({
+        title: "Kod wygasł",
+        description: "Kod weryfikacyjny wygasł. Wyślij nowy kod.",
+        variant: "destructive",
+      });
+      setStep("password");
+      setVerificationCode("");
+      setExpectedCode("");
+      return;
+    }
+
+    // Verify code
+    if (verificationCode !== expectedCode) {
+      toast({
+        title: "Błąd",
+        description: "Nieprawidłowy kod weryfikacyjny.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     const { error } = await updatePassword(password);
     setIsLoading(false);
 
     if (error) {
-      if (error.message.includes('AAL2')) {
-        setShowMfaInput(true);
-        toast({
-          title: "Wymagana weryfikacja",
-          description: "Wprowadź kod z aplikacji uwierzytelniającej, aby zmienić hasło.",
-        });
-        return;
-      }
       toast({
         title: "Błąd",
         description: "Nie udało się zmienić hasła. Spróbuj ponownie.",
@@ -94,8 +158,21 @@ export function ChangePasswordSection() {
       title: "Sukces",
       description: "Hasło zostało zmienione.",
     });
+    
+    // Reset all state
     setPassword("");
     setConfirmPassword("");
+    setVerificationCode("");
+    setExpectedCode("");
+    setCodeExpiresAt(null);
+    setStep("password");
+  };
+
+  const handleCancel = () => {
+    setStep("password");
+    setVerificationCode("");
+    setExpectedCode("");
+    setCodeExpiresAt(null);
   };
 
   return (
@@ -105,17 +182,17 @@ export function ChangePasswordSection() {
         <h2 className="font-heading font-semibold">Zmień hasło</h2>
       </div>
       
-      {showMfaInput && isEnrolled && !isVerified ? (
+      {step === "verify" ? (
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
-            <ShieldCheck className="w-4 h-4" />
-            <span>Masz włączone 2FA. Wprowadź kod, aby kontynuować.</span>
+            <Mail className="w-4 h-4" />
+            <span>Kod weryfikacyjny został wysłany na Twój email.</span>
           </div>
           <div className="space-y-2">
-            <Label>Kod z aplikacji uwierzytelniającej</Label>
+            <Label>Kod weryfikacyjny</Label>
             <InputOTP
-              value={mfaCode}
-              onChange={setMfaCode}
+              value={verificationCode}
+              onChange={setVerificationCode}
               maxLength={6}
             >
               <InputOTPGroup>
@@ -131,28 +208,25 @@ export function ChangePasswordSection() {
           <div className="flex gap-2">
             <button
               type="button"
-              onClick={handleVerifyMFA}
-              disabled={mfaLoading || mfaCode.length !== 6}
+              onClick={handleVerifyAndChangePassword}
+              disabled={isLoading || verificationCode.length !== 6}
               className="flex-1 btn-primary flex items-center justify-center gap-2"
             >
-              {mfaLoading ? (
+              {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Weryfikacja...
+                  Zmienianie...
                 </>
               ) : (
                 <>
-                  <ShieldCheck className="w-4 h-4" />
-                  Zweryfikuj
+                  <Lock className="w-4 h-4" />
+                  Zmień hasło
                 </>
               )}
             </button>
             <button
               type="button"
-              onClick={() => {
-                setShowMfaInput(false);
-                setMfaCode("");
-              }}
+              onClick={handleCancel}
               className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Anuluj
@@ -160,13 +234,7 @@ export function ChangePasswordSection() {
           </div>
         </div>
       ) : (
-        <form onSubmit={handleChangePassword} className="space-y-4">
-          {isEnrolled && isVerified && (
-            <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 dark:bg-green-950/20 p-3 rounded-lg">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Sesja zweryfikowana przez 2FA</span>
-            </div>
-          )}
+        <form onSubmit={handleSendCode} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="new-password">Nowe hasło</Label>
             <Input
@@ -199,12 +267,12 @@ export function ChangePasswordSection() {
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Zmienianie...
+                Wysyłanie kodu...
               </>
             ) : (
               <>
-                <Lock className="w-4 h-4" />
-                Zmień hasło
+                <Mail className="w-4 h-4" />
+                Wyślij kod weryfikacyjny
               </>
             )}
           </button>
