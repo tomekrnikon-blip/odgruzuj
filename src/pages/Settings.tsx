@@ -140,7 +140,6 @@ export default function Settings() {
         .from('support_messages')
         .insert({
           user_id: user.id,
-          user_email: user.email || '',
           message: supportMessage.trim()
         });
       
