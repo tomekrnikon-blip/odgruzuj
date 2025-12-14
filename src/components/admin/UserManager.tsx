@@ -117,22 +117,22 @@ export function UserManager() {
     }
   });
 
-  const toggleAdminMutation = useMutation({
-    mutationFn: async ({ userId, isCurrentlyAdmin }: { userId: string; isCurrentlyAdmin: boolean }) => {
-      if (isCurrentlyAdmin) {
-        // Remove admin role
+  const toggleModeratorMutation = useMutation({
+    mutationFn: async ({ userId, isCurrentlyModerator }: { userId: string; isCurrentlyModerator: boolean }) => {
+      if (isCurrentlyModerator) {
+        // Remove moderator role
         const { error } = await supabase
           .from('user_roles')
           .delete()
           .eq('user_id', userId)
-          .eq('role', 'admin');
+          .eq('role', 'moderator');
 
         if (error) throw error;
       } else {
-        // Add admin role
+        // Add moderator role
         const { error } = await supabase
           .from('user_roles')
-          .insert({ user_id: userId, role: 'admin' });
+          .insert({ user_id: userId, role: 'moderator' });
 
         if (error) throw error;
       }
@@ -141,7 +141,7 @@ export function UserManager() {
       if (currentUser?.id) {
         await supabase.rpc('log_admin_activity', {
           p_admin_user_id: currentUser.id,
-          p_action_type: isCurrentlyAdmin ? 'revoke_admin_role' : 'grant_admin_role',
+          p_action_type: isCurrentlyModerator ? 'revoke_moderator_role' : 'grant_moderator_role',
           p_target_table: 'user_roles',
           p_target_id: userId,
           p_details: null,
@@ -149,13 +149,13 @@ export function UserManager() {
         });
       }
     },
-    onSuccess: (_, { isCurrentlyAdmin }) => {
+    onSuccess: (_, { isCurrentlyModerator }) => {
       queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
       toast({
-        title: isCurrentlyAdmin ? '❌ Admin usunięty' : '✅ Admin nadany!',
-        description: isCurrentlyAdmin 
-          ? 'Użytkownik nie ma już dostępu do panelu admina'
-          : 'Użytkownik ma teraz pełny dostęp do panelu administracyjnego',
+        title: isCurrentlyModerator ? '❌ Moderator usunięty' : '✅ Moderator nadany!',
+        description: isCurrentlyModerator 
+          ? 'Użytkownik nie ma już dostępu do panelu moderatora'
+          : 'Użytkownik może teraz zarządzać fiszkami i kategoriami',
       });
     },
     onError: () => {
@@ -167,8 +167,8 @@ export function UserManager() {
     }
   });
 
-  const isUserAdmin = (userId: string) => {
-    return userRoles?.some(role => role.user_id === userId && role.role === 'admin') ?? false;
+  const isUserModerator = (userId: string) => {
+    return userRoles?.some(role => role.user_id === userId && role.role === 'moderator') ?? false;
   };
 
   const filteredUsers = users?.filter(user => 
@@ -240,7 +240,7 @@ export function UserManager() {
             ) : (
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {filteredUsers?.map((user) => {
-                  const userIsAdmin = isUserAdmin(user.user_id);
+                  const userIsModerator = isUserModerator(user.user_id);
                   return (
                     <div
                       key={user.id}
@@ -253,10 +253,10 @@ export function UserManager() {
                               {user.display_name || 'Użytkownik'}
                             </p>
                             {getStatusBadge(user.subscription_status)}
-                            {userIsAdmin && (
-                              <Badge className="bg-red-500/20 text-red-500 border-red-500/30 font-bold">
+                            {userIsModerator && (
+                              <Badge className="bg-blue-500/20 text-blue-500 border-blue-500/30 font-bold">
                                 <Shield className="h-3 w-3 mr-1" />
-                                ADMIN AKTYWNY
+                                MODERATOR
                               </Badge>
                             )}
                           </div>
@@ -268,30 +268,30 @@ export function UserManager() {
                         </p>
                       </div>
                       <div className="flex gap-2 ml-4 flex-wrap">
-                        {userIsAdmin ? (
+                        {userIsModerator ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => toggleModeratorMutation.mutate({ userId: user.user_id, isCurrentlyModerator: true })}
+                            disabled={toggleModeratorMutation.isPending}
+                            className="gap-1 border-red-500/30 text-red-500 hover:bg-red-500/10"
+                          >
+                            <Shield className="h-3 w-3" />
+                            Usuń Moderatora
+                          </Button>
+                        ) : (
                           user.user_number !== 1 && (
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => toggleAdminMutation.mutate({ userId: user.user_id, isCurrentlyAdmin: true })}
-                              disabled={toggleAdminMutation.isPending}
-                              className="gap-1 border-red-500/30 text-red-500 hover:bg-red-500/10"
+                              onClick={() => toggleModeratorMutation.mutate({ userId: user.user_id, isCurrentlyModerator: false })}
+                              disabled={toggleModeratorMutation.isPending}
+                              className="gap-1"
                             >
                               <Shield className="h-3 w-3" />
-                              Usuń Admin
+                              Nadaj Moderatora
                             </Button>
                           )
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => toggleAdminMutation.mutate({ userId: user.user_id, isCurrentlyAdmin: false })}
-                            disabled={toggleAdminMutation.isPending}
-                            className="gap-1"
-                          >
-                            <Shield className="h-3 w-3" />
-                            Nadaj Admin
-                          </Button>
                         )}
                         {user.subscription_status === 'active' ? (
                           <Button
