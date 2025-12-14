@@ -464,6 +464,10 @@ export type Database = {
       check_vault_key_exists: { Args: never; Returns: boolean }
       cleanup_unconfirmed_users_logic: { Args: never; Returns: undefined }
       decrypt_email: { Args: { encrypted_email: string }; Returns: string }
+      decrypt_email_with_key: {
+        Args: { encrypted_email: string; encryption_key: string }
+        Returns: string
+      }
       decrypt_push_data: { Args: { encrypted_text: string }; Returns: string }
       decrypt_with_custom_key: {
         Args: { encrypted_text: string; encryption_key: string }
@@ -581,6 +585,10 @@ export type Database = {
       }
       setup_encryption_key_in_vault: {
         Args: { p_key_value: string }
+        Returns: undefined
+      }
+      update_profile_email_encrypted: {
+        Args: { p_encrypted_email: string; p_profile_id: string }
         Returns: undefined
       }
     }
