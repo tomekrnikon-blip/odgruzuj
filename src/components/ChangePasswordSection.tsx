@@ -142,17 +142,32 @@ export function ChangePasswordSection() {
     }
 
     setIsLoading(true);
-    const { error } = await updatePassword(password);
-    setIsLoading(false);
-
-    if (error) {
+    
+    try {
+      const { error } = await updatePassword(password);
+      
+      if (error) {
+        console.error("Password update error:", error);
+        toast({
+          title: "Błąd",
+          description: error.message || "Nie udało się zmienić hasła. Spróbuj ponownie.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+    } catch (err) {
+      console.error("Password update exception:", err);
       toast({
         title: "Błąd",
-        description: "Nie udało się zmienić hasła. Spróbuj ponownie.",
+        description: "Wystąpił nieoczekiwany błąd podczas zmiany hasła.",
         variant: "destructive",
       });
+      setIsLoading(false);
       return;
     }
+    
+    setIsLoading(false);
 
     toast({
       title: "Sukces",
