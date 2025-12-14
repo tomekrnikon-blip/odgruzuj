@@ -461,6 +461,7 @@ export type Database = {
           notification_time: string
         }[]
       }
+      check_vault_key_exists: { Args: never; Returns: boolean }
       cleanup_unconfirmed_users_logic: { Args: never; Returns: undefined }
       decrypt_email: { Args: { encrypted_email: string }; Returns: string }
       decrypt_push_data: { Args: { encrypted_text: string }; Returns: string }
@@ -576,6 +577,10 @@ export type Database = {
           p_p256dh_plaintext: string
           p_platform: string
         }
+        Returns: undefined
+      }
+      setup_encryption_key_in_vault: {
+        Args: { p_key_value: string }
         Returns: undefined
       }
     }
