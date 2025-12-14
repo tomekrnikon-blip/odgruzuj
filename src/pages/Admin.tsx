@@ -4,13 +4,15 @@ import { FlashcardManager } from '@/components/admin/FlashcardManager';
 import { NotificationManager } from '@/components/admin/NotificationManager';
 import { UserManager } from '@/components/admin/UserManager';
 import { SupportMessagesManager } from '@/components/admin/SupportMessagesManager';
-import { ShieldAlert, Loader2, ShieldCheck, Users, Crown, LogOut } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { SecuritySection } from '@/components/admin/SecuritySection';
+import { ShieldAlert, Loader2, ShieldCheck, Users, Crown, LogOut, Lock, Key } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 export default function Admin() {
   const { isAdmin, isSuperAdmin, isLoading: authLoading } = useAdminAuth();
@@ -125,6 +127,9 @@ export default function Admin() {
             </Card>
           </div>
         )}
+
+        {/* Security Section - only for super admin */}
+        {isSuperAdmin && <SecuritySection />}
 
         {/* Support Messages Section - only for super admin */}
         {isSuperAdmin && <SupportMessagesManager />}
