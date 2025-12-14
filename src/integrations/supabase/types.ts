@@ -512,6 +512,18 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_push_subscriptions_decrypted_with_audit: {
+        Args: never
+        Returns: {
+          auth: string
+          endpoint: string
+          id: string
+          is_active: boolean
+          notification_time: string
+          p256dh: string
+          user_id: string
+        }[]
+      }
       get_support_messages_for_admin: {
         Args: never
         Returns: {
@@ -545,6 +557,10 @@ export type Database = {
           p_target_id?: string
           p_target_table?: string
         }
+        Returns: undefined
+      }
+      log_sensitive_data_access: {
+        Args: { p_resource_id?: string; p_resource_type: string }
         Returns: undefined
       }
       mask_email: { Args: { email: string }; Returns: string }
