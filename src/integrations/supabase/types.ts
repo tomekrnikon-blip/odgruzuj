@@ -524,6 +524,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_support_message_email_for_reply: {
+        Args: { p_message_id: string }
+        Returns: string
+      }
       get_support_messages_for_admin: {
         Args: never
         Returns: {
