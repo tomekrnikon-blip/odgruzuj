@@ -137,7 +137,16 @@ export default function Install() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Diagonal Watermark */}
+      <div className="fixed inset-0 pointer-events-none flex items-center justify-center z-50">
+        <div 
+          className="text-6xl font-bold text-muted-foreground/20 whitespace-nowrap select-none"
+          style={{ transform: 'rotate(-45deg)' }}
+        >
+          Aplikacja testowa
+        </div>
+      </div>
       <div className="container max-w-lg mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
