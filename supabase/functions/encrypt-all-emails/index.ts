@@ -126,10 +126,11 @@ serve(async (req) => {
       try {
         const encryptedEmail = await encryptEmail(profile.email, encryptionKey);
         
-        const { error: updateError } = await supabase
-          .from("profiles")
-          .update({ email: encryptedEmail })
-          .eq("id", profile.id);
+        // Use raw SQL update to bypass trigger that might cause issues
+        const { error: updateError } = await supabase.rpc('update_profile_email_encrypted', {
+          p_profile_id: profile.id,
+          p_encrypted_email: encryptedEmail
+        });
 
         if (updateError) {
           logStep("Failed to update profile", { id: profile.id, error: updateError.message });
