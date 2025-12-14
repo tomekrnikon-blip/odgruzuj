@@ -22,23 +22,24 @@ export function useAdminAuth() {
 
         setUserId(user.id);
 
-        // Check if user has admin role using the has_role function
-        const { data, error } = await supabase.rpc('has_role', {
+        // Check if user has admin role (super admin)
+        const { data: hasAdminRole } = await supabase.rpc('has_role', {
           _user_id: user.id,
           _role: 'admin'
         });
 
-        if (error) {
-          console.error('Error checking admin status:', error);
-          setIsAdmin(false);
-          setIsSuperAdmin(false);
-          return;
-        }
+        // Check if user has moderator role
+        const { data: hasModeratorRole } = await supabase.rpc('has_role', {
+          _user_id: user.id,
+          _role: 'moderator'
+        });
 
-        setIsAdmin(data === true);
+        // User has access to admin panel if they are admin OR moderator
+        const hasAccess = hasAdminRole === true || hasModeratorRole === true;
+        setIsAdmin(hasAccess);
 
-        // Check if user is super admin (user_number = 1)
-        if (data === true) {
+        // Only user #1 with admin role is super admin
+        if (hasAdminRole === true) {
           const { data: profileData } = await supabase
             .from('profiles')
             .select('user_number')
