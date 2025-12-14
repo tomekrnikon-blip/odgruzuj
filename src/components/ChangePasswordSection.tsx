@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { Lock, Loader2, Mail } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Lock, Loader2, Mail, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useMFA } from "@/hooks/useMFA";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,19 +17,25 @@ const passwordSchema = z.object({
   path: ["confirmPassword"],
 });
 
-type Step = "password" | "code-sent" | "verify";
+type Step = "password" | "mfa-verify" | "code-sent" | "verify";
 
 export function ChangePasswordSection() {
   const { updatePassword, user } = useAuth();
+  const { isEnrolled, verifyMFA, refreshStatus } = useMFA();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
+  const [mfaCode, setMfaCode] = useState("");
   const [expectedCode, setExpectedCode] = useState("");
   const [codeExpiresAt, setCodeExpiresAt] = useState<Date | null>(null);
   const [step, setStep] = useState<Step>("password");
 
-  const handleSendCode = async (e: React.FormEvent) => {
+  useEffect(() => {
+    refreshStatus();
+  }, []);
+
+  const handleStartPasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const result = passwordSchema.safeParse({ password, confirmPassword });
@@ -50,6 +57,50 @@ export function ChangePasswordSection() {
       return;
     }
 
+    // If MFA is enrolled, require MFA verification first
+    if (isEnrolled) {
+      setStep("mfa-verify");
+      return;
+    }
+
+    // No MFA - proceed directly to email code
+    await sendEmailCode();
+  };
+
+  const handleMFAVerify = async () => {
+    if (mfaCode.length !== 6) {
+      toast({
+        title: "Błąd",
+        description: "Wprowadź 6-cyfrowy kod z aplikacji.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    const success = await verifyMFA(mfaCode);
+    
+    if (!success) {
+      toast({
+        title: "Błąd",
+        description: "Nieprawidłowy kod MFA. Spróbuj ponownie.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    toast({
+      title: "MFA zweryfikowane",
+      description: "Teraz wyślemy kod na email.",
+    });
+
+    // After MFA verification, send email code
+    await sendEmailCode();
+    setIsLoading(false);
+  };
+
+  const sendEmailCode = async () => {
     setIsLoading(true);
     
     try {
@@ -67,7 +118,7 @@ export function ChangePasswordSection() {
       }
 
       const { data, error } = await supabase.functions.invoke("send-password-change-code", {
-        body: { email: user.email },
+        body: { email: user?.email },
       });
 
       if (error) {
@@ -186,6 +237,7 @@ export function ChangePasswordSection() {
   const handleCancel = () => {
     setStep("password");
     setVerificationCode("");
+    setMfaCode("");
     setExpectedCode("");
     setCodeExpiresAt(null);
   };
@@ -197,14 +249,65 @@ export function ChangePasswordSection() {
         <h2 className="font-heading font-semibold">Zmień hasło</h2>
       </div>
       
-      {step === "verify" ? (
+      {step === "mfa-verify" ? (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+            <ShieldCheck className="w-4 h-4" />
+            <span>Masz włączone 2FA. Wprowadź kod z aplikacji uwierzytelniającej.</span>
+          </div>
+          <div className="space-y-2">
+            <Label>Kod 2FA</Label>
+            <InputOTP
+              value={mfaCode}
+              onChange={setMfaCode}
+              maxLength={6}
+            >
+              <InputOTPGroup>
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+                <InputOTPSlot index={3} />
+                <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
+              </InputOTPGroup>
+            </InputOTP>
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleMFAVerify}
+              disabled={isLoading || mfaCode.length !== 6}
+              className="flex-1 btn-primary flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Weryfikacja...
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="w-4 h-4" />
+                  Zweryfikuj 2FA
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Anuluj
+            </button>
+          </div>
+        </div>
+      ) : step === "verify" ? (
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
             <Mail className="w-4 h-4" />
             <span>Kod weryfikacyjny został wysłany na Twój email.</span>
           </div>
           <div className="space-y-2">
-            <Label>Kod weryfikacyjny</Label>
+            <Label>Kod weryfikacyjny z email</Label>
             <InputOTP
               value={verificationCode}
               onChange={setVerificationCode}
@@ -249,7 +352,13 @@ export function ChangePasswordSection() {
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSendCode} className="space-y-4">
+        <form onSubmit={handleStartPasswordChange} className="space-y-4">
+          {isEnrolled && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+              <ShieldCheck className="w-4 h-4" />
+              <span>2FA jest włączone - będzie wymagana weryfikacja.</span>
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="new-password">Nowe hasło</Label>
             <Input
@@ -282,12 +391,12 @@ export function ChangePasswordSection() {
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Wysyłanie kodu...
+                Sprawdzanie...
               </>
             ) : (
               <>
                 <Mail className="w-4 h-4" />
-                Wyślij kod weryfikacyjny
+                {isEnrolled ? "Kontynuuj" : "Wyślij kod weryfikacyjny"}
               </>
             )}
           </button>
