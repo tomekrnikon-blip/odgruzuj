@@ -75,10 +75,8 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("[PASSWORD-CHANGE-CODE] Sending verification code to:", email);
     console.log("[PASSWORD-CHANGE-CODE] Generated code:", verificationCode);
 
-    // Note: Using onboarding@resend.dev as sender because odgruzuj.pl domain is not verified in Resend
-    // To send from noreply@odgruzuj.pl, domain must be verified at https://resend.com/domains
     const emailResponse = await resend.emails.send({
-      from: "Odgruzuj <onboarding@resend.dev>",
+      from: "Odgruzuj <noreply@odgruzuj.pl>",
       to: [email],
       subject: "Kod weryfikacyjny zmiany hasła - odgruzuj.pl",
       html: `
