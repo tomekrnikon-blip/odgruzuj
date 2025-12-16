@@ -102,20 +102,46 @@ export function ChangePasswordSection() {
 
   const sendEmailCode = async () => {
     setIsLoading(true);
-    
+
     try {
+      if (!user?.email) {
+        toast({
+          title: "Błąd",
+          description: "Nie można pobrać adresu email użytkownika.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+
+      if (sessionError || !accessToken) {
+        console.error("[CHANGE-PASSWORD] No session/access token:", sessionError);
+        toast({
+          title: "Błąd uwierzytelnienia",
+          description: "Zaloguj się ponownie i spróbuj jeszcze raz.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log("[CHANGE-PASSWORD] Invoking send-password-change-code for", user.email);
+
       const { data, error } = await supabase.functions.invoke("send-password-change-code", {
-        body: { email: user?.email },
+        body: { email: user.email },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
 
       if (error) {
-        console.error("Error sending code:", error);
+        console.error("[CHANGE-PASSWORD] Error sending code:", error);
         toast({
           title: "Błąd",
-          description: "Nie udało się wysłać kodu weryfikacyjnego. Sprawdź konfigurację email.",
+          description: error.message || "Nie udało się wysłać kodu weryfikacyjnego.",
           variant: "destructive",
         });
-        setIsLoading(false);
         return;
       }
 
