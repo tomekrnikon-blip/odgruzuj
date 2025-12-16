@@ -72,10 +72,13 @@ const handler = async (req: Request): Promise<Response> => {
     const verificationCode = generateVerificationCode();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
 
-    console.log("Sending verification code to:", email);
+    console.log("[PASSWORD-CHANGE-CODE] Sending verification code to:", email);
+    console.log("[PASSWORD-CHANGE-CODE] Generated code:", verificationCode);
 
+    // Note: Using onboarding@resend.dev as sender because odgruzuj.pl domain is not verified in Resend
+    // To send from noreply@odgruzuj.pl, domain must be verified at https://resend.com/domains
     const emailResponse = await resend.emails.send({
-      from: "Odgruzuj <noreply@odgruzuj.pl>",
+      from: "Odgruzuj <onboarding@resend.dev>",
       to: [email],
       subject: "Kod weryfikacyjny zmiany hasła - odgruzuj.pl",
       html: `
@@ -111,15 +114,17 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
+    console.log("[PASSWORD-CHANGE-CODE] Resend API response:", JSON.stringify(emailResponse));
+
     if (emailResponse.error) {
-      console.error("Failed to send email:", emailResponse.error);
+      console.error("[PASSWORD-CHANGE-CODE] Failed to send email:", JSON.stringify(emailResponse.error));
       return new Response(
-        JSON.stringify({ error: "Failed to send verification email" }),
+        JSON.stringify({ error: "Failed to send verification email", details: emailResponse.error }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    console.log("Email sent successfully:", emailResponse);
+    console.log("[PASSWORD-CHANGE-CODE] Email sent successfully, id:", emailResponse.data?.id);
 
     return new Response(
       JSON.stringify({ 
