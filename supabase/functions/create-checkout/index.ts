@@ -108,10 +108,8 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      // Let Stripe automatically show all payment methods enabled in dashboard
-      automatic_payment_methods: {
-        enabled: true,
-      },
+      // Stripe will automatically show card + Apple Pay/Google Pay
+      // Note: BLIK and P24 don't support subscriptions, only one-time payments
       success_url: `${req.headers.get("origin")}/settings?upgrade=success`,
       cancel_url: `${req.headers.get("origin")}/settings?upgrade=cancelled`,
     });
