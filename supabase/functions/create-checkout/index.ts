@@ -29,9 +29,17 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Use anon key for user authentication
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+  );
+
+  // Use service role for reading protected config
+  const supabaseAdmin = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    { auth: { persistSession: false } }
   );
 
   try {
@@ -57,7 +65,8 @@ serve(async (req) => {
     let priceId: string;
     try {
       const priceKey = plan === 'monthly' ? 'price_monthly' : 'price_yearly';
-      const { data: configData, error: configError } = await supabaseClient
+      // Use admin client to bypass RLS
+      const { data: configData, error: configError } = await supabaseAdmin
         .from('stripe_config')
         .select('value')
         .eq('key', priceKey)
