@@ -33,7 +33,7 @@ const passwordSchema = z.object({
 export default function Auth() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, isLoading: authLoading, signIn, signUp, resetPassword, updatePassword } = useAuth();
+  const { user, isLoading: authLoading, signIn, signUp, resetPassword, updatePassword, isPasswordRecovery, clearPasswordRecovery } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -47,32 +47,13 @@ export default function Auth() {
 
   const allConsentsAccepted = acceptedPrivacy && acceptedTerms;
 
-  // Check if user came from password reset email
+  // Check if user came from password reset email - use isPasswordRecovery from hook
   useEffect(() => {
     const mode = searchParams.get('mode');
-    if (mode === 'reset') {
+    if (mode === 'reset' || isPasswordRecovery) {
       setShowResetPassword(true);
     }
-    
-    // Also check for recovery token in URL hash (Supabase password recovery flow)
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const type = hashParams.get('type');
-    const accessToken = hashParams.get('access_token');
-    
-    if (type === 'recovery' && accessToken) {
-      // Set the session from the recovery token
-      supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: hashParams.get('refresh_token') || '',
-      }).then(({ error }) => {
-        if (!error) {
-          setShowResetPassword(true);
-        } else {
-          toast.error('Link do resetowania hasła wygasł lub jest nieprawidłowy');
-        }
-      });
-    }
-  }, [searchParams]);
+  }, [searchParams, isPasswordRecovery]);
 
   useEffect(() => {
     // Don't redirect if user is in password reset mode
@@ -192,12 +173,17 @@ export default function Auth() {
       
       if (error) {
         console.error('[RESET-PASSWORD] Error:', error);
-        toast.error('Nie udało się zmienić hasła. Link mógł wygasnąć - spróbuj wysłać nowy.');
+        if (error.message.includes('expired') || error.message.includes('invalid')) {
+          toast.error('Link do resetowania hasła wygasł. Wyślij nowy link.');
+        } else {
+          toast.error('Nie udało się zmienić hasła. Spróbuj wysłać nowy link.');
+        }
         return;
       }
 
       toast.success('Hasło zostało zmienione!');
       setShowResetPassword(false);
+      clearPasswordRecovery();
       setPassword('');
       setConfirmPassword('');
       navigate('/');
