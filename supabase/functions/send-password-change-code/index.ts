@@ -75,7 +75,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Sending verification code to:", email);
 
     const emailResponse = await resend.emails.send({
-      from: "Odgruzuj <onboarding@resend.dev>",
+      from: "Odgruzuj <noreply@odgruzuj.pl>",
       to: [email],
       subject: "Kod weryfikacyjny zmiany hasła - odgruzuj.pl",
       html: `
