@@ -8,10 +8,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Price IDs for subscription plans
-const PRICE_IDS = {
-  monthly: "price_1ScWPE9EWMAAADcflIpPIPRS", // 9.90 PLN/month
-  yearly: "price_1ScWRg9EWMAAADcfHNoeUUK7",  // 49.90 PLN/year
+// Fallback price IDs (used if database fetch fails)
+const FALLBACK_PRICE_IDS = {
+  monthly: "price_1ScWPE9EWMAAADcflIpPIPRS",
+  yearly: "price_1ScWRg9EWMAAADcfHNoeUUK7",
 };
 
 // Zod schema for input validation
@@ -53,6 +53,28 @@ serve(async (req) => {
     
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // Fetch price IDs from database
+    let priceId: string;
+    try {
+      const priceKey = plan === 'monthly' ? 'price_monthly' : 'price_yearly';
+      const { data: configData, error: configError } = await supabaseClient
+        .from('stripe_config')
+        .select('value')
+        .eq('key', priceKey)
+        .single();
+
+      if (configError || !configData?.value) {
+        logStep("Using fallback price ID", { plan, reason: configError?.message });
+        priceId = FALLBACK_PRICE_IDS[plan];
+      } else {
+        priceId = configData.value;
+        logStep("Price ID from database", { priceId });
+      }
+    } catch (e) {
+      logStep("Database error, using fallback", { error: String(e) });
+      priceId = FALLBACK_PRICE_IDS[plan];
+    }
+
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
     });
@@ -65,7 +87,6 @@ serve(async (req) => {
       logStep("Found existing customer", { customerId });
     }
 
-    const priceId = PRICE_IDS[plan];
     logStep("Using price", { priceId, plan });
 
     const session = await stripe.checkout.sessions.create({
