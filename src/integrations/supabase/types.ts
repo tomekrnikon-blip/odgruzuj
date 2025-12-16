@@ -416,6 +416,7 @@ export type Database = {
         Row: {
           created_at: string
           current_streak: number
+          daily_limit_reset_at: string | null
           id: string
           last_completed_date: string | null
           level: number
@@ -428,6 +429,7 @@ export type Database = {
         Insert: {
           created_at?: string
           current_streak?: number
+          daily_limit_reset_at?: string | null
           id?: string
           last_completed_date?: string | null
           level?: number
@@ -440,6 +442,7 @@ export type Database = {
         Update: {
           created_at?: string
           current_streak?: number
+          daily_limit_reset_at?: string | null
           id?: string
           last_completed_date?: string | null
           level?: number
@@ -597,6 +600,7 @@ export type Database = {
         Returns: undefined
       }
       mask_email: { Args: { email: string }; Returns: string }
+      reset_all_daily_limits: { Args: never; Returns: undefined }
       save_and_encrypt_subscription: {
         Args: {
           p_auth_plaintext: string

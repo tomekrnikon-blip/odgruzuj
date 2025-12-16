@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Users, Crown, Loader2, Search, ChevronDown, Shield } from 'lucide-react';
+import { Users, Crown, Loader2, Search, ChevronDown, Shield, RotateCcw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
@@ -167,6 +167,42 @@ export function UserManager() {
     }
   });
 
+  const resetLimitMutation = useMutation({
+    mutationFn: async ({ userId }: { userId: string }) => {
+      const { error } = await supabase
+        .from('user_progress')
+        .update({ daily_limit_reset_at: new Date().toISOString() })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      // Log admin activity
+      if (currentUser?.id) {
+        await supabase.rpc('log_admin_activity', {
+          p_admin_user_id: currentUser.id,
+          p_action_type: 'reset_daily_limit',
+          p_target_table: 'user_progress',
+          p_target_id: userId,
+          p_details: null,
+          p_ip_address: null
+        });
+      }
+    },
+    onSuccess: () => {
+      toast({
+        title: '✅ Limit zresetowany!',
+        description: 'Dzienny limit fiszek został zresetowany dla użytkownika',
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Błąd',
+        description: 'Nie udało się zresetować limitu',
+        variant: 'destructive',
+      });
+    }
+  });
+
   const isUserModerator = (userId: string) => {
     return userRoles?.some(role => role.user_id === userId && role.role === 'moderator') ?? false;
   };
@@ -292,6 +328,18 @@ export function UserManager() {
                               Nadaj Moderatora
                             </Button>
                           )
+                        )}
+                        {user.subscription_status !== 'active' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => resetLimitMutation.mutate({ userId: user.user_id })}
+                            disabled={resetLimitMutation.isPending}
+                            className="gap-1"
+                          >
+                            <RotateCcw className="h-3 w-3" />
+                            Reset limitu
+                          </Button>
                         )}
                         {user.subscription_status === 'active' ? (
                           <Button
