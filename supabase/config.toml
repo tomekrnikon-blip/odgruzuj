@@ -23,3 +23,6 @@ verify_jwt = true
 
 [functions.encrypt-all-emails]
 verify_jwt = true
+
+[functions.get-stripe-prices]
+verify_jwt = false

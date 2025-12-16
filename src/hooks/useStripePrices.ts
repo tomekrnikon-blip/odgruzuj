@@ -17,10 +17,7 @@ export function useStripePrices() {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        const { data, error } = await supabase
-          .from('stripe_config')
-          .select('key, value')
-          .in('key', ['monthly_price_display', 'yearly_price_display']);
+        const { data, error } = await supabase.functions.invoke('get-stripe-prices');
 
         if (error) {
           console.error('Error fetching stripe prices:', error);
@@ -28,14 +25,9 @@ export function useStripePrices() {
           return;
         }
 
-        const priceMap: Record<string, string> = {};
-        data?.forEach(item => {
-          priceMap[item.key] = item.value;
-        });
-
         setPrices({
-          monthlyPrice: priceMap['monthly_price_display'] || '9,90 zł',
-          yearlyPrice: priceMap['yearly_price_display'] || '49,90 zł',
+          monthlyPrice: data?.monthlyPrice || '9,90 zł',
+          yearlyPrice: data?.yearlyPrice || '49,90 zł',
           isLoading: false,
         });
       } catch (error) {
