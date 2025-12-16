@@ -19,7 +19,7 @@ export default function Dashboard() {
   const [newBadge, setNewBadge] = useState<Badge | null>(null);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const { subscribed } = useSubscription();
+  const { subscribed, isLoading: isSubscriptionLoading } = useSubscription();
 
   const {
     currentFlashcard,
@@ -163,7 +163,7 @@ export default function Dashboard() {
             >
               <RefreshCw className={cn("w-5 h-5", isRefreshing && "animate-spin")} />
             </button>
-            {!subscribed && (
+            {!isSubscriptionLoading && !subscribed && (
               <button
                 onClick={handleUpgrade}
                 className="p-3 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg hover:opacity-90 transition-all active:scale-95 flex items-center gap-2"
@@ -211,7 +211,7 @@ export default function Dashboard() {
         </div>
 
         {/* Available flashcards info */}
-        {!subscribed && (
+        {!isSubscriptionLoading && !subscribed && (
           <div className="text-center text-sm text-muted-foreground">
             Dziś: {completedTodayCount}/{dailyLimit} fiszek • Dostępne: 55/{totalAvailable}
           </div>
@@ -223,7 +223,7 @@ export default function Dashboard() {
             <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
             <p className="text-muted-foreground">Ładowanie fiszek...</p>
           </div>
-        ) : !subscribed && dailyLimitReached ? (
+        ) : !isSubscriptionLoading && !subscribed && dailyLimitReached ? (
           /* Daily limit reached for free users */
           <div className="card-elevated p-8 text-center">
             <div className="w-16 h-16 mx-auto mb-4 bg-warning/10 rounded-full flex items-center justify-center">
@@ -320,7 +320,7 @@ export default function Dashboard() {
                 : "Na dziś nie ma więcej zadań. Wróć jutro!"
               }
             </p>
-            {!subscribed && (
+            {!isSubscriptionLoading && !subscribed && (
               <button
                 onClick={handleUpgrade}
                 className="btn-primary flex items-center justify-center gap-2 mx-auto"
