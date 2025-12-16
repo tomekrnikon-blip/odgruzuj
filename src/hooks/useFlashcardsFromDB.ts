@@ -75,19 +75,53 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
     "odgruzuj_last_reset_db",
     new Date().toDateString()
   );
+  const [lastDbResetCheck, setLastDbResetCheck] = useLocalStorage<string>(
+    "odgruzuj_last_db_reset_check",
+    ""
+  );
 
-  // Check if we need to reset daily progress
-  const checkDailyReset = useCallback(() => {
+  // Check if we need to reset daily progress (local date change or admin/cron reset)
+  const checkDailyReset = useCallback(async () => {
     const today = new Date().toDateString();
+    let shouldReset = false;
+
+    // Check local date change
     if (lastResetDate !== today) {
-      console.log('[Daily Reset] Resetting daily progress for new day');
+      console.log('[Daily Reset] Local date changed - resetting');
+      shouldReset = true;
+    }
+
+    // Check database reset timestamp (admin or cron reset)
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: progress } = await supabase
+          .from('user_progress')
+          .select('daily_limit_reset_at')
+          .eq('user_id', user.id)
+          .single();
+
+        if (progress?.daily_limit_reset_at) {
+          const dbResetTime = new Date(progress.daily_limit_reset_at).toISOString();
+          if (lastDbResetCheck !== dbResetTime) {
+            console.log('[Daily Reset] DB reset detected - resetting');
+            setLastDbResetCheck(dbResetTime);
+            shouldReset = true;
+          }
+        }
+      }
+    } catch (error) {
+      console.log('[Daily Reset] Error checking DB reset:', error);
+    }
+
+    if (shouldReset) {
       setCompletedTodayIds([]);
       setLastResetDate(today);
       setSkippedIds([]);
-      return true; // Indicate reset happened
+      return true;
     }
     return false;
-  }, [lastResetDate, setCompletedTodayIds, setLastResetDate]);
+  }, [lastResetDate, lastDbResetCheck, setCompletedTodayIds, setLastResetDate, setLastDbResetCheck]);
 
   // Check daily reset on mount and when tab becomes visible
   useEffect(() => {
