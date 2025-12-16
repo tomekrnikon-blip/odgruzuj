@@ -80,11 +80,32 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
   const checkDailyReset = useCallback(() => {
     const today = new Date().toDateString();
     if (lastResetDate !== today) {
+      console.log('[Daily Reset] Resetting daily progress for new day');
       setCompletedTodayIds([]);
       setLastResetDate(today);
       setSkippedIds([]);
+      return true; // Indicate reset happened
     }
+    return false;
   }, [lastResetDate, setCompletedTodayIds, setLastResetDate]);
+
+  // Check daily reset on mount and when tab becomes visible
+  useEffect(() => {
+    // Check immediately on mount
+    checkDailyReset();
+    
+    // Also check when tab becomes visible again (user returns to app)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkDailyReset();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [checkDailyReset]);
 
   // Fetch flashcards from database (RLS will filter based on subscription)
   const fetchFlashcards = useCallback(async () => {
