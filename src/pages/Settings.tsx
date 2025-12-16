@@ -9,6 +9,7 @@ import { useGameification } from "@/hooks/useGameification";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useSubscription } from "@/hooks/useSubscription";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { useStripePrices } from "@/hooks/useStripePrices";
 import { categories, categoryIcons, Category } from "@/data/flashcards";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -41,6 +42,7 @@ export default function Settings() {
   const { resetStats } = useGameification();
   const { theme, setTheme } = useTheme();
   const { subscribed, subscriptionEnd, isLoading: subscriptionLoading, startCheckout, openCustomerPortal, checkSubscription } = useSubscription();
+  const { monthlyPrice, yearlyPrice, yearlyMonthlyEquivalent, discountPercentage, isLoading: pricesLoading } = useStripePrices();
   const [settings, setSettings] = useLocalStorage<AppSettings>(
     "odgruzuj_settings",
     defaultSettings
@@ -281,7 +283,7 @@ export default function Settings() {
             <div>
               <h2 className="font-heading font-semibold">Plan Pro</h2>
               <p className="text-sm text-muted-foreground">
-                {subscriptionLoading ? "Sprawdzanie..." : subscribed ? "Aktywna subskrypcja" : "49,90 zł/rok"}
+                {subscriptionLoading || pricesLoading ? "Sprawdzanie..." : subscribed ? "Aktywna subskrypcja" : `${yearlyPrice}/rok`}
               </p>
             </div>
           </div>
@@ -345,7 +347,7 @@ export default function Settings() {
                   )}
                 >
                   <p className="font-semibold">Miesięcznie</p>
-                  <p className="text-lg font-bold text-primary">9,90 zł</p>
+                  <p className="text-lg font-bold text-primary">{monthlyPrice}</p>
                   <p className="text-xs text-muted-foreground">/miesiąc</p>
                 </button>
                 <button
@@ -358,11 +360,11 @@ export default function Settings() {
                   )}
                 >
                   <span className="absolute -top-2 right-2 px-2 py-0.5 bg-primary text-primary-foreground text-xs font-semibold rounded-full">
-                    -58%
+                    -{discountPercentage}%
                   </span>
                   <p className="font-semibold">Rocznie</p>
-                  <p className="text-lg font-bold text-primary">49,90 zł</p>
-                  <p className="text-xs text-muted-foreground">/rok (~4,16 zł/mies.)</p>
+                  <p className="text-lg font-bold text-primary">{yearlyPrice}</p>
+                  <p className="text-xs text-muted-foreground">/rok (~{yearlyMonthlyEquivalent}/mies.)</p>
                 </button>
               </div>
 
@@ -379,7 +381,7 @@ export default function Settings() {
                 ) : (
                   <>
                     <Crown className="w-4 h-4" />
-                    Ulepsz do Pro - {selectedPlan === 'monthly' ? '9,90 zł/mies.' : '49,90 zł/rok'}
+                    Ulepsz do Pro - {selectedPlan === 'monthly' ? `${monthlyPrice}/mies.` : `${yearlyPrice}/rok`}
                   </>
                 )}
               </button>
