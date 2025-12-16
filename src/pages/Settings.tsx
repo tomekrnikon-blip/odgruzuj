@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor, Crown, Loader2, ExternalLink, Filter, BellRing, BellOff, MessageCircle, Send, FileText, Smartphone, AlertTriangle, PlayCircle, Lock } from "lucide-react";
+import { Check, Bell, Volume2, Vibrate, RotateCcw, Info, Sun, Moon, Monitor, Crown, Loader2, ExternalLink, Filter, BellRing, BellOff, MessageCircle, Send, FileText, Smartphone, AlertTriangle, PlayCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
@@ -14,7 +14,7 @@ import { categories, categoryIcons, Category } from "@/data/flashcards";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { ReminderClock } from "@/components/ReminderClock";
-import { ChangePasswordSection } from "@/components/ChangePasswordSection";
+
 interface AppSettings {
   notificationsEnabled: boolean;
   notificationTime: string;
@@ -667,8 +667,6 @@ export default function Settings() {
           )}
         </div>
 
-        {/* Change Password */}
-        <ChangePasswordSection />
 
         {/* Contact Admin */}
         <div className="card-elevated p-6">
