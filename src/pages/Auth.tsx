@@ -8,10 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Loader2, Mail, Lock, ArrowLeft } from 'lucide-react';
+import { Loader2, Mail, Lock, ArrowLeft, ShieldCheck } from 'lucide-react';
 import logo from '@/assets/logo.jpg';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Nieprawidłowy adres email" }),
@@ -44,6 +45,8 @@ export default function Auth() {
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [mfaRequired, setMfaRequired] = useState(false);
+  const [mfaCode, setMfaCode] = useState('');
 
   const allConsentsAccepted = acceptedPrivacy && acceptedTerms;
 
@@ -213,11 +216,33 @@ export default function Auth() {
     setIsLoading(true);
     
     try {
+      // Check if MFA is required (AAL level)
+      const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const hasVerifiedMFA = factors?.totp.some(f => f.status === 'verified');
+      
+      console.log('[RESET-PASSWORD] AAL check:', { 
+        currentLevel: aalData?.currentLevel, 
+        nextLevel: aalData?.nextLevel,
+        hasVerifiedMFA 
+      });
+
+      // If user has MFA enrolled but not at AAL2, need to verify MFA first
+      if (hasVerifiedMFA && aalData?.currentLevel !== 'aal2') {
+        setMfaRequired(true);
+        setIsLoading(false);
+        toast.info('Wprowadź kod z aplikacji uwierzytelniającej');
+        return;
+      }
+
       const { error } = await updatePassword(password);
       
       if (error) {
         console.error('[RESET-PASSWORD] Error:', error);
-        if (error.message.includes('expired') || error.message.includes('invalid')) {
+        if (error.message.includes('AAL2') || error.message.includes('MFA')) {
+          setMfaRequired(true);
+          toast.info('Wymagana weryfikacja 2FA');
+        } else if (error.message.includes('expired') || error.message.includes('invalid')) {
           toast.error('Link do resetowania hasła wygasł. Wyślij nowy link.');
         } else {
           toast.error('Nie udało się zmienić hasła. Spróbuj wysłać nowy link.');
@@ -227,12 +252,83 @@ export default function Auth() {
 
       toast.success('Hasło zostało zmienione!');
       setShowResetPassword(false);
+      setMfaRequired(false);
+      setMfaCode('');
       clearPasswordRecovery();
       setPassword('');
       setConfirmPassword('');
       navigate('/');
     } catch (err) {
       console.error('[RESET-PASSWORD] Exception:', err);
+      toast.error('Wystąpił błąd. Spróbuj ponownie.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMFAVerifyAndResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (mfaCode.length !== 6) {
+      toast.error('Wprowadź 6-cyfrowy kod');
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      // Get TOTP factor
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const totpFactor = factors?.totp.find(f => f.status === 'verified');
+      
+      if (!totpFactor) {
+        toast.error('Brak skonfigurowanego 2FA');
+        setIsLoading(false);
+        return;
+      }
+
+      // Create challenge and verify
+      const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({
+        factorId: totpFactor.id,
+      });
+
+      if (challengeError) {
+        toast.error('Błąd weryfikacji: ' + challengeError.message);
+        setIsLoading(false);
+        return;
+      }
+
+      const { error: verifyError } = await supabase.auth.mfa.verify({
+        factorId: totpFactor.id,
+        challengeId: challenge.id,
+        code: mfaCode,
+      });
+
+      if (verifyError) {
+        toast.error('Nieprawidłowy kod 2FA');
+        setIsLoading(false);
+        return;
+      }
+
+      // Now we have AAL2, can change password
+      const { error } = await updatePassword(password);
+      
+      if (error) {
+        console.error('[RESET-PASSWORD-MFA] Error:', error);
+        toast.error('Nie udało się zmienić hasła: ' + error.message);
+        return;
+      }
+
+      toast.success('Hasło zostało zmienione!');
+      setShowResetPassword(false);
+      setMfaRequired(false);
+      setMfaCode('');
+      clearPasswordRecovery();
+      setPassword('');
+      setConfirmPassword('');
+      navigate('/');
+    } catch (err) {
+      console.error('[RESET-PASSWORD-MFA] Exception:', err);
       toast.error('Wystąpił błąd. Spróbuj ponownie.');
     } finally {
       setIsLoading(false);
@@ -317,53 +413,104 @@ export default function Auth() {
                     </Button>
                   </form>
                 ) : showResetPassword ? (
-                  <form onSubmit={handleResetPassword} className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                      Wprowadź nowe hasło dla swojego konta.
-                    </p>
-                    <div className="space-y-2">
-                      <Label htmlFor="new-password">Nowe hasło</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="new-password"
-                          type="password"
-                          placeholder="Min. 6 znaków"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          className="pl-10"
-                          disabled={isLoading}
-                          required
-                        />
+                  mfaRequired ? (
+                    <form onSubmit={handleMFAVerifyAndResetPassword} className="space-y-4">
+                      <div className="flex items-center gap-2 text-primary">
+                        <ShieldCheck className="h-5 w-5" />
+                        <p className="text-sm font-medium">Weryfikacja dwuetapowa</p>
                       </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="confirm-new-password">Potwierdź nowe hasło</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="confirm-new-password"
-                          type="password"
-                          placeholder="Powtórz hasło"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          className="pl-10"
-                          disabled={isLoading}
-                          required
-                        />
+                      <p className="text-sm text-muted-foreground">
+                        Masz włączone 2FA. Wprowadź kod z aplikacji uwierzytelniającej, aby zmienić hasło.
+                      </p>
+                      <div className="space-y-2">
+                        <Label htmlFor="mfa-code">Kod 2FA</Label>
+                        <div className="flex justify-center">
+                          <InputOTP
+                            maxLength={6}
+                            value={mfaCode}
+                            onChange={(value) => setMfaCode(value)}
+                          >
+                            <InputOTPGroup>
+                              <InputOTPSlot index={0} />
+                              <InputOTPSlot index={1} />
+                              <InputOTPSlot index={2} />
+                              <InputOTPSlot index={3} />
+                              <InputOTPSlot index={4} />
+                              <InputOTPSlot index={5} />
+                            </InputOTPGroup>
+                          </InputOTP>
+                        </div>
                       </div>
-                    </div>
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Zmienianie hasła...
-                        </>
-                      ) : (
-                        'Zmień hasło'
-                      )}
-                    </Button>
-                  </form>
+                      <Button type="submit" className="w-full" disabled={isLoading || mfaCode.length !== 6}>
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Weryfikacja...
+                          </>
+                        ) : (
+                          'Zweryfikuj i zmień hasło'
+                        )}
+                      </Button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMfaRequired(false);
+                          setMfaCode('');
+                        }}
+                        className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        Wróć do formularza hasła
+                      </button>
+                    </form>
+                  ) : (
+                    <form onSubmit={handleResetPassword} className="space-y-4">
+                      <p className="text-sm text-muted-foreground">
+                        Wprowadź nowe hasło dla swojego konta.
+                      </p>
+                      <div className="space-y-2">
+                        <Label htmlFor="new-password">Nowe hasło</Label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="new-password"
+                            type="password"
+                            placeholder="Min. 6 znaków"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="pl-10"
+                            disabled={isLoading}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="confirm-new-password">Potwierdź nowe hasło</Label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="confirm-new-password"
+                            type="password"
+                            placeholder="Powtórz hasło"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="pl-10"
+                            disabled={isLoading}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Zmienianie hasła...
+                          </>
+                        ) : (
+                          'Zmień hasło'
+                        )}
+                      </Button>
+                    </form>
+                  )
                 ) : (
                   <form onSubmit={handleSignIn} className="space-y-4">
                     <div className="space-y-2">
