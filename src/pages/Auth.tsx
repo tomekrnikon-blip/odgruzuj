@@ -75,12 +75,15 @@ export default function Auth() {
   }, [searchParams]);
 
   useEffect(() => {
+    // Don't redirect if user is in password reset mode
+    if (showResetPassword) return;
+    
     if (user && !authLoading) {
       // Encrypt user's email after login/signup
       supabase.functions.invoke('encrypt-user-email').catch(console.error);
       navigate('/');
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, navigate, showResetPassword]);
 
   const validateForm = () => {
     const result = authSchema.safeParse({ email, password });
@@ -183,18 +186,27 @@ export default function Auth() {
     }
     
     setIsLoading(true);
-    const { error } = await updatePassword(password);
-    setIsLoading(false);
+    
+    try {
+      const { error } = await updatePassword(password);
+      
+      if (error) {
+        console.error('[RESET-PASSWORD] Error:', error);
+        toast.error('Nie udało się zmienić hasła. Link mógł wygasnąć - spróbuj wysłać nowy.');
+        return;
+      }
 
-    if (error) {
-      toast.error('Nie udało się zmienić hasła. Spróbuj ponownie.');
-      return;
+      toast.success('Hasło zostało zmienione!');
+      setShowResetPassword(false);
+      setPassword('');
+      setConfirmPassword('');
+      navigate('/');
+    } catch (err) {
+      console.error('[RESET-PASSWORD] Exception:', err);
+      toast.error('Wystąpił błąd. Spróbuj ponownie.');
+    } finally {
+      setIsLoading(false);
     }
-
-    toast.success('Hasło zostało zmienione. Możesz się teraz zalogować.');
-    setShowResetPassword(false);
-    setPassword('');
-    setConfirmPassword('');
   };
 
   if (authLoading) {
