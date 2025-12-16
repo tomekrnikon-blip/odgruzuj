@@ -257,6 +257,9 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
   const FREE_DAILY_LIMIT = 2;
   const completedTodayCount = completedTodayIds.length;
   const dailyLimitReached = completedTodayCount >= FREE_DAILY_LIMIT;
+  
+  // Debug logging for daily limit
+  console.log('[FREE LIMIT] completedToday:', completedTodayCount, 'limit:', FREE_DAILY_LIMIT, 'reached:', dailyLimitReached);
 
   return {
     currentFlashcard,
