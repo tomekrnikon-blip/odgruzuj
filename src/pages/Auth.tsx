@@ -47,12 +47,56 @@ export default function Auth() {
 
   const allConsentsAccepted = acceptedPrivacy && acceptedTerms;
 
-  // Check if user came from password reset email - use isPasswordRecovery from hook
+  // Password reset entrypoint:
+  // - supports classic hash tokens (type=recovery&access_token=...)
+  // - supports PKCE code flow (?code=...)
+  // - also respects explicit /auth?mode=reset
   useEffect(() => {
     const mode = searchParams.get('mode');
-    if (mode === 'reset' || isPasswordRecovery) {
-      setShowResetPassword(true);
-    }
+    const code = searchParams.get('code');
+
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const type = hashParams.get('type');
+    const accessToken = hashParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token');
+
+    const enterReset = async () => {
+      // 1) PKCE code flow
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) {
+          toast.error('Link do resetowania hasła wygasł lub jest nieprawidłowy');
+          return;
+        }
+        setShowResetPassword(true);
+        return;
+      }
+
+      // 2) Hash token flow
+      if (type === 'recovery' && accessToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken || '',
+        });
+
+        if (error) {
+          toast.error('Link do resetowania hasła wygasł lub jest nieprawidłowy');
+          return;
+        }
+
+        setShowResetPassword(true);
+        return;
+      }
+
+      // 3) Manual reset mode (UI only)
+      if (mode === 'reset' || isPasswordRecovery) {
+        setShowResetPassword(true);
+      }
+    };
+
+    enterReset().catch(() => {
+      toast.error('Wystąpił błąd podczas otwierania resetu hasła');
+    });
   }, [searchParams, isPasswordRecovery]);
 
   useEffect(() => {
