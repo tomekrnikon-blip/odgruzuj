@@ -35,6 +35,7 @@ export interface DBFlashcard {
 interface UseFlashcardsFromDBReturn {
   currentFlashcard: DBFlashcard | null;
   isLoading: boolean;
+  isRefreshing: boolean;
   selectedCategories: Category[];
   selectedDifficulties: DifficultyFilter[];
   completedTodayIds: string[];
@@ -48,12 +49,14 @@ interface UseFlashcardsFromDBReturn {
   skipFlashcard: () => void;
   markAsCompleted: (id: string) => void;
   resetDailyProgress: () => void;
+  refreshFlashcards: () => Promise<void>;
 }
 
 export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
   const [flashcards, setFlashcards] = useState<DBFlashcard[]>([]);
   const [currentFlashcard, setCurrentFlashcard] = useState<DBFlashcard | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [skippedIds, setSkippedIds] = useState<string[]>([]);
   
   const [selectedCategories, setSelectedCategories] = useLocalStorage<Category[]>(
@@ -200,6 +203,16 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
     setSkippedIds([]);
   }, [setCompletedTodayIds]);
 
+  // Manual refresh function for pull-to-refresh
+  const refreshFlashcards = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await fetchFlashcards();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [fetchFlashcards]);
+
   // Initialize with a flashcard when data loads
   useEffect(() => {
     if (!isLoading && flashcards.length > 0 && currentFlashcard === null) {
@@ -227,6 +240,7 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
   return {
     currentFlashcard,
     isLoading,
+    isRefreshing,
     selectedCategories,
     selectedDifficulties,
     completedTodayIds,
@@ -240,5 +254,6 @@ export function useFlashcardsFromDB(): UseFlashcardsFromDBReturn {
     skipFlashcard,
     markAsCompleted,
     resetDailyProgress,
+    refreshFlashcards,
   };
 }

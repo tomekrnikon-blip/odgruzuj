@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Crown, Check, SkipForward, Flame, Trophy, Star, Loader2 } from "lucide-react";
+import { Crown, Check, SkipForward, Flame, Trophy, Star, Loader2, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FlashCard } from "@/components/FlashCard";
 import { Timer } from "@/components/Timer";
 import { StatsCard } from "@/components/StatsCard";
 import { ShoppingList } from "@/components/ShoppingList";
 import { BadgeUnlockedModal } from "@/components/BadgeDisplay";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { useFlashcardsFromDB } from "@/hooks/useFlashcardsFromDB";
 import { useTimer } from "@/hooks/useTimer";
 import { useGameification, Badge } from "@/hooks/useGameification";
@@ -23,6 +24,7 @@ export default function Dashboard() {
   const {
     currentFlashcard,
     isLoading,
+    isRefreshing,
     completedTodayIds,
     totalAvailable,
     dailyLimitReached,
@@ -31,6 +33,7 @@ export default function Dashboard() {
     getNextFlashcard,
     skipFlashcard,
     markAsCompleted,
+    refreshFlashcards,
   } = useFlashcardsFromDB();
 
   const { stats, completeTask, getTodaysTasks, getThisWeeksTasks, getLevelProgress } =
@@ -131,8 +134,16 @@ export default function Dashboard() {
   const todayCount = getTodaysTasks().length;
   const weekCount = getThisWeeksTasks().length;
 
+  const handleRefresh = async () => {
+    await refreshFlashcards();
+    toast({
+      title: "✅ Odświeżono",
+      description: "Dane zostały zaktualizowane.",
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-background pb-24 pt-nav">
+    <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background pb-24 pt-nav">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 px-4 py-4">
         <div className="max-w-lg mx-auto flex items-center justify-between">
@@ -142,16 +153,27 @@ export default function Dashboard() {
               Poziom {stats.level} • {stats.points} pkt
             </p>
           </div>
-          {!subscribed && (
+          <div className="flex items-center gap-2">
+            {/* Refresh button */}
             <button
-              onClick={handleUpgrade}
-              className="p-3 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg hover:opacity-90 transition-all active:scale-95 flex items-center gap-2"
-              aria-label="Ulepsz do Pro"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="p-3 rounded-xl bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-foreground transition-all active:scale-95 disabled:opacity-50"
+              aria-label="Odśwież dane"
             >
-              <Crown className="w-5 h-5" />
-              <span className="text-sm font-medium hidden sm:inline">Pro</span>
+              <RefreshCw className={cn("w-5 h-5", isRefreshing && "animate-spin")} />
             </button>
-          )}
+            {!subscribed && (
+              <button
+                onClick={handleUpgrade}
+                className="p-3 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg hover:opacity-90 transition-all active:scale-95 flex items-center gap-2"
+                aria-label="Ulepsz do Pro"
+              >
+                <Crown className="w-5 h-5" />
+                <span className="text-sm font-medium hidden sm:inline">Pro</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Level progress */}
@@ -319,6 +341,6 @@ export default function Dashboard() {
           onClose={() => setNewBadge(null)}
         />
       )}
-    </div>
+    </PullToRefresh>
   );
 }
