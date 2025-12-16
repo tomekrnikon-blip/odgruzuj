@@ -170,7 +170,7 @@ export function FlashcardManager() {
     return DIFFICULTIES.find(d => d.value === difficulty) || DIFFICULTIES[1];
   };
 
-  const FlashcardForm = () => (
+  const formContent = (
     <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
       <div className="space-y-2">
         <Label htmlFor="flashcard-category">Kategoria główna</Label>
@@ -494,7 +494,7 @@ export function FlashcardManager() {
             </DialogDescription>
           </DialogHeader>
 
-          <FlashcardForm />
+          {formContent}
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
@@ -521,7 +521,7 @@ export function FlashcardManager() {
             </DialogDescription>
           </DialogHeader>
 
-          <FlashcardForm />
+          {formContent}
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
