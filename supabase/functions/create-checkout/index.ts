@@ -108,12 +108,10 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      // Enable multiple payment methods for Polish market
-      payment_method_types: [
-        'card',           // Visa, Mastercard, etc.
-        'blik',           // Very popular in Poland
-        'p24',            // Przelewy24 - bank transfers
-      ],
+      // Let Stripe automatically show all payment methods enabled in dashboard
+      automatic_payment_methods: {
+        enabled: true,
+      },
       success_url: `${req.headers.get("origin")}/settings?upgrade=success`,
       cancel_url: `${req.headers.get("origin")}/settings?upgrade=cancelled`,
     });
