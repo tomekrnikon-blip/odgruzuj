@@ -142,10 +142,11 @@ export function UserManager() {
                   </Button>
                 ) : (
                   <Button
-                    variant="premium"
+                    variant="secondary"
                     size="sm"
                     onClick={() => handleGivePro(user.id)}
                     disabled={proMutation.isPending}
+                    className="bg-amber-500 hover:bg-amber-600 text-white"
                   >
                     <Crown className="h-4 w-4 mr-1"/> Nadaj Pro
                   </Button>
