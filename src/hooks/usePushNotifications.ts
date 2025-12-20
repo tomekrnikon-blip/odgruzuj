@@ -87,7 +87,7 @@ export function usePushNotifications() {
           return false;
         }
 
-        const registration = await navigator.serviceWorker.register('/sw-push.js');
+        const registration = await navigator.serviceWorker.getRegistration();
         await navigator.serviceWorker.ready;
         const applicationServerKey = urlBase64ToUint8Array(vapidKey) as BufferSource;
         const subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey });
@@ -120,7 +120,7 @@ export function usePushNotifications() {
     setIsLoading(true);
     try {
       if (!isNative) {
-         const registration = await navigator.serviceWorker.getRegistration('/sw-push.js');
+         const registration = await navigator.serviceWorker.getRegistration();
          const subscription = await registration?.pushManager.getSubscription();
          await subscription?.unsubscribe();
       }

@@ -82,6 +82,8 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,jpg,jpeg,svg,woff,woff2}"],
+        // Import the push notification service worker
+        importScripts: ["/sw-push.js"],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/skadrakhzwdmxlmbgent\.supabase\.co\/.*/i,

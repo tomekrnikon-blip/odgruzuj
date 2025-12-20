@@ -1,376 +1,160 @@
-import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { Loader2, Shield, Crown, AlertCircle, CheckCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { Users, Crown, Loader2, Search, ChevronDown, Shield, RotateCcw } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { format } from 'date-fns';
-import { pl } from 'date-fns/locale';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { cn } from '@/lib/utils';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-interface Profile {
+// Definicje typów dla użytkowników
+type UserProfile = {
   id: string;
-  user_id: string;
   email: string;
-  display_name: string | null;
-  user_number: number;
-  subscription_status: 'free' | 'active' | 'cancelled' | 'expired';
-  subscription_expires_at: string | null;
-  created_at: string;
-}
-
-interface UserRole {
-  user_id: string;
+  full_name: string | null;
+  avatar_url: string | null;
   role: 'admin' | 'moderator' | 'user';
-}
+  subscription_status: 'active' | 'inactive' | null;
+  subscription_expires_at: string | null;
+};
+
+// Bezpieczna funkcja do wywołania po stronie serwera
+const fetchUsers = async () => {
+  const { data, error } = await supabase.functions.invoke('get-users');
+  if (error) throw new Error(error.message);
+  return data as UserProfile[];
+};
+
+const updateUserRole = async ({ userId, role }: { userId: string; role: string }) => {
+  const { error } = await supabase.functions.invoke('update-user-role', {
+    body: { userId, role },
+  });
+  if (error) throw new Error(error.message);
+};
+
+const setProStatus = async ({ userId, expiresAt }: { userId: string; expiresAt: string | null }) => {
+  const { error } = await supabase.functions.invoke('set-pro-status', {
+    body: { userId, expiresAt },
+  });
+  if (error) throw new Error(error.message);
+};
 
 export function UserManager() {
-  const { user: currentUser } = useAuth();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: users, isLoading } = useQuery({
+  const { data: users, isLoading, isError } = useQuery<UserProfile[]>({
     queryKey: ['admin-users'],
-    queryFn: async () => {
-      // Use secure RPC function that returns masked emails
-      const { data, error } = await supabase
-        .rpc('get_admin_profiles');
-
-      if (error) throw error;
-      // Sort by user_number ascending (admin #1 first)
-      return (data as Profile[])?.sort((a, b) => 
-        a.user_number - b.user_number
-      ) ?? [];
-    }
+    queryFn: fetchUsers,
   });
 
-  const { data: userRoles } = useQuery({
-    queryKey: ['admin-user-roles'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
-
-      if (error) throw error;
-      return data as UserRole[];
-    }
-  });
-
-  const updateStatusMutation = useMutation({
-    mutationFn: async ({ userId, newStatus }: { userId: string; newStatus: 'free' | 'active' }) => {
-      const updates: {
-        subscription_status: 'free' | 'active';
-        subscription_expires_at: string | null;
-      } = {
-        subscription_status: newStatus,
-        subscription_expires_at: null
-      };
-
-      if (newStatus === 'active') {
-        // Set expiration to 1 year from now
-        const expiresAt = new Date();
-        expiresAt.setFullYear(expiresAt.getFullYear() + 1);
-        updates.subscription_expires_at = expiresAt.toISOString();
-      }
-
-      const { error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('user_id', userId);
-
-      if (error) throw error;
-
-      // Log admin activity
-      if (currentUser?.id) {
-        await supabase.rpc('log_admin_activity', {
-          p_admin_user_id: currentUser.id,
-          p_action_type: newStatus === 'active' ? 'grant_pro_subscription' : 'revoke_pro_subscription',
-          p_target_table: 'profiles',
-          p_target_id: userId,
-          p_details: { new_status: newStatus },
-          p_ip_address: null
-        });
-      }
-    },
-    onSuccess: (_, { newStatus }) => {
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
-      toast({
-        title: newStatus === 'active' ? '✅ Pro nadane!' : '❌ Pro usunięte',
-        description: newStatus === 'active' 
-          ? 'Użytkownik ma teraz dostęp do wszystkich 580 fiszek przez rok'
-          : 'Użytkownik ma teraz dostęp tylko do 63 darmowych fiszek',
-      });
-    },
-    onError: () => {
-      toast({
-        title: 'Błąd',
-        description: 'Nie udało się zaktualizować statusu',
-        variant: 'destructive',
-      });
-    }
-  });
-
-  const toggleModeratorMutation = useMutation({
-    mutationFn: async ({ userId, isCurrentlyModerator }: { userId: string; isCurrentlyModerator: boolean }) => {
-      if (isCurrentlyModerator) {
-        // Remove moderator role
-        const { error } = await supabase
-          .from('user_roles')
-          .delete()
-          .eq('user_id', userId)
-          .eq('role', 'moderator');
-
-        if (error) throw error;
-      } else {
-        // Add moderator role
-        const { error } = await supabase
-          .from('user_roles')
-          .insert({ user_id: userId, role: 'moderator' });
-
-        if (error) throw error;
-      }
-
-      // Log admin activity
-      if (currentUser?.id) {
-        await supabase.rpc('log_admin_activity', {
-          p_admin_user_id: currentUser.id,
-          p_action_type: isCurrentlyModerator ? 'revoke_moderator_role' : 'grant_moderator_role',
-          p_target_table: 'user_roles',
-          p_target_id: userId,
-          p_details: null,
-          p_ip_address: null
-        });
-      }
-    },
-    onSuccess: (_, { isCurrentlyModerator }) => {
-      queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
-      toast({
-        title: isCurrentlyModerator ? '❌ Moderator usunięty' : '✅ Moderator nadany!',
-        description: isCurrentlyModerator 
-          ? 'Użytkownik nie ma już dostępu do panelu moderatora'
-          : 'Użytkownik może teraz zarządzać fiszkami i kategoriami',
-      });
-    },
-    onError: () => {
-      toast({
-        title: 'Błąd',
-        description: 'Nie udało się zmienić uprawnień',
-        variant: 'destructive',
-      });
-    }
-  });
-
-  const resetLimitMutation = useMutation({
-    mutationFn: async ({ userId }: { userId: string }) => {
-      const { error } = await supabase
-        .from('user_progress')
-        .update({ daily_limit_reset_at: new Date().toISOString() })
-        .eq('user_id', userId);
-
-      if (error) throw error;
-
-      // Log admin activity
-      if (currentUser?.id) {
-        await supabase.rpc('log_admin_activity', {
-          p_admin_user_id: currentUser.id,
-          p_action_type: 'reset_daily_limit',
-          p_target_table: 'user_progress',
-          p_target_id: userId,
-          p_details: null,
-          p_ip_address: null
-        });
-      }
-    },
+  const roleMutation = useMutation({
+    mutationFn: updateUserRole,
     onSuccess: () => {
-      toast({
-        title: '✅ Limit zresetowany!',
-        description: 'Dzienny limit fiszek został zresetowany dla użytkownika',
-      });
+      toast.success('Rola użytkownika zaktualizowana!');
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
     },
-    onError: () => {
-      toast({
-        title: 'Błąd',
-        description: 'Nie udało się zresetować limitu',
-        variant: 'destructive',
-      });
-    }
+    onError: (error) => {
+      toast.error(`Błąd: ${error.message}`);
+    },
   });
 
-  const isUserModerator = (userId: string) => {
-    return userRoles?.some(role => role.user_id === userId && role.role === 'moderator') ?? false;
+  const proMutation = useMutation({
+    mutationFn: setProStatus,
+    onSuccess: () => {
+      toast.success('Status Pro użytkownika zaktualizowany!');
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+    },
+    onError: (error) => {
+      toast.error(`Błąd: ${error.message}`);
+    },
+  });
+
+  const handleRoleChange = (userId: string, role: string) => {
+    roleMutation.mutate({ userId, role });
   };
 
-  const filteredUsers = users?.filter(user => 
-    user.user_number.toString().includes(searchQuery) ||
-    user.display_name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return (
-          <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30 font-bold">
-            <Crown className="h-3 w-3 mr-1" />
-            PRO AKTYWNE
-          </Badge>
-        );
-      case 'expired':
-        return <Badge variant="destructive">Wygasło</Badge>;
-      case 'cancelled':
-        return <Badge variant="secondary">Anulowane</Badge>;
-      default:
-        return <Badge variant="outline" className="text-muted-foreground">Free</Badge>;
-    }
+  const handleGivePro = (userId: string) => {
+    const expiresAt = new Date();
+    expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+    proMutation.mutate({ userId, expiresAt: expiresAt.toISOString() });
   };
+
+  const handleRevokePro = (userId: string) => {
+    proMutation.mutate({ userId, expiresAt: null });
+  };
+
+  if (isLoading) {
+    return <div className="flex justify-center items-center p-8"><Loader2 className="animate-spin h-8 w-8" /></div>;
+  }
+
+  if (isError) {
+    return <div className="text-destructive p-8 text-center"><AlertCircle className="mx-auto h-8 w-8 mb-2"/>Nie udało się załadować użytkowników. Sprawdź konsolę funkcji Edge.</div>;
+  }
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-6">
-      <div className="bg-card border border-border rounded-lg overflow-hidden">
-        <CollapsibleTrigger asChild>
-          <button className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Users className="h-5 w-5 text-primary" />
+    <Card className="mt-8">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Shield /> Zarządzanie Użytkownikami
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {users?.map((user) => (
+            <div key={user.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-card-elevated rounded-lg border">
+              <div className="flex items-center gap-3 mb-3 sm:mb-0">
+                <Avatar>
+                  <AvatarImage src={user.avatar_url ?? undefined} />
+                  <AvatarFallback>{user.email?.[0].toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold text-foreground">{user.full_name ?? 'Brak nazwy'}</p>
+                  <p className="text-xs text-muted-foreground">{user.email}</p>
+                  {user.subscription_status === 'active' && user.subscription_expires_at && (
+                     <p className="text-xs text-yellow-500">PRO do: {new Date(user.subscription_expires_at).toLocaleDateString()}</p>
+                  )}
+                </div>
               </div>
-              <div className="text-left">
-                <h3 className="font-semibold text-foreground">Zarządzanie użytkownikami</h3>
-                <p className="text-sm text-muted-foreground">
-                  {users?.length ?? 0} użytkowników
-                </p>
-              </div>
-            </div>
-            <ChevronDown className={cn(
-              "h-5 w-5 text-muted-foreground transition-transform duration-200",
-              isOpen && "rotate-180"
-            )} />
-          </button>
-        </CollapsibleTrigger>
-        
-        <CollapsibleContent>
-          <div className="p-4 pt-0 space-y-4 border-t border-border">
-            <div className="relative pt-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 mt-2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Szukaj po numerze lub nazwie..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                 <Select
+                    defaultValue={user.role}
+                    onValueChange={(value) => handleRoleChange(user.id, value)}
+                    disabled={roleMutation.isPending}
+                  >
+                    <SelectTrigger className="w-full sm:w-[120px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="user">User</SelectItem>
+                      <SelectItem value="moderator">Moderator</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
 
-            {isLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                {user.subscription_status === 'active' ? (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleRevokePro(user.id)}
+                    disabled={proMutation.isPending}
+                  >
+                    Odbierz Pro
+                  </Button>
+                ) : (
+                  <Button
+                    variant="premium"
+                    size="sm"
+                    onClick={() => handleGivePro(user.id)}
+                    disabled={proMutation.isPending}
+                  >
+                    <Crown className="h-4 w-4 mr-1"/> Nadaj Pro
+                  </Button>
+                )}
               </div>
-            ) : filteredUsers?.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
-                Brak użytkowników
-              </p>
-            ) : (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {filteredUsers?.map((user) => {
-                  const userIsModerator = isUserModerator(user.user_id);
-                  return (
-                    <div
-                      key={user.id}
-                      className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border"
-                    >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-bold text-primary">#{user.user_number}</span>
-                            <p className="font-medium text-foreground truncate">
-                              {user.display_name || 'Użytkownik'}
-                            </p>
-                            {getStatusBadge(user.subscription_status)}
-                            {userIsModerator && (
-                              <Badge className="bg-blue-500/20 text-blue-500 border-blue-500/30 font-bold">
-                                <Shield className="h-3 w-3 mr-1" />
-                                MODERATOR
-                              </Badge>
-                            )}
-                          </div>
-                        <p className="text-xs text-muted-foreground">
-                          Dołączył: {format(new Date(user.created_at), 'dd MMM yyyy', { locale: pl })}
-                          {user.subscription_status === 'active' && user.subscription_expires_at && (
-                            <> • Pro do: {format(new Date(user.subscription_expires_at), 'dd MMM yyyy', { locale: pl })}</>
-                          )}
-                        </p>
-                      </div>
-                      <div className="flex gap-2 ml-4 flex-wrap">
-                        {userIsModerator ? (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => toggleModeratorMutation.mutate({ userId: user.user_id, isCurrentlyModerator: true })}
-                            disabled={toggleModeratorMutation.isPending}
-                            className="gap-1 border-red-500/30 text-red-500 hover:bg-red-500/10"
-                          >
-                            <Shield className="h-3 w-3" />
-                            Usuń Moderatora
-                          </Button>
-                        ) : (
-                          user.user_number !== 1 && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => toggleModeratorMutation.mutate({ userId: user.user_id, isCurrentlyModerator: false })}
-                              disabled={toggleModeratorMutation.isPending}
-                              className="gap-1"
-                            >
-                              <Shield className="h-3 w-3" />
-                              Nadaj Moderatora
-                            </Button>
-                          )
-                        )}
-                        {user.subscription_status !== 'active' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => resetLimitMutation.mutate({ userId: user.user_id })}
-                            disabled={resetLimitMutation.isPending}
-                            className="gap-1"
-                          >
-                            <RotateCcw className="h-3 w-3" />
-                            Reset limitu
-                          </Button>
-                        )}
-                        {user.subscription_status === 'active' ? (
-                          <Button
-                            size="sm"
-                            onClick={() => updateStatusMutation.mutate({ userId: user.user_id, newStatus: 'free' })}
-                            disabled={updateStatusMutation.isPending}
-                            className="gap-1 bg-green-500 hover:bg-green-600 text-white"
-                          >
-                            <Crown className="h-3 w-3" />
-                            Usuń Pro
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            onClick={() => updateStatusMutation.mutate({ userId: user.user_id, newStatus: 'active' })}
-                            disabled={updateStatusMutation.isPending}
-                            className="gap-1 bg-yellow-500 hover:bg-yellow-600 text-black"
-                          >
-                            <Crown className="h-3 w-3" />
-                            Nadaj Pro
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </CollapsibleContent>
-      </div>
-    </Collapsible>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
