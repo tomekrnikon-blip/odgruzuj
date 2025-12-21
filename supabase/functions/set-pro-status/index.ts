@@ -23,13 +23,15 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Brak autoryzacji' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    const { data: profile, error: profileError } = await supabaseAdmin
-      .from('profiles')
+    // Sprawdź rolę w tabeli user_roles
+    const { data: adminRole, error: roleError } = await supabaseAdmin
+      .from('user_roles')
       .select('role')
-      .eq('id', user.id)
-      .single();
+      .eq('user_id', user.id)
+      .eq('role', 'admin')
+      .maybeSingle();
 
-    if (profileError || profile?.role !== 'admin') {
+    if (roleError || !adminRole) {
       return new Response(JSON.stringify({ error: 'Brak uprawnień administratora' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
@@ -39,12 +41,12 @@ serve(async (req) => {
         return new Response(JSON.stringify({ error: 'Brak ID użytkownika' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    const subscription_status = expiresAt ? 'active' : 'inactive';
+    const subscription_status = expiresAt ? 'active' : 'free';
 
     const { error: updateError } = await supabaseAdmin
       .from('profiles')
       .update({ subscription_status, subscription_expires_at: expiresAt })
-      .eq('id', userId);
+      .eq('user_id', userId);
 
     if (updateError) {
       throw updateError;
