@@ -12,6 +12,8 @@ serve(async (req) => {
   }
 
   try {
+    console.log('[SET-PRO-STATUS] Function called');
+    
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -19,6 +21,8 @@ serve(async (req) => {
     );
 
     const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser();
+    console.log('[SET-PRO-STATUS] User check:', { userId: user?.id, error: userError?.message });
+    
     if (userError || !user) {
       return new Response(JSON.stringify({ error: 'Brak autoryzacji' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
@@ -30,6 +34,8 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .eq('role', 'admin')
       .maybeSingle();
+
+    console.log('[SET-PRO-STATUS] Admin check:', { adminRole, error: roleError?.message });
 
     if (roleError || !adminRole) {
       return new Response(JSON.stringify({ error: 'Brak uprawnień administratora' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
