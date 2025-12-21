@@ -24,21 +24,23 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Brak autoryzacji' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    const { data: profile, error: profileError } = await supabaseAdmin
-      .from('profiles')
+    // Sprawdź rolę w tabeli user_roles (nie profiles)
+    const { data: adminRole, error: roleError } = await supabaseAdmin
+      .from('user_roles')
       .select('role')
-      .eq('id', user.id)
-      .single();
+      .eq('user_id', user.id)
+      .eq('role', 'admin')
+      .maybeSingle();
 
-    if (profileError || profile?.role !== 'admin') {
+    if (roleError || !adminRole) {
       return new Response(JSON.stringify({ error: 'Brak uprawnień administratora' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // 2. Pobranie wszystkich użytkowników, jeśli weryfikacja przebiegła pomyślnie
+    // 2. Pobranie wszystkich użytkowników z ich rolami
     const { data: users, error: usersError } = await supabaseAdmin
       .from('profiles')
-      .select('id, email, full_name, avatar_url, role, subscription_status, subscription_expires_at')
-      .order('email', { ascending: true });
+      .select('id, user_id, email, display_name, user_number, subscription_status, subscription_expires_at')
+      .order('user_number', { ascending: true });
 
     if (usersError) {
       throw usersError;
