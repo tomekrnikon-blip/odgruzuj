@@ -36,15 +36,46 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Brak uprawnień administratora' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // 2. Pobranie wszystkich użytkowników z ich rolami
-    const { data: users, error: usersError } = await supabaseAdmin
+    // 2. Pobranie wszystkich użytkowników
+    const { data: profiles, error: usersError } = await supabaseAdmin
       .from('profiles')
       .select('id, user_id, email, display_name, user_number, subscription_status, subscription_expires_at')
+      .not('user_number', 'is', null)
       .order('user_number', { ascending: true });
 
     if (usersError) {
       throw usersError;
     }
+
+    // 3. Pobranie ról dla wszystkich użytkowników
+    const { data: roles, error: rolesError } = await supabaseAdmin
+      .from('user_roles')
+      .select('user_id, role');
+
+    if (rolesError) {
+      throw rolesError;
+    }
+
+    // 4. Mapowanie ról do użytkowników
+    const rolesMap = new Map<string, string>();
+    roles?.forEach((r: { user_id: string; role: string }) => {
+      // Hierarchia: admin > moderator > user
+      const current = rolesMap.get(r.user_id);
+      if (!current || r.role === 'admin' || (r.role === 'moderator' && current !== 'admin')) {
+        rolesMap.set(r.user_id, r.role);
+      }
+    });
+
+    // 5. Łączenie danych
+    const users = profiles?.map((p: { id: string; user_id: string; email: string; display_name: string | null; user_number: number; subscription_status: string; subscription_expires_at: string | null }) => ({
+      id: p.user_id,
+      email: p.email,
+      display_name: p.display_name,
+      user_number: p.user_number,
+      role: rolesMap.get(p.user_id) || 'user',
+      subscription_status: p.subscription_status,
+      subscription_expires_at: p.subscription_expires_at,
+    }));
 
     return new Response(JSON.stringify(users), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
