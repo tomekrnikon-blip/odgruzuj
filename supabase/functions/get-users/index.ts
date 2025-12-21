@@ -36,12 +36,9 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Brak uprawnień administratora' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // 2. Pobranie wszystkich użytkowników
+    // 2. Pobranie użytkowników przez RPC (deszyfruje i maskuje emaile)
     const { data: profiles, error: usersError } = await supabaseAdmin
-      .from('profiles')
-      .select('id, user_id, email, display_name, user_number, subscription_status, subscription_expires_at')
-      .not('user_number', 'is', null)
-      .order('user_number', { ascending: true });
+      .rpc('get_admin_profiles');
 
     if (usersError) {
       throw usersError;
@@ -59,7 +56,6 @@ serve(async (req) => {
     // 4. Mapowanie ról do użytkowników
     const rolesMap = new Map<string, string>();
     roles?.forEach((r: { user_id: string; role: string }) => {
-      // Hierarchia: admin > moderator > user
       const current = rolesMap.get(r.user_id);
       if (!current || r.role === 'admin' || (r.role === 'moderator' && current !== 'admin')) {
         rolesMap.set(r.user_id, r.role);
