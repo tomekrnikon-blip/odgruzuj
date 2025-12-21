@@ -11,10 +11,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 type UserProfile = {
   id: string;
   email: string;
-  full_name: string | null;
-  avatar_url: string | null;
+  display_name: string | null;
+  user_number: number | null;
   role: 'admin' | 'moderator' | 'user';
-  subscription_status: 'active' | 'inactive' | null;
+  subscription_status: 'active' | 'free' | 'cancelled' | 'expired' | null;
   subscription_expires_at: string | null;
 };
 
@@ -104,14 +104,17 @@ export function UserManager() {
             <div key={user.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-card-elevated rounded-lg border">
               <div className="flex items-center gap-3 mb-3 sm:mb-0">
                 <Avatar>
-                  <AvatarImage src={user.avatar_url ?? undefined} />
-                  <AvatarFallback>{user.email?.[0].toUpperCase()}</AvatarFallback>
+                  <AvatarFallback>{user.email?.[0]?.toUpperCase() || '?'}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-semibold text-foreground">{user.full_name ?? 'Brak nazwy'}</p>
+                  <p className="font-semibold text-foreground">
+                    {user.display_name || `Użytkownik #${user.user_number}`}
+                  </p>
                   <p className="text-xs text-muted-foreground">{user.email}</p>
-                  {user.subscription_status === 'active' && user.subscription_expires_at && (
-                     <p className="text-xs text-yellow-500">PRO do: {new Date(user.subscription_expires_at).toLocaleDateString()}</p>
+                  {user.subscription_status === 'active' && (
+                     <p className="text-xs text-yellow-500">
+                       PRO {user.subscription_expires_at ? `do: ${new Date(user.subscription_expires_at).toLocaleDateString()}` : '(bez limitu)'}
+                     </p>
                   )}
                 </div>
               </div>
