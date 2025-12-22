@@ -120,7 +120,7 @@ export function UserManager() {
               </div>
               <div className="flex items-center gap-2 w-full sm:w-auto">
                  <Select
-                    defaultValue={user.role}
+                    value={user.role}
                     onValueChange={(value) => handleRoleChange(user.id, value)}
                     disabled={roleMutation.isPending}
                   >
