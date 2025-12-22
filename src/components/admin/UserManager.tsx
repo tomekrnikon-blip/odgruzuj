@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Shield, Crown, AlertCircle, ShieldCheck, User, ChevronDown, ChevronUp } from 'lucide-react';
+import { Loader2, Shield, Crown, AlertCircle, ShieldCheck, User, ChevronDown, ChevronUp, Search, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +9,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 
 // Definicje typów dla użytkowników
 type UserProfile = {
@@ -68,6 +69,7 @@ const getRoleDisplay = (role: 'admin' | 'moderator' | 'user') => {
 
 export function UserManager() {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const queryClient = useQueryClient();
 
   const { data: users, isLoading, isError } = useQuery<UserProfile[]>({
@@ -111,6 +113,18 @@ export function UserManager() {
     proMutation.mutate({ userId, expiresAt: null });
   };
 
+  // Filter users based on search query
+  const filteredUsers = users?.filter((user) => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      user.email?.toLowerCase().includes(query) ||
+      user.display_name?.toLowerCase().includes(query) ||
+      user.user_number?.toString().includes(query) ||
+      user.role?.toLowerCase().includes(query)
+    );
+  });
+
   if (isLoading) {
     return <div className="flex justify-center items-center p-8"><Loader2 className="animate-spin h-8 w-8" /></div>;
   }
@@ -135,8 +149,35 @@ export function UserManager() {
         </CollapsibleTrigger>
         <CollapsibleContent>
           <CardContent>
+            {/* Search input */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Szukaj po email, nazwie lub numerze..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-9"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+                  onClick={() => setSearchQuery('')}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            
+            {filteredUsers?.length === 0 && searchQuery && (
+              <p className="text-center text-muted-foreground py-4">
+                Nie znaleziono użytkowników dla "{searchQuery}"
+              </p>
+            )}
+            
             <div className="space-y-4">
-          {users?.map((user) => {
+          {filteredUsers?.map((user) => {
             const roleDisplay = getRoleDisplay(user.role);
             const isPro = user.subscription_status === 'active';
             
