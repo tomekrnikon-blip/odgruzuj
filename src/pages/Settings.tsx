@@ -438,23 +438,47 @@ export default function Settings() {
                 </button>
               </div>
 
-              <button
-                onClick={handleUpgrade}
-                disabled={isUpgrading}
-                className="w-full btn-primary flex items-center justify-center gap-2"
-              >
-                {isUpgrading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Przekierowanie...
-                  </>
-                ) : (
-                  <>
-                    <Crown className="w-4 h-4" />
-                    Ulepsz do Pro - {selectedPlan === 'monthly' ? `${monthlyPrice}/mies.` : `${yearlyPrice}/rok`}
-                  </>
-                )}
-              </button>
+              <div className="space-y-2">
+                <button
+                  onClick={handleUpgrade}
+                  disabled={isUpgrading || isBlikPayment}
+                  className="w-full btn-primary flex items-center justify-center gap-2"
+                >
+                  {isUpgrading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Przekierowanie...
+                    </>
+                  ) : (
+                    <>
+                      <Crown className="w-4 h-4" />
+                      Karta/Apple Pay - {selectedPlan === 'monthly' ? `${monthlyPrice}/mies.` : `${yearlyPrice}/rok`}
+                    </>
+                  )}
+                </button>
+                
+                <button
+                  onClick={handleBlikPayment}
+                  disabled={isBlikPayment || isUpgrading}
+                  className="w-full btn-secondary flex items-center justify-center gap-2 border-2 border-primary/30"
+                >
+                  {isBlikPayment ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Przekierowanie...
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-lg">🏦</span>
+                      BLIK / Przelewy24 - {selectedPlan === 'monthly' ? `${monthlyPrice}/mies.` : `${yearlyPrice}/rok`}
+                    </>
+                  )}
+                </button>
+                
+                <p className="text-xs text-center text-muted-foreground">
+                  BLIK wymaga ręcznego odnowienia przed wygaśnięciem
+                </p>
+              </div>
             </div>
           )}
         </div>
