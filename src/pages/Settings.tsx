@@ -41,7 +41,7 @@ export default function Settings() {
   } = useFlashcardsFromDB();
   const { resetStats } = useGameification();
   const { theme, setTheme } = useTheme();
-  const { subscribed, subscriptionEnd, isLoading: subscriptionLoading, startCheckout, openCustomerPortal, checkSubscription } = useSubscription();
+  const { subscribed, subscriptionEnd, daysUntilExpiry, isLoading: subscriptionLoading, startCheckout, startBlikPayment, verifyBlikPayment, openCustomerPortal, checkSubscription } = useSubscription();
   const { monthlyPrice, yearlyPrice, yearlyMonthlyEquivalent, discountPercentage, isLoading: pricesLoading } = useStripePrices();
   const [settings, setSettings] = useLocalStorage<AppSettings>(
     "odgruzuj_settings",
@@ -52,6 +52,7 @@ export default function Settings() {
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('yearly');
   const [supportMessage, setSupportMessage] = useState("");
   const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const [isBlikPayment, setIsBlikPayment] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const { 
     isSupported: pushSupported, 
@@ -166,6 +167,9 @@ export default function Settings() {
   // Handle upgrade success/cancel from URL params
   useEffect(() => {
     const upgradeStatus = searchParams.get('upgrade');
+    const blikStatus = searchParams.get('blik');
+    const expiresAt = searchParams.get('expires');
+    
     if (upgradeStatus === 'success') {
       toast({
         title: "Sukces!",
@@ -179,7 +183,31 @@ export default function Settings() {
         variant: "destructive",
       });
     }
-  }, [searchParams, checkSubscription]);
+    
+    // Handle BLIK payment verification
+    if (blikStatus === 'success' && expiresAt) {
+      verifyBlikPayment(expiresAt).then((data) => {
+        if (data?.success) {
+          toast({
+            title: "Sukces!",
+            description: "Płatność BLIK została zweryfikowana. Subskrypcja aktywna!",
+          });
+        }
+      }).catch(() => {
+        toast({
+          title: "Błąd weryfikacji",
+          description: "Nie udało się zweryfikować płatności. Spróbuj odświeżyć stronę.",
+          variant: "destructive",
+        });
+      });
+    } else if (blikStatus === 'cancelled') {
+      toast({
+        title: "Anulowano",
+        description: "Płatność BLIK została anulowana.",
+        variant: "destructive",
+      });
+    }
+  }, [searchParams, checkSubscription, verifyBlikPayment]);
 
   const handleUpgrade = async () => {
     setIsUpgrading(true);
@@ -193,6 +221,21 @@ export default function Settings() {
       });
     } finally {
       setIsUpgrading(false);
+    }
+  };
+
+  const handleBlikPayment = async () => {
+    setIsBlikPayment(true);
+    try {
+      await startBlikPayment(selectedPlan);
+    } catch (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się rozpocząć płatności BLIK.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsBlikPayment(false);
     }
   };
 
@@ -299,9 +342,36 @@ export default function Settings() {
                 {subscriptionEnd && (
                   <p className="text-xs text-muted-foreground mt-1">
                     Ważna do: {new Date(subscriptionEnd).toLocaleDateString('pl-PL')}
+                    {daysUntilExpiry !== null && daysUntilExpiry <= 7 && (
+                      <span className="ml-2 text-orange-500 font-medium">
+                        (zostało {daysUntilExpiry} dni)
+                      </span>
+                    )}
                   </p>
                 )}
               </div>
+              
+              {/* Show renewal button if expiring soon */}
+              {daysUntilExpiry !== null && daysUntilExpiry <= 7 && (
+                <button
+                  onClick={handleBlikPayment}
+                  disabled={isBlikPayment}
+                  className="w-full flex items-center justify-center gap-2 btn-primary"
+                >
+                  {isBlikPayment ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Przekierowanie...
+                    </>
+                  ) : (
+                    <>
+                      <Crown className="w-4 h-4" />
+                      Odnów przez BLIK
+                    </>
+                  )}
+                </button>
+              )}
+              
               <button
                 onClick={handleManageSubscription}
                 className="w-full flex items-center justify-center gap-2 btn-secondary"
