@@ -520,6 +520,10 @@ export type Database = {
           user_number: number
         }[]
       }
+      get_masked_email_for_user: {
+        Args: { target_user_id: string }
+        Returns: string
+      }
       get_push_subscriptions_decrypted: {
         Args: never
         Returns: {
