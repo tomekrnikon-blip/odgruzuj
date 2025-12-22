@@ -1,11 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Shield, Crown, AlertCircle, CheckCircle } from 'lucide-react';
+import { Loader2, Shield, Crown, AlertCircle, ShieldCheck, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 
 // Definicje typów dla użytkowników
 type UserProfile = {
@@ -37,6 +38,30 @@ const setProStatus = async ({ userId, expiresAt }: { userId: string; expiresAt: 
     body: { userId, expiresAt },
   });
   if (error) throw new Error(error.message);
+};
+
+// Helper function to get role icon and styling
+const getRoleDisplay = (role: 'admin' | 'moderator' | 'user') => {
+  switch (role) {
+    case 'admin':
+      return {
+        icon: <ShieldCheck className="h-4 w-4" />,
+        className: 'bg-red-500/10 text-red-500 border-red-500/20',
+        label: 'Admin',
+      };
+    case 'moderator':
+      return {
+        icon: <Shield className="h-4 w-4" />,
+        className: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+        label: 'Moderator',
+      };
+    default:
+      return {
+        icon: <User className="h-4 w-4" />,
+        className: 'bg-muted text-muted-foreground border-border',
+        label: 'User',
+      };
+  }
 };
 
 export function UserManager() {
@@ -100,63 +125,113 @@ export function UserManager() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {users?.map((user) => (
-            <div key={user.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-card-elevated rounded-lg border">
-              <div className="flex items-center gap-3 mb-3 sm:mb-0">
-                <Avatar>
-                  <AvatarFallback>{user.email?.[0]?.toUpperCase() || '?'}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-semibold text-foreground">
-                    {user.display_name || `Użytkownik #${user.user_number}`}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{user.email}</p>
-                  {user.subscription_status === 'active' && (
-                     <p className="text-xs text-yellow-500">
-                       PRO {user.subscription_expires_at ? `do: ${new Date(user.subscription_expires_at).toLocaleDateString()}` : '(bez limitu)'}
-                     </p>
-                  )}
+          {users?.map((user) => {
+            const roleDisplay = getRoleDisplay(user.role);
+            const isPro = user.subscription_status === 'active';
+            
+            return (
+              <div 
+                key={user.id} 
+                className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg border transition-colors ${
+                  isPro 
+                    ? 'bg-amber-500/5 border-amber-500/30' 
+                    : user.role === 'moderator'
+                    ? 'bg-blue-500/5 border-blue-500/30'
+                    : user.role === 'admin'
+                    ? 'bg-red-500/5 border-red-500/30'
+                    : 'bg-card-elevated border-border'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-3 sm:mb-0">
+                  <div className="relative">
+                    <Avatar className={isPro ? 'ring-2 ring-amber-500 ring-offset-2 ring-offset-background' : ''}>
+                      <AvatarFallback className={isPro ? 'bg-amber-500/20 text-amber-600' : ''}>
+                        {user.email?.[0]?.toUpperCase() || '?'}
+                      </AvatarFallback>
+                    </Avatar>
+                    {isPro && (
+                      <Crown className="absolute -top-1 -right-1 h-4 w-4 text-amber-500 fill-amber-500" />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-foreground">
+                        {user.display_name || `Użytkownik #${user.user_number}`}
+                      </p>
+                      <Badge variant="outline" className={`text-xs ${roleDisplay.className}`}>
+                        {roleDisplay.icon}
+                        <span className="ml-1">{roleDisplay.label}</span>
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                    {isPro && (
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <Crown className="h-3 w-3 text-amber-500" />
+                        <p className="text-xs text-amber-500 font-medium">
+                          PRO {user.subscription_expires_at ? `do: ${new Date(user.subscription_expires_at).toLocaleDateString()}` : '(bez limitu)'}
+                        </p>
+                      </div>
+                    )}
+                    {!isPro && user.subscription_status === 'free' && (
+                      <p className="text-xs text-muted-foreground">Plan darmowy (limit 2 zadania/dzień)</p>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                 <Select
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Select
                     value={user.role}
                     onValueChange={(value) => handleRoleChange(user.id, value)}
                     disabled={roleMutation.isPending}
                   >
-                    <SelectTrigger className="w-full sm:w-[120px]">
+                    <SelectTrigger className="w-full sm:w-[130px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="moderator">Moderator</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="user">
+                        <span className="flex items-center gap-2">
+                          <User className="h-4 w-4" /> User
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="moderator">
+                        <span className="flex items-center gap-2">
+                          <Shield className="h-4 w-4 text-blue-500" /> Moderator
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="admin">
+                        <span className="flex items-center gap-2">
+                          <ShieldCheck className="h-4 w-4 text-red-500" /> Admin
+                        </span>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
 
-                {user.subscription_status === 'active' ? (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleRevokePro(user.id)}
-                    disabled={proMutation.isPending}
-                  >
-                    Odbierz Pro
-                  </Button>
-                ) : (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleGivePro(user.id)}
-                    disabled={proMutation.isPending}
-                    className="bg-amber-500 hover:bg-amber-600 text-white"
-                  >
-                    <Crown className="h-4 w-4 mr-1"/> Nadaj Pro
-                  </Button>
-                )}
+                  {isPro ? (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleRevokePro(user.id)}
+                      disabled={proMutation.isPending}
+                      className="gap-1"
+                    >
+                      <Crown className="h-4 w-4" />
+                      Odbierz
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handleGivePro(user.id)}
+                      disabled={proMutation.isPending}
+                      className="bg-amber-500 hover:bg-amber-600 text-white gap-1"
+                    >
+                      <Crown className="h-4 w-4" />
+                      Nadaj Pro
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </CardContent>
     </Card>
