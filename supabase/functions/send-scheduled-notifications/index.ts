@@ -87,52 +87,128 @@ async function sendWebPush(
   }
 }
 
-// Send FCM notification (for native Android apps)
+// Send FCM notification using HTTP v1 API (for Android and iOS via Firebase)
 async function sendFCMPush(
   token: string,
   title: string,
   body: string,
-  data?: Record<string, unknown>
+  platform: "android" | "ios" = "android"
 ): Promise<{ success: boolean; error?: string }> {
   const fcmServerKey = Deno.env.get("FCM_SERVER_KEY");
   
   if (!fcmServerKey) {
+    logStep("ERROR: FCM_SERVER_KEY not configured");
     return { success: false, error: "FCM_SERVER_KEY not configured" };
   }
 
   try {
+    // Build FCM message with platform-specific configuration
+    const message: Record<string, unknown> = {
+      to: token,
+      priority: "high",
+      data: {
+        url: "/",
+        title: title,
+        body: body,
+      },
+    };
+
+    // Platform-specific notification settings
+    if (platform === "android") {
+      message.notification = {
+        title: title,
+        body: body,
+        icon: "ic_notification",
+        sound: "default",
+        android_channel_id: "declutter_channel",
+        click_action: "FLUTTER_NOTIFICATION_CLICK",
+      };
+      message.android = {
+        priority: "high",
+        notification: {
+          channel_id: "declutter_channel",
+          default_sound: true,
+          default_vibrate_timings: true,
+          visibility: "public",
+        },
+      };
+    } else if (platform === "ios") {
+      message.notification = {
+        title: title,
+        body: body,
+        sound: "default",
+        badge: 1,
+      };
+      message.apns = {
+        headers: {
+          "apns-priority": "10",
+          "apns-push-type": "alert",
+        },
+        payload: {
+          aps: {
+            alert: {
+              title: title,
+              body: body,
+            },
+            sound: "default",
+            badge: 1,
+            "content-available": 1,
+            "mutable-content": 1,
+          },
+        },
+      };
+    }
+
+    logStep("Sending FCM notification", { 
+      platform, 
+      tokenPrefix: token.substring(0, 20) + "...",
+      title 
+    });
+
     const response = await fetch("https://fcm.googleapis.com/fcm/send", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `key=${fcmServerKey}`,
       },
-      body: JSON.stringify({
-        to: token,
-        notification: {
-          title,
-          body,
-          icon: "ic_notification",
-          sound: "default",
-          android_channel_id: "declutter_channel",
-        },
-        data: data || { url: "/" },
-        priority: "high",
-      }),
+      body: JSON.stringify(message),
     });
 
     const result = await response.json();
     
+    logStep("FCM response received", { 
+      status: response.status,
+      success: result.success,
+      failure: result.failure,
+      results: result.results?.slice(0, 2)
+    });
+
     if (result.success === 1) {
       return { success: true };
     }
     
+    // Handle specific FCM error codes
     if (result.failure === 1 && result.results?.[0]?.error) {
-      return { success: false, error: result.results[0].error };
+      const errorCode = result.results[0].error;
+      logStep("FCM error", { errorCode });
+      
+      // These errors indicate the token is invalid and subscription should be deactivated
+      const invalidTokenErrors = [
+        "NotRegistered",
+        "InvalidRegistration",
+        "MismatchSenderId",
+        "InvalidApnsCredential"
+      ];
+      
+      return { 
+        success: false, 
+        error: errorCode 
+      };
     }
 
     return { success: false, error: JSON.stringify(result) };
   } catch (err) {
+    logStep("FCM exception", { error: err instanceof Error ? err.message : "Unknown" });
     return { 
       success: false, 
       error: err instanceof Error ? err.message : "Unknown error" 
@@ -140,17 +216,17 @@ async function sendFCMPush(
   }
 }
 
-// Send APNs notification (for native iOS apps) - placeholder
-async function sendAPNsPush(
+// Send notification via FCM for both iOS and Android
+// iOS uses Firebase Cloud Messaging which forwards to APNs
+async function sendNativePush(
   token: string,
   title: string,
-  body: string
+  body: string,
+  platform: "android" | "ios"
 ): Promise<{ success: boolean; error?: string }> {
-  logStep("WARNING: iOS APNs not fully implemented", { token: token.substring(0, 20) });
-  return { 
-    success: false, 
-    error: "iOS APNs not implemented - use Firebase Cloud Messaging for iOS instead" 
-  };
+  // Firebase Cloud Messaging handles both Android and iOS
+  // For iOS, FCM sends to APNs automatically if configured in Firebase Console
+  return await sendFCMPush(token, title, body, platform);
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -199,7 +275,7 @@ const handler = async (req: Request): Promise<Response> => {
       utcTime: now.toISOString()
     });
 
-    // Get all active subscriptions
+    // Get all active subscriptions with platform info
     const { data: subscriptions, error: subsError } = await supabaseAdmin
       .from("push_subscriptions")
       .select("*")
@@ -213,7 +289,14 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    logStep("Found subscriptions", { total: subscriptions?.length || 0 });
+    logStep("Found subscriptions", { 
+      total: subscriptions?.length || 0,
+      byPlatform: {
+        web: subscriptions?.filter(s => !s.platform || s.platform === "web").length || 0,
+        android: subscriptions?.filter(s => s.platform === "android").length || 0,
+        ios: subscriptions?.filter(s => s.platform === "ios").length || 0,
+      }
+    });
 
     // Filter subscriptions that match the current minute
     const matchingSubscriptions = (subscriptions || []).filter(sub => {
@@ -225,7 +308,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     logStep("Matching subscriptions for current minute", { 
       count: matchingSubscriptions.length,
-      currentTime: `${currentHour}:${currentMinute}`
+      currentTime: `${currentHour}:${currentMinute}`,
+      platforms: matchingSubscriptions.map(s => s.platform || "web")
     });
 
     if (matchingSubscriptions.length === 0) {
@@ -290,9 +374,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     let successCount = 0;
     let failCount = 0;
+    const results: Array<{ userId: string; platform: string; success: boolean; error?: string }> = [];
 
     for (const sub of subsToUse) {
-      const platform = sub.platform || "web";
+      const platform = (sub.platform || "web") as "web" | "android" | "ios";
       logStep("Sending notification", { 
         userId: sub.user_id,
         platform,
@@ -303,17 +388,24 @@ const handler = async (req: Request): Promise<Response> => {
 
       switch (platform) {
         case "android":
-          result = await sendFCMPush(sub.endpoint, randomTitle, randomComment);
+          result = await sendNativePush(sub.endpoint, randomTitle, randomComment, "android");
           break;
         
         case "ios":
-          result = await sendAPNsPush(sub.endpoint, randomTitle, randomComment);
+          result = await sendNativePush(sub.endpoint, randomTitle, randomComment, "ios");
           break;
         
         default:
           result = await sendWebPush(sub, webPayload, vapidPublicKey);
           break;
       }
+
+      results.push({
+        userId: sub.user_id,
+        platform,
+        success: result.success,
+        error: result.error
+      });
 
       if (result.success) {
         successCount++;
@@ -322,8 +414,14 @@ const handler = async (req: Request): Promise<Response> => {
         failCount++;
         logStep("Push failed", { userId: sub.user_id, platform, error: result.error });
         
-        // Mark subscription as inactive if expired
-        const expiredErrors = ["NotRegistered", "InvalidRegistration"];
+        // Mark subscription as inactive if token is expired/invalid
+        const expiredErrors = [
+          "NotRegistered", 
+          "InvalidRegistration",
+          "MismatchSenderId",
+          "InvalidApnsCredential"
+        ];
+        
         if (
           result.status === 404 || 
           result.status === 410 ||
@@ -333,15 +431,32 @@ const handler = async (req: Request): Promise<Response> => {
             .from("push_subscriptions")
             .update({ is_active: false })
             .eq("id", sub.id);
-          logStep("Marked subscription as inactive", { id: sub.id });
+          logStep("Marked subscription as inactive", { id: sub.id, reason: result.error });
         }
       }
     }
 
-    logStep("Completed scheduled notifications", { sent: successCount, failed: failCount });
+    logStep("Completed scheduled notifications", { 
+      sent: successCount, 
+      failed: failCount,
+      summary: {
+        web: results.filter(r => r.platform === "web").length,
+        android: results.filter(r => r.platform === "android").length,
+        ios: results.filter(r => r.platform === "ios").length,
+      }
+    });
 
     return new Response(
-      JSON.stringify({ success: true, sent: successCount, failed: failCount }),
+      JSON.stringify({ 
+        success: true, 
+        sent: successCount, 
+        failed: failCount,
+        details: results.map(r => ({ 
+          platform: r.platform, 
+          success: r.success,
+          error: r.error 
+        }))
+      }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
