@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export function useAdminAuth() {
@@ -7,67 +7,89 @@ export function useAdminAuth() {
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      setIsLoading(true);
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
-          setIsAdmin(false);
-          setIsSuperAdmin(false);
-          setUserId(null);
-          return;
-        }
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
-        setUserId(user.id);
+  const checkAdminStatus = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-        // Check if user has admin role (super admin)
-        const { data: hasAdminRole } = await supabase.rpc('has_role', {
-          _user_id: user.id,
-          _role: 'admin'
-        });
-
-        // Check if user has moderator role
-        const { data: hasModeratorRole } = await supabase.rpc('has_role', {
-          _user_id: user.id,
-          _role: 'moderator'
-        });
-
-        // User has access to admin panel if they are admin OR moderator
-        const hasAccess = hasAdminRole === true || hasModeratorRole === true;
-        setIsAdmin(hasAccess);
-
-        // Only user #1 with admin role is super admin
-        if (hasAdminRole === true) {
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('user_number')
-            .eq('user_id', user.id)
-            .maybeSingle();
-          
-          setIsSuperAdmin(profileData?.user_number === 1);
-        } else {
-          setIsSuperAdmin(false);
-        }
-      } catch (error) {
-        console.error('Error in admin auth check:', error);
+      if (userError || !user) {
         setIsAdmin(false);
         setIsSuperAdmin(false);
-      } finally {
-        setIsLoading(false);
+        setUserId(null);
+        return;
       }
-    };
 
+      setUserId(user.id);
+
+      const [{ data: hasAdminRole }, { data: hasModeratorRole }] = await Promise.all([
+        supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' }),
+        supabase.rpc('has_role', { _user_id: user.id, _role: 'moderator' }),
+      ]);
+
+      const hasAccess = hasAdminRole === true || hasModeratorRole === true;
+      setIsAdmin(hasAccess);
+
+      if (hasAdminRole === true) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('user_number')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        setIsSuperAdmin(profileData?.user_number === 1);
+      } else {
+        setIsSuperAdmin(false);
+      }
+    } catch (error) {
+      console.error('Error in admin auth check:', error);
+      setIsAdmin(false);
+      setIsSuperAdmin(false);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
     checkAdminStatus();
 
-    // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
       checkAdminStatus();
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [checkAdminStatus]);
+
+  useEffect(() => {
+    // Keep admin/moderator access in sync right after role changes (no re-login required)
+    if (!userId) return;
+
+    channelRef.current?.unsubscribe();
+
+    const channel = supabase
+      .channel(`admin-auth-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_roles',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          checkAdminStatus();
+        }
+      )
+      .subscribe();
+
+    channelRef.current = channel;
+
+    return () => {
+      channelRef.current?.unsubscribe();
+      channelRef.current = null;
+    };
+  }, [userId, checkAdminStatus]);
 
   return { isAdmin, isSuperAdmin, isLoading, userId };
 }
