@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export function useAdminAuth() {
@@ -6,8 +6,6 @@ export function useAdminAuth() {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
-
-  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   const checkAdminStatus = useCallback(async () => {
     setIsLoading(true);
@@ -18,6 +16,7 @@ export function useAdminAuth() {
         setIsAdmin(false);
         setIsSuperAdmin(false);
         setUserId(null);
+        setIsLoading(false);
         return;
       }
 
@@ -61,14 +60,12 @@ export function useAdminAuth() {
     return () => subscription.unsubscribe();
   }, [checkAdminStatus]);
 
+  // Subscribe to role changes for current user to auto-update admin status
   useEffect(() => {
-    // Keep admin/moderator access in sync right after role changes (no re-login required)
     if (!userId) return;
 
-    channelRef.current?.unsubscribe();
-
     const channel = supabase
-      .channel(`admin-auth-${userId}`)
+      .channel(`admin-auth-roles-${userId}`)
       .on(
         'postgres_changes',
         {
@@ -78,16 +75,16 @@ export function useAdminAuth() {
           filter: `user_id=eq.${userId}`,
         },
         () => {
-          checkAdminStatus();
+          // Small delay to ensure database transaction is committed
+          setTimeout(() => {
+            checkAdminStatus();
+          }, 100);
         }
       )
       .subscribe();
 
-    channelRef.current = channel;
-
     return () => {
-      channelRef.current?.unsubscribe();
-      channelRef.current = null;
+      supabase.removeChannel(channel);
     };
   }, [userId, checkAdminStatus]);
 
