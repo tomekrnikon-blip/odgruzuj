@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Shield, Crown, AlertCircle, ShieldCheck, User } from 'lucide-react';
+import { Loader2, Shield, Crown, AlertCircle, ShieldCheck, User, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -65,6 +67,7 @@ const getRoleDisplay = (role: 'admin' | 'moderator' | 'user') => {
 };
 
 export function UserManager() {
+  const [isOpen, setIsOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: users, isLoading, isError } = useQuery<UserProfile[]>({
@@ -117,14 +120,22 @@ export function UserManager() {
   }
 
   return (
-    <Card className="mt-8">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Shield /> Zarządzanie Użytkownikami
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Card className="mt-8">
+        <CollapsibleTrigger asChild>
+          <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors rounded-t-lg">
+            <CardTitle className="flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Shield /> Zarządzanie Użytkownikami
+                <Badge variant="secondary" className="ml-2">{users?.length ?? 0}</Badge>
+              </span>
+              {isOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+            </CardTitle>
+          </CardHeader>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <CardContent>
+            <div className="space-y-4">
           {users?.map((user) => {
             const roleDisplay = getRoleDisplay(user.role);
             const isPro = user.subscription_status === 'active';
@@ -232,8 +243,10 @@ export function UserManager() {
               </div>
             );
           })}
-        </div>
-      </CardContent>
-    </Card>
+            </div>
+          </CardContent>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
   );
 }
