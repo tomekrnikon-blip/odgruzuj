@@ -148,10 +148,10 @@ export function useSubscription() {
   };
 
   // Verify BLIK payment after redirect
-  const verifyBlikPayment = async (expiresAt: string) => {
+  const verifyBlikPayment = async (expiresAt: string, duration?: string) => {
     try {
       const { data, error } = await supabase.functions.invoke('verify-blik-payment', {
-        body: { expiresAt },
+        body: { expiresAt, duration },
       });
       
       if (error) throw error;
