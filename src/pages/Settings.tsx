@@ -470,13 +470,13 @@ export default function Settings() {
                   ) : (
                     <>
                       <span className="text-lg">🏦</span>
-                      BLIK / Przelewy24 - {selectedPlan === 'monthly' ? `${monthlyPrice}/mies.` : `${yearlyPrice}/rok`}
+                      Zapłać też BLIK-iem - {selectedPlan === 'monthly' ? `${monthlyPrice}/mies.` : `${yearlyPrice}/rok`}
                     </>
                   )}
                 </button>
                 
                 <p className="text-xs text-center text-muted-foreground">
-                  BLIK wymaga ręcznego odnowienia przed wygaśnięciem
+                  Płatność jednorazowa - wymaga ręcznego odnowienia
                 </p>
               </div>
             </div>
