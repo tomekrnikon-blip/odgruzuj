@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
@@ -134,56 +135,58 @@ export function CategoryManager() {
           <p className="text-muted-foreground">Brak kategorii</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {categories.map((category) => (
-            <div
-              key={category.id}
-              className={cn(
-                "card-flat p-4 flex items-center justify-between transition-opacity",
-                !category.is_active && "opacity-50"
-              )}
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{category.icon}</span>
-                <div>
-                  <p className="font-medium">{category.name}</p>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span>{getCategoryStats(category.name).total} fiszek</span>
-                    <span>•</span>
-                    <span className="text-success">{getCategoryStats(category.name).free} darmowych</span>
-                    <span>•</span>
-                    <Badge variant="secondary" className="bg-warning/10 text-warning text-xs px-1.5 py-0">
-                      <Crown className="h-3 w-3 mr-0.5" />
-                      {getCategoryStats(category.name).premium}
-                    </Badge>
+        <ScrollArea className="h-[300px]">
+          <div className="space-y-3 pr-4">
+            {categories.map((category) => (
+              <div
+                key={category.id}
+                className={cn(
+                  "card-flat p-4 flex items-center justify-between transition-opacity",
+                  !category.is_active && "opacity-50"
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{category.icon}</span>
+                  <div>
+                    <p className="font-medium">{category.name}</p>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>{getCategoryStats(category.name).total} fiszek</span>
+                      <span>•</span>
+                      <span className="text-success">{getCategoryStats(category.name).free} darmowych</span>
+                      <span>•</span>
+                      <Badge variant="secondary" className="bg-warning/10 text-warning text-xs px-1.5 py-0">
+                        <Crown className="h-3 w-3 mr-0.5" />
+                        {getCategoryStats(category.name).premium}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={category.is_active}
-                  onCheckedChange={(checked) => toggleCategoryActive(category.id, checked)}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleOpenEditModal(category)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleOpenDeleteDialog(category)}
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={category.is_active}
+                    onCheckedChange={(checked) => toggleCategoryActive(category.id, checked)}
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleOpenEditModal(category)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleOpenDeleteDialog(category)}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </ScrollArea>
       )}
 
       {/* Add Category Modal */}
