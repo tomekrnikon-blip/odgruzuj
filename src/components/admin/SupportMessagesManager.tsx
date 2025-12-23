@@ -244,16 +244,16 @@ export function SupportMessagesManager() {
         ) : (
           <>
             {/* Bulk actions bar */}
-            <div className="flex items-center gap-3 mb-4 p-3 bg-muted/50 rounded-lg">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4 p-3 bg-muted/50 rounded-lg">
               <Checkbox
                 checked={selectedIds.size === messages.length && messages.length > 0}
                 onCheckedChange={toggleSelectAll}
                 aria-label="Zaznacz wszystkie"
               />
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs sm:text-sm text-muted-foreground">
                 {selectedIds.size > 0 
                   ? `Zaznaczono: ${selectedIds.size}` 
-                  : 'Zaznacz wszystkie'}
+                  : <span className="hidden sm:inline">Zaznacz wszystkie</span>}
               </span>
               {selectedIds.size > 0 && (
                 <Button
@@ -261,14 +261,15 @@ export function SupportMessagesManager() {
                   size="sm"
                   onClick={handleBulkDelete}
                   disabled={bulkDeleteMutation.isPending}
-                  className="ml-auto"
+                  className="ml-auto text-xs sm:text-sm"
                 >
                   {bulkDeleteMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
                   ) : (
-                    <Trash2 className="h-4 w-4 mr-2" />
+                    <Trash2 className="h-4 w-4 sm:mr-2" />
                   )}
-                  Usuń zaznaczone ({selectedIds.size})
+                  <span className="hidden sm:inline">Usuń zaznaczone ({selectedIds.size})</span>
+                  <span className="sm:hidden">{selectedIds.size}</span>
                 </Button>
               )}
             </div>

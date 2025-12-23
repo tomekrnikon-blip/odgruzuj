@@ -141,20 +141,19 @@ export function CategoryManager() {
               <div
                 key={category.id}
                 className={cn(
-                  "card-flat p-4 flex items-center justify-between transition-opacity",
+                  "card-flat p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-opacity",
                   !category.is_active && "opacity-50"
                 )}
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{category.icon}</span>
-                  <div>
-                    <p className="font-medium">{category.name}</p>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="text-xl sm:text-2xl flex-shrink-0">{category.icon}</span>
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">{category.name}</p>
+                    <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap">
                       <span>{getCategoryStats(category.name).total} fiszek</span>
-                      <span>•</span>
-                      <span className="text-success">{getCategoryStats(category.name).free} darmowych</span>
-                      <span>•</span>
-                      <Badge variant="secondary" className="bg-warning/10 text-warning text-xs px-1.5 py-0">
+                      <span className="hidden sm:inline">•</span>
+                      <span className="text-success">{getCategoryStats(category.name).free} darm.</span>
+                      <Badge variant="secondary" className="bg-warning/10 text-warning text-[10px] sm:text-xs px-1 py-0">
                         <Crown className="h-3 w-3 mr-0.5" />
                         {getCategoryStats(category.name).premium}
                       </Badge>
@@ -162,7 +161,7 @@ export function CategoryManager() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 self-end sm:self-auto">
                   <Switch
                     checked={category.is_active}
                     onCheckedChange={(checked) => toggleCategoryActive(category.id, checked)}
@@ -170,6 +169,7 @@ export function CategoryManager() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="h-8 w-8"
                     onClick={() => handleOpenEditModal(category)}
                   >
                     <Pencil className="h-4 w-4" />
@@ -177,8 +177,8 @@ export function CategoryManager() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="h-8 w-8 text-destructive hover:text-destructive"
                     onClick={() => handleOpenDeleteDialog(category)}
-                    className="text-destructive hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
