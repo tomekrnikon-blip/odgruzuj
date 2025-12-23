@@ -4,6 +4,7 @@ import { FlashcardManager } from '@/components/admin/FlashcardManager';
 import { NotificationManager } from '@/components/admin/NotificationManager';
 import { UserManager } from '@/components/admin/UserManager';
 import { SupportMessagesManager } from '@/components/admin/SupportMessagesManager';
+import { StripeProductsManager } from '@/components/admin/StripeProductsManager';
 import { ShieldAlert, Loader2, ShieldCheck, Users, Crown, LogOut } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -127,7 +128,8 @@ export default function Admin() {
         )}
 
 
-        {/* Stripe Config Section - hidden, manage via database directly */}
+        {/* Stripe Products Section - only for super admin */}
+        {isSuperAdmin && <StripeProductsManager />}
 
         {/* Support Messages Section - only for super admin */}
         {isSuperAdmin && <SupportMessagesManager />}
