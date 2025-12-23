@@ -14,12 +14,6 @@ const FALLBACK_PRICE_IDS = {
   yearly: "price_1ScWRg9EWMAAADcfHNoeUUK7",
 };
 
-// Subscription duration in days
-const DURATION_DAYS = {
-  monthly: 30,
-  yearly: 365,
-};
-
 const PaymentSchema = z.object({
   plan: z.enum(['monthly', 'yearly']).default('yearly'),
 });
@@ -27,6 +21,27 @@ const PaymentSchema = z.object({
 const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CREATE-BLIK-PAYMENT] ${step}${detailsStr}`);
+};
+
+// Function to determine subscription duration from product name
+const getDurationFromProductName = (productName: string): number => {
+  const nameLower = productName.toLowerCase();
+  
+  // Check for yearly/annual keywords
+  if (nameLower.includes('roczn') || nameLower.includes('rok') || 
+      nameLower.includes('year') || nameLower.includes('annual') ||
+      nameLower.includes('12 mies')) {
+    return 365;
+  }
+  
+  // Check for monthly keywords
+  if (nameLower.includes('miesi') || nameLower.includes('month') || 
+      nameLower.includes('30 dni') || nameLower.includes('1 mies')) {
+    return 30;
+  }
+  
+  // Default based on plan parameter
+  return 30;
 };
 
 serve(async (req) => {
@@ -62,7 +77,7 @@ serve(async (req) => {
     }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Fetch one-time payment price IDs from database (BLIK-specific prices)
+    // Fetch one-time payment price IDs from database
     let priceId: string;
     try {
       const priceKey = plan === 'monthly' ? 'price_blik_monthly' : 'price_blik_yearly';
@@ -101,6 +116,25 @@ serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
+    // Fetch product information to get the duration from product name
+    const price = await stripe.prices.retrieve(priceId, {
+      expand: ['product'],
+    });
+    
+    let productName = "";
+    let durationDays: number;
+    
+    if (price.product && typeof price.product !== 'string') {
+      const product = price.product as Stripe.Product;
+      productName = product.name || "";
+      durationDays = getDurationFromProductName(productName);
+      logStep("Product info retrieved", { productName, durationDays });
+    } else {
+      // Fallback to plan-based duration
+      durationDays = plan === 'yearly' ? 365 : 30;
+      logStep("Using plan-based duration", { plan, durationDays });
+    }
+
     // Check if customer already exists
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId;
@@ -109,9 +143,6 @@ serve(async (req) => {
       logStep("Found existing customer", { customerId });
     }
 
-    // Calculate new expiration date
-    const durationDays = DURATION_DAYS[plan];
-    
     // Check if user has an existing subscription that hasn't expired yet
     const { data: profileData } = await supabaseAdmin
       .from('profiles')
@@ -139,7 +170,7 @@ serve(async (req) => {
       logStep("First subscription", { expiresAt: newExpiresAt.toISOString() });
     }
 
-    // Create one-time payment session with BLIK and P24 support
+    // Create one-time payment session with BLIK ONLY
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -150,22 +181,32 @@ serve(async (req) => {
         },
       ],
       mode: "payment", // One-time payment, NOT subscription
-      payment_method_types: ["blik", "p24", "card"], // BLIK, Przelewy24, and card as fallback
-      success_url: `${req.headers.get("origin")}/settings?blik=success&expires=${newExpiresAt.toISOString()}`,
+      payment_method_types: ["blik"], // ONLY BLIK - no other methods
+      success_url: `${req.headers.get("origin")}/settings?blik=success&expires=${newExpiresAt.toISOString()}&duration=${durationDays}`,
       cancel_url: `${req.headers.get("origin")}/settings?blik=cancelled`,
       metadata: {
         user_id: user.id,
         plan: plan,
+        product_name: productName,
+        duration_days: durationDays.toString(),
         new_expires_at: newExpiresAt.toISOString(),
       },
       locale: "pl", // Polish locale for BLIK interface
     });
 
-    logStep("BLIK checkout session created", { sessionId: session.id, expiresAt: newExpiresAt.toISOString() });
+    logStep("BLIK checkout session created", { 
+      sessionId: session.id, 
+      expiresAt: newExpiresAt.toISOString(),
+      productName,
+      durationDays,
+      paymentMethods: ["blik"]
+    });
 
     return new Response(JSON.stringify({ 
       url: session.url,
       expiresAt: newExpiresAt.toISOString(),
+      durationDays,
+      productName,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

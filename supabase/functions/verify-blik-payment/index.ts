@@ -12,6 +12,27 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[VERIFY-BLIK-PAYMENT] ${step}${detailsStr}`);
 };
 
+// Function to determine subscription duration from product name
+const getDurationFromProductName = (productName: string): number => {
+  const nameLower = productName.toLowerCase();
+  
+  // Check for yearly/annual keywords
+  if (nameLower.includes('roczn') || nameLower.includes('rok') || 
+      nameLower.includes('year') || nameLower.includes('annual') ||
+      nameLower.includes('12 mies')) {
+    return 365;
+  }
+  
+  // Check for monthly keywords
+  if (nameLower.includes('miesi') || nameLower.includes('month') || 
+      nameLower.includes('30 dni') || nameLower.includes('1 mies')) {
+    return 30;
+  }
+  
+  // Default to monthly
+  return 30;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -41,10 +62,10 @@ serve(async (req) => {
     }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { expiresAt } = await req.json();
-    if (!expiresAt) {
-      throw new Error("Missing expiresAt parameter");
-    }
+    const requestBody = await req.json();
+    const { expiresAt, duration } = requestBody;
+    
+    logStep("Request params", { expiresAt, duration });
 
     // Verify the payment was actually completed by checking Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
@@ -61,33 +82,96 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found customer", { customerId });
 
-    // Check for recent successful payment intents
-    const paymentIntents = await stripe.paymentIntents.list({
+    // Check for recent checkout sessions
+    const sessions = await stripe.checkout.sessions.list({
       customer: customerId,
-      limit: 5,
+      limit: 10,
     });
 
-    const recentSuccessfulPayment = paymentIntents.data.find((pi: { status: string; created: number }) => 
-      pi.status === 'succeeded' && 
-      pi.created > (Date.now() / 1000) - 3600 // Within last hour
+    // Find the most recent completed session
+    const recentCompletedSession = sessions.data.find((session: Stripe.Checkout.Session) => 
+      session.payment_status === 'paid' && 
+      session.created > (Date.now() / 1000) - 3600 // Within last hour
     );
 
-    if (!recentSuccessfulPayment) {
-      logStep("No recent successful payment found");
-      return new Response(JSON.stringify({ 
-        success: false, 
-        error: "No recent payment found" 
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
+    if (!recentCompletedSession) {
+      // Fallback: check payment intents
+      const paymentIntents = await stripe.paymentIntents.list({
+        customer: customerId,
+        limit: 5,
+      });
+
+      const recentSuccessfulPayment = paymentIntents.data.find((pi: Stripe.PaymentIntent) => 
+        pi.status === 'succeeded' && 
+        pi.created > (Date.now() / 1000) - 3600 // Within last hour
+      );
+
+      if (!recentSuccessfulPayment) {
+        logStep("No recent successful payment found");
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: "No recent payment found" 
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+
+      logStep("Found successful payment intent", { paymentId: recentSuccessfulPayment.id });
+    } else {
+      logStep("Found successful checkout session", { 
+        sessionId: recentCompletedSession.id,
+        metadata: recentCompletedSession.metadata 
       });
     }
 
-    logStep("Found successful payment", { paymentId: recentSuccessfulPayment.id });
+    // Determine the correct expiration date
+    let expiresAtDate: Date;
+    let durationDays: number = duration ? parseInt(duration) : 30;
+
+    // Try to get duration from session metadata first
+    if (recentCompletedSession?.metadata?.duration_days) {
+      durationDays = parseInt(recentCompletedSession.metadata.duration_days);
+      logStep("Using duration from session metadata", { durationDays });
+    } else if (recentCompletedSession?.metadata?.product_name) {
+      durationDays = getDurationFromProductName(recentCompletedSession.metadata.product_name);
+      logStep("Calculated duration from product name", { 
+        productName: recentCompletedSession.metadata.product_name, 
+        durationDays 
+      });
+    }
+
+    // Get current profile to check existing expiration
+    const { data: profileData } = await supabaseAdmin
+      .from('profiles')
+      .select('subscription_expires_at')
+      .eq('user_id', user.id)
+      .single();
+
+    const now = new Date();
+
+    if (expiresAt) {
+      // Use provided expiresAt if available
+      expiresAtDate = new Date(expiresAt);
+      logStep("Using provided expiresAt", { expiresAt: expiresAtDate.toISOString() });
+    } else if (profileData?.subscription_expires_at) {
+      const currentExpiry = new Date(profileData.subscription_expires_at);
+      if (currentExpiry > now) {
+        // Extend from current expiry date
+        expiresAtDate = new Date(currentExpiry.getTime() + (durationDays * 24 * 60 * 60 * 1000));
+        logStep("Extending from current expiry", { expiresAt: expiresAtDate.toISOString() });
+      } else {
+        // Start fresh from today
+        expiresAtDate = new Date(now.getTime() + (durationDays * 24 * 60 * 60 * 1000));
+        logStep("Starting new period", { expiresAt: expiresAtDate.toISOString() });
+      }
+    } else {
+      // No existing subscription, start from now
+      expiresAtDate = new Date(now.getTime() + (durationDays * 24 * 60 * 60 * 1000));
+      logStep("First subscription period", { expiresAt: expiresAtDate.toISOString() });
+    }
 
     // Update user's subscription status in database
-    const expiresAtDate = new Date(expiresAt);
-    
     const { error: updateError } = await supabaseAdmin
       .from('profiles')
       .update({
@@ -101,11 +185,18 @@ serve(async (req) => {
       throw new Error(`Failed to update subscription: ${updateError.message}`);
     }
 
-    logStep("Subscription activated", { userId: user.id, expiresAt: expiresAtDate.toISOString() });
+    logStep("Pro subscription activated successfully", { 
+      userId: user.id, 
+      expiresAt: expiresAtDate.toISOString(),
+      durationDays,
+      status: 'active'
+    });
 
     return new Response(JSON.stringify({ 
       success: true, 
-      expiresAt: expiresAtDate.toISOString() 
+      expiresAt: expiresAtDate.toISOString(),
+      durationDays,
+      message: `Dostęp Pro aktywowany na ${durationDays} dni`
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

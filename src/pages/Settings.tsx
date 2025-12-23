@@ -169,6 +169,7 @@ export default function Settings() {
     const upgradeStatus = searchParams.get('upgrade');
     const blikStatus = searchParams.get('blik');
     const expiresAt = searchParams.get('expires');
+    const duration = searchParams.get('duration');
     
     if (upgradeStatus === 'success') {
       toast({
@@ -186,11 +187,13 @@ export default function Settings() {
     
     // Handle BLIK payment verification
     if (blikStatus === 'success' && expiresAt) {
-      verifyBlikPayment(expiresAt).then((data) => {
+      verifyBlikPayment(expiresAt, duration || undefined).then((data) => {
         if (data?.success) {
+          const durationDays = data.durationDays || (duration ? parseInt(duration) : 30);
+          const periodLabel = durationDays >= 365 ? 'rok' : (durationDays >= 30 ? 'miesiąc' : `${durationDays} dni`);
           toast({
             title: "Sukces!",
-            description: "Płatność BLIK została zweryfikowana. Subskrypcja aktywna!",
+            description: `Płatność BLIK zweryfikowana. Dostęp Pro aktywny na ${periodLabel}!`,
           });
         }
       }).catch(() => {
