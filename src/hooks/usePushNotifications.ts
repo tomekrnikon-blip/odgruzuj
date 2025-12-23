@@ -124,7 +124,9 @@ export function usePushNotifications() {
          const subscription = await registration?.pushManager.getSubscription();
          await subscription?.unsubscribe();
       }
-      await supabase.from('push_subscriptions').delete().eq('user_id', user.id);
+      // Use secure RPC function instead of direct table access
+      const { error } = await supabase.rpc('delete_user_push_subscription');
+      if (error) throw error;
       setIsSubscribed(false);
       toast.success('Powiadomienia push wyłączone');
       return true;
@@ -178,7 +180,8 @@ export function usePushNotifications() {
 
   const updateNotificationTime = useCallback(async (time: string) => {
     if (!user) return false;
-    const { error } = await supabase.from('push_subscriptions').update({ notification_time: time }).eq('user_id', user.id);
+    // Use secure RPC function instead of direct table access
+    const { error } = await supabase.rpc('update_notification_time', { p_time: time });
     if (error) {
         toast.error("Błąd aktualizacji godziny");
         return false;
