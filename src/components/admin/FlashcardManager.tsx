@@ -352,8 +352,8 @@ export function FlashcardManager() {
         <CollapsibleContent>
           <div className="p-4 pt-0 space-y-4 border-t border-border">
             {/* Statistics */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 pt-4">
-              {categoryStats.map(stat => (
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 pt-4">
+              {categoryStats.slice(0, 6).map(stat => (
                 <div 
                   key={stat.name} 
                   className={cn(
@@ -364,17 +364,17 @@ export function FlashcardManager() {
                   )}
                   onClick={() => setFilterCategory(filterCategory === stat.name ? 'all' : stat.name)}
                 >
-                  <span className="text-lg">{stat.icon}</span>
+                  <span className="text-base sm:text-lg">{stat.icon}</span>
                   <div className="min-w-0">
-                    <p className="text-xs text-muted-foreground truncate">{stat.name}</p>
-                    <p className="font-semibold text-sm">{stat.count}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{stat.name}</p>
+                    <p className="font-semibold text-xs sm:text-sm">{stat.count}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Filters */}
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -385,7 +385,7 @@ export function FlashcardManager() {
                 />
               </div>
               <Select value={filterCategory} onValueChange={setFilterCategory}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Kategoria" />
                 </SelectTrigger>
                 <SelectContent>

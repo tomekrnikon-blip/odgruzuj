@@ -108,7 +108,7 @@ export function NotificationManager() {
             disabled={isSending}
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Button 
             onClick={handleSendNotification} 
             disabled={isSending || !title.trim() || !message.trim()}
@@ -117,12 +117,14 @@ export function NotificationManager() {
             {isSending ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Wysyłanie...
+                <span className="hidden sm:inline">Wysyłanie...</span>
+                <span className="sm:hidden">...</span>
               </>
             ) : (
               <>
                 <Send className="h-4 w-4 mr-2" />
-                Wyślij in-app
+                <span className="hidden sm:inline">Wyślij in-app</span>
+                <span className="sm:hidden">Wyślij</span>
               </>
             )}
           </Button>
@@ -130,16 +132,18 @@ export function NotificationManager() {
             onClick={handleTestPushNotification} 
             disabled={isSendingPush}
             variant="outline"
+            className="sm:w-auto"
           >
             {isSendingPush ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Test...
+                <span className="hidden sm:inline">Test...</span>
               </>
             ) : (
               <>
                 <Smartphone className="h-4 w-4 mr-2" />
-                Test Push
+                <span className="hidden sm:inline">Test Push</span>
+                <span className="sm:hidden">Push</span>
               </>
             )}
           </Button>
