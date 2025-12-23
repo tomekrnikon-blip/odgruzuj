@@ -500,6 +500,7 @@ export type Database = {
         Args: { encrypted_text: string; encryption_key: string }
         Returns: string
       }
+      delete_user_push_subscription: { Args: never; Returns: undefined }
       encrypt_email: { Args: { plain_email: string }; Returns: string }
       encrypt_push_data: { Args: { plain_text: string }; Returns: string }
       encrypt_with_custom_key: {
@@ -619,6 +620,7 @@ export type Database = {
         Args: { p_key_value: string }
         Returns: undefined
       }
+      update_notification_time: { Args: { p_time: string }; Returns: undefined }
       update_profile_email_encrypted: {
         Args: { p_encrypted_email: string; p_profile_id: string }
         Returns: undefined
