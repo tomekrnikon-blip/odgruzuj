@@ -164,7 +164,8 @@ export default function Dashboard() {
             >
               <RefreshCw className={cn("w-5 h-5", isRefreshing && "animate-spin")} />
             </button>
-            {!isSubscriptionLoading && !subscribed && (
+            {/* Przycisk "Pro" — UKRYTY w buildzie natywnym (Google Play / App Store policy) */}
+            {!isNativeMobile() && !isSubscriptionLoading && !subscribed && (
               <button
                 onClick={handleUpgrade}
                 className="p-3 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg hover:opacity-90 transition-all active:scale-95 flex items-center gap-2"
