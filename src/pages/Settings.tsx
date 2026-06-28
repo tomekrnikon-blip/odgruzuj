@@ -355,8 +355,8 @@ export default function Settings() {
                 )}
               </div>
               
-              {/* Show renewal button if expiring soon */}
-              {daysUntilExpiry !== null && daysUntilExpiry <= 7 && (
+              {/* Show renewal button if expiring soon — UKRYTE w buildzie natywnym (Google Play / App Store policy) */}
+              {!isNativeMobile() && daysUntilExpiry !== null && daysUntilExpiry <= 7 && (
                 <button
                   onClick={handleBlikPayment}
                   disabled={isBlikPayment}
@@ -374,6 +374,17 @@ export default function Settings() {
                     </>
                   )}
                 </button>
+              )}
+
+              {/* Natywny build: informacja zamiast przycisku odnowienia */}
+              {isNativeMobile() && daysUntilExpiry !== null && daysUntilExpiry <= 7 && (
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">
+                  Subskrypcję odnowisz na{" "}
+                  <a href={WEB_PURCHASE_URL} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold underline">
+                    odgruzuj.pl
+                  </a>
+                  . Po opłaceniu dostęp PRO aktywuje się automatycznie w aplikacji.
+                </div>
               )}
               
               <button
