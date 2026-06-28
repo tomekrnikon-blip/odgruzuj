@@ -1,3 +1,24 @@
+/**
+ * ============================================================================
+ * Admin.tsx — Strona panelu administracyjnego (/admin)
+ * ============================================================================
+ *
+ * Sekcje (każda w osobnym komponencie, zwijane lub w gridzie):
+ *   - Statystyki ogólne (liczba użytkowników, fiszek, ukończonych zadań)
+ *   - UserManager        — zarządzanie kontami, rolami, PRO, limitami
+ *   - FlashcardManager   — CRUD globalnych fiszek
+ *   - CategoryManager    — kategorie (premium/free)
+ *   - NotificationManager — wysyłka powiadomień push
+ *   - SupportMessagesManager — odpowiedzi na wiadomości wsparcia
+ *
+ * Dostęp:
+ *   - `useAdminAuth` sprawdza rolę przez RPC `has_role(uid,'admin')`.
+ *   - `isSuperAdmin` = pierwszy zarejestrowany user (profiles.user_number=1)
+ *     — ma dostęp do super-wrażliwych funkcji (pełne e-maile, push creds).
+ *   - Każde sprawdzenie roli leci przez SECURITY DEFINER (`has_role`),
+ *     więc nie można go obejść manipulacją localStorage.
+ * ============================================================================
+ */
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { CategoryManager } from '@/components/admin/CategoryManager';
 import { FlashcardManager } from '@/components/admin/FlashcardManager';
