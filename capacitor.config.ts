@@ -4,12 +4,12 @@ const config: CapacitorConfig = {
   appId: 'pl.odgruzuj.app',
   appName: 'odgruzuj',
   webDir: 'dist',
-  // DEVELOPMENT: Enable this section for hot-reload during development
-  // PRODUCTION: Comment out this section before building for App Store/Google Play
-  server: {
-    url: 'https://d07c6238-0cf3-4500-a6ea-0b013c9ca9e7.lovableproject.com?forceHideBadge=true',
-    cleartext: true
-  },
+  // PRODUCTION BUILD — kod ładowany z bundla `dist/` (wymagane przez Google Play / App Store).
+  // Aby włączyć hot-reload w trakcie developmentu odkomentuj poniższe i wskaż URL preview Lovable:
+  // server: {
+  //   url: 'https://d07c6238-0cf3-4500-a6ea-0b013c9ca9e7.lovableproject.com?forceHideBadge=true',
+  //   cleartext: true,
+  // },
   ios: {
     contentInset: 'automatic',
     backgroundColor: '#16a34a',
