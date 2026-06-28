@@ -325,7 +325,7 @@ export default function Dashboard() {
                 : "Na dziś nie ma więcej zadań. Wróć jutro!"
               }
             </p>
-            {!isSubscriptionLoading && !subscribed && (
+            {!isNativeMobile() && !isSubscriptionLoading && !subscribed && (
               <button
                 onClick={handleUpgrade}
                 className="btn-primary flex items-center justify-center gap-2 mx-auto"
