@@ -1,3 +1,10 @@
+/**
+ * ============================================================================
+ * EDGE FUNCTION: set-pro-status
+ * ============================================================================
+ * Nadaje/odbiera status PRO. Aktualizuje profiles.subscription_status + subscription_expires_at. Wymaga roli admin.
+ * ============================================================================
+ */
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 

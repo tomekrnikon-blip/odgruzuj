@@ -1,3 +1,25 @@
+/**
+ * ============================================================================
+ * UserManager — Panel zarządzania użytkownikami (Admin)
+ * ============================================================================
+ *
+ * Co tu się dzieje:
+ *   - Lista zwijana z wyszukiwarką po e-mailu / nazwie / numerze / roli.
+ *   - Dane pobierane przez edge function `get-users` (service_role) —
+ *     funkcja zwraca ZAMASKOWANE e-maile (super-admin widzi pełne).
+ *   - Akcje per użytkownik:
+ *       • Zmiana roli  → edge `update-user-role`
+ *       • Nadanie/odebranie PRO → edge `set-pro-status`
+ *       • Reset dziennego limitu → bezpośredni UPDATE w `user_progress`
+ *   - Wszystkie akcje używają React Query — po sukcesie inwaliduje cache.
+ *
+ * Wizualne oznaczenia roli:
+ *   - 👑 Crown + złote tło      → status PRO (subscription_status='active')
+ *   - 🛡  ShieldCheck + czerwone → admin
+ *   - 🛡  Shield + niebieskie    → moderator
+ *   - 👤 User                    → zwykły użytkownik (free)
+ * ============================================================================
+ */
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';

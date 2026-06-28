@@ -1,3 +1,10 @@
+/**
+ * ============================================================================
+ * EDGE FUNCTION: verify-blik-payment
+ * ============================================================================
+ * Po powrocie z Checkout BLIK aktualizuje profiles.subscription_expires_at. Czyta nazwę produktu Stripe ('miesięczny'/'roczny') żeby ustalić długość dostępu (30/365 dni).
+ * ============================================================================
+ */
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";

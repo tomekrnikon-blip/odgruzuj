@@ -1,3 +1,28 @@
+/**
+ * ============================================================================
+ * useFlashcardsFromDB — Główna logika gry: losowanie fiszek + limit dzienny
+ * ============================================================================
+ *
+ * Odpowiedzialność:
+ *   - Pobiera fiszki z `global_flashcards` (Lovable Cloud).
+ *   - Filtruje po kategorii i poziomie trudności wybranym przez użytkownika.
+ *   - Pomija fiszki ukończone dziś i pominięte w tej sesji.
+ *   - Egzekwuje limit darmowego konta (2 fiszki/dzień).
+ *   - Synchronizuje reset dzienny: lokalnie (`localStorage`) + zdalnie
+ *     (`user_progress.daily_limit_reset_at` — admin może wymusić reset).
+ *
+ * Limit dzienny — jak działa:
+ *   1. Status `free` → `dailyLimit = 2`.
+ *   2. Po ukończeniu fiszki rośnie `completedTodayCount`.
+ *   3. Cron 21:00 UTC (`reset_all_daily_limits()`) ustawia `daily_limit_reset_at`.
+ *   4. Hook porównuje datę z localStorage i z DB — nowszy reset wygrywa.
+ *   5. Admin klika "Reset limitu" → aktualizuje DB → klient widzi to przy
+ *      następnym odświeżeniu (poll co 30s) i czyści lokalny licznik.
+ *
+ * Status premium pochodzi z `profiles.subscription_status`. Sprawdzamy go
+ * jednorazowo przy ładowaniu; zmiana wymaga odświeżenia hooka.
+ * ============================================================================
+ */
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocalStorage } from './useLocalStorage';

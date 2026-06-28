@@ -1,3 +1,10 @@
+/**
+ * ============================================================================
+ * EDGE FUNCTION: send-push-notification
+ * ============================================================================
+ * Wysyła pojedyncze powiadomienie push do użytkownika lub wszystkich. Walidacja Zod (title 1-100, body 1-500). Wspiera Web Push, FCM (Android), APNs (iOS).
+ * ============================================================================
+ */
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";

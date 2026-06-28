@@ -1,3 +1,10 @@
+/**
+ * ============================================================================
+ * EDGE FUNCTION: get-users
+ * ============================================================================
+ * Lista użytkowników dla panelu admina. Wywołuje funkcję get_admin_profiles() (zamaskowane e-maile) + dołącza role z user_roles. Weryfikuje rolę admina przez has_role.
+ * ============================================================================
+ */
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 

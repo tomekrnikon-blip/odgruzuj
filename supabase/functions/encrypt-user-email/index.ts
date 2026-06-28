@@ -1,3 +1,10 @@
+/**
+ * ============================================================================
+ * EDGE FUNCTION: encrypt-user-email
+ * ============================================================================
+ * Szyfruje pojedynczy e-mail po stronie serwera używając Web Crypto - alternatywa dla pgcrypto.
+ * ============================================================================
+ */
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 

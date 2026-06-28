@@ -1,74 +1,81 @@
-# Welcome to your Lovable project
+# 🧹 Odgruzuj.pl — Dokumentacja techniczna
 
-## Project info
+Aplikacja PWA + Capacitor (Android/iOS) do walki z bałaganem przez fiszki-zadania.
+Stack: **React 18 + Vite + TypeScript + Tailwind + Lovable Cloud (Supabase)**.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 📚 Dokumenty
 
-## How can I edit this code?
+| Plik | Co zawiera |
+|---|---|
+| [`DATABASE_SCHEMA.md`](./DATABASE_SCHEMA.md) | Opis tabel, RLS, funkcji bazodanowych |
+| [`TECHNICAL_DOCUMENTATION.md`](./TECHNICAL_DOCUMENTATION.md) | Pełna mapa projektu i stack |
+| [`ICONS_AND_SPLASH_SETUP.md`](./ICONS_AND_SPLASH_SETUP.md) | Instrukcja ikon + splash dla Android/iOS |
 
-There are several ways of editing your application.
+## 🏗️ Architektura — jak to działa
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+┌────────────────────────────────────────────────────────────┐
+│  Klient (React)                                            │
+│   ├─ useAuth          → Supabase Auth (sesja, recovery)    │
+│   ├─ useSubscription  → status PRO (DB + Stripe)           │
+│   ├─ useFlashcardsFromDB → fiszki + limit dzienny          │
+│   ├─ useAdminAuth     → sprawdzanie roli (has_role)        │
+│   └─ usePushNotifications → Web Push / FCM / APNs          │
+└──────────────┬─────────────────────────────────────────────┘
+               │ HTTPS + JWT
+               ▼
+┌────────────────────────────────────────────────────────────┐
+│  Lovable Cloud (Supabase)                                  │
+│   ├─ PostgreSQL — 14 tabel, ~30 funkcji SECURITY DEFINER  │
+│   ├─ Row Level Security na WSZYSTKICH tabelach            │
+│   ├─ Edge Functions (Deno) — 20 funkcji serwerowych       │
+│   └─ pg_cron — codzienne joby (reset limitów, push)       │
+└──────────────┬─────────────────────────────────────────────┘
+               │
+               ├─→ Stripe (subskrypcje + BLIK/P24)
+               ├─→ Resend (e-maile transakcyjne)
+               ├─→ FCM (push Android/iOS via Firebase)
+               └─→ Web Push (PWA)
 ```
 
+## 🔑 Kluczowe przepływy
 
-**Edit a file directly in GitHub**
+### 1. Logowanie i sesja
+- `useAuth` subskrybuje `onAuthStateChange` → reszta aplikacji widzi zmianę natychmiast.
+- Sesja autoodnawia się — token zapisany w localStorage przez klienta Supabase.
+- Reset hasła: link z e-maila → `/auth?mode=reset` → `PASSWORD_RECOVERY` → nowe hasło.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 2. Subskrypcja PRO — dwa źródła prawdy
+- **DB** (`profiles.subscription_status='active'`): nadana ręcznie / BLIK
+- **Stripe** (`check-subscription`): cykliczna kartą
+- Front sprawdza DB najpierw, potem Stripe (BLIK nie ma recurring).
 
-**Use GitHub Codespaces**
+### 3. Limit dzienny dla `free`
+- 2 fiszki/dzień → `user_progress.daily_count`.
+- Reset: cron 21:00 UTC + przycisk "Reset limitu" w panelu admina.
+- Synchronizacja: localStorage ↔ `daily_limit_reset_at` (nowszy wygrywa).
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 4. Powiadomienia push
+- Klient rejestruje subskrypcję przez RPC `save_and_encrypt_subscription`.
+- Klucze (p256dh, auth) szyfrowane pgcrypto z `vault.secrets`.
+- Cron wywołuje `send-scheduled-notifications` → wybiera użytkowników o godzinie X.
+- Wspiera Web Push (PWA), FCM (Android), APNs (iOS via FCM).
 
-## What technologies are used for this project?
+### 5. Bezpieczeństwo
+- E-maile w `profiles` szyfrowane (pgcrypto `wy4...` lub Web Crypto `enc_...`).
+- Role w osobnej tabeli `user_roles` z RESTRICTIVE policies (anti self-escalation).
+- `stripe_config` widoczna tylko dla super-admina.
+- `push_subscriptions` z `USING(false)` na SELECT — czytane tylko przez SECURITY DEFINER.
+- Walidacja Zod w edge functions.
 
-This project is built with:
+## 🚀 Deploy
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Lovable automatycznie synchronizuje kod do GitHuba w czasie rzeczywistym i deployuje edge functions natychmiast po zmianie.
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Mobile (Capacitor):
+```bash
+git pull
+npm install
+npx cap sync
+npx cap run android    # lub ios
+```

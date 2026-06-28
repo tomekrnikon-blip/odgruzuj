@@ -1,3 +1,10 @@
+/**
+ * ============================================================================
+ * EDGE FUNCTION: import-flashcards
+ * ============================================================================
+ * Bulk import fiszek do global_flashcards. WYMAGA roli admin (autoryzacja przez Bearer token + has_role).
+ * ============================================================================
+ */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 

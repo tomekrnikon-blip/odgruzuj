@@ -1,3 +1,10 @@
+/**
+ * ============================================================================
+ * EDGE FUNCTION: update-user-role
+ * ============================================================================
+ * Zmienia rolę użytkownika w user_roles. Wymaga roli admin. Chroni rolę admina super-administratora (trigger protect_admin_role).
+ * ============================================================================
+ */
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
