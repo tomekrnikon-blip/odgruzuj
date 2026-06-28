@@ -187,8 +187,15 @@ const handler = async (req: Request): Promise<Response> => {
     } = {};
     
     try {
-      requestBody = await req.json();
-    } catch {
+      const raw = await req.json();
+      requestBody = NotificationSchema.parse(raw);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return new Response(
+          JSON.stringify({ error: "Invalid input", details: err.errors }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
       requestBody = {};
     }
     
