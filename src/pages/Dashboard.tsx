@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Crown, Check, SkipForward, Flame, Trophy, Star, Loader2, RefreshCw } from "lucide-react";
+import { isNativeMobile } from "@/lib/platform";
 import { cn } from "@/lib/utils";
 import { FlashCard } from "@/components/FlashCard";
 import { Timer } from "@/components/Timer";
