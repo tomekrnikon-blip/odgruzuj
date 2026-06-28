@@ -1,3 +1,10 @@
+/**
+ * ============================================================================
+ * EDGE FUNCTION: rotate-encryption-key
+ * ============================================================================
+ * Rotacja klucza szyfrującego w vault.secrets - migruje wszystkie zaszyfrowane e-maile i klucze push.
+ * ============================================================================
+ */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 

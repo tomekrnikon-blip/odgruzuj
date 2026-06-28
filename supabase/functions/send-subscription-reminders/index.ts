@@ -1,3 +1,10 @@
+/**
+ * ============================================================================
+ * EDGE FUNCTION: send-subscription-reminders
+ * ============================================================================
+ * Cron 10:00 PL: wysyła powiadomienia 7/3/1 dzień przed wygaśnięciem subskrypcji ('Odnów BLIK-iem').
+ * ============================================================================
+ */
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 

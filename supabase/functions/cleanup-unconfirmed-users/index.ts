@@ -1,3 +1,10 @@
+/**
+ * ============================================================================
+ * EDGE FUNCTION: cleanup-unconfirmed-users
+ * ============================================================================
+ * Cron: kasuje konta z auth.users które nie potwierdziły e-maila po 24h. Wywołuje funkcję SQL cleanup_unconfirmed_users_logic().
+ * ============================================================================
+ */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {

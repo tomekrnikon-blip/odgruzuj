@@ -1,3 +1,10 @@
+/**
+ * ============================================================================
+ * EDGE FUNCTION: create-checkout
+ * ============================================================================
+ * Tworzy cykliczną Stripe Subscription Checkout dla kart. Walidacja inputu przez Zod. Pobiera Price ID z stripe_config przez service_role.
+ * ============================================================================
+ */
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";

@@ -1,3 +1,10 @@
+/**
+ * ============================================================================
+ * EDGE FUNCTION: get-vapid-key
+ * ============================================================================
+ * Zwraca publiczny VAPID key dla rejestracji Web Push w przeglądarce.
+ * ============================================================================
+ */
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const corsHeaders = {

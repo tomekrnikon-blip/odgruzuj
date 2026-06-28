@@ -1,3 +1,10 @@
+/**
+ * ============================================================================
+ * EDGE FUNCTION: get-stripe-products
+ * ============================================================================
+ * Pobiera listę produktów i cen ze Stripe API. Używana przez panel admina do automatycznego konfigurowania Price ID.
+ * ============================================================================
+ */
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 

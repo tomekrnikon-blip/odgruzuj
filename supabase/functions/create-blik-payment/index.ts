@@ -1,3 +1,10 @@
+/**
+ * ============================================================================
+ * EDGE FUNCTION: create-blik-payment
+ * ============================================================================
+ * Tworzy Stripe Checkout w trybie 'payment' (jednorazowy) z metodą BLIK. Używana do ręcznego odnowienia subskrypcji - BLIK nie obsługuje recurring.
+ * ============================================================================
+ */
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
