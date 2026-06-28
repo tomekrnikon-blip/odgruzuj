@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Crown, Check, SkipForward, Flame, Trophy, Star, Loader2, RefreshCw } from "lucide-react";
+import { isNativeMobile } from "@/lib/platform";
 import { cn } from "@/lib/utils";
 import { FlashCard } from "@/components/FlashCard";
 import { Timer } from "@/components/Timer";
@@ -163,7 +164,8 @@ export default function Dashboard() {
             >
               <RefreshCw className={cn("w-5 h-5", isRefreshing && "animate-spin")} />
             </button>
-            {!isSubscriptionLoading && !subscribed && (
+            {/* Przycisk "Pro" — UKRYTY w buildzie natywnym (Google Play / App Store policy) */}
+            {!isNativeMobile() && !isSubscriptionLoading && !subscribed && (
               <button
                 onClick={handleUpgrade}
                 className="p-3 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg hover:opacity-90 transition-all active:scale-95 flex items-center gap-2"
@@ -246,13 +248,16 @@ export default function Dashboard() {
               </ul>
             </div>
             <div className="flex flex-col gap-3">
-              <button
-                onClick={handleUpgrade}
-                className="btn-primary flex items-center justify-center gap-2"
-              >
-                <Crown className="w-5 h-5" />
-                Wykup subskrypcję Pro
-              </button>
+              {/* Przycisk PRO ukryty w buildzie natywnym (App Store / Play policy) */}
+              {!isNativeMobile() && (
+                <button
+                  onClick={handleUpgrade}
+                  className="btn-primary flex items-center justify-center gap-2"
+                >
+                  <Crown className="w-5 h-5" />
+                  Wykup subskrypcję Pro
+                </button>
+              )}
               <p className="text-xs text-muted-foreground">
                 ...lub wróć jutro po kolejne darmowe fiszki! 💚
               </p>
@@ -320,7 +325,7 @@ export default function Dashboard() {
                 : "Na dziś nie ma więcej zadań. Wróć jutro!"
               }
             </p>
-            {!isSubscriptionLoading && !subscribed && (
+            {!isNativeMobile() && !isSubscriptionLoading && !subscribed && (
               <button
                 onClick={handleUpgrade}
                 className="btn-primary flex items-center justify-center gap-2 mx-auto"

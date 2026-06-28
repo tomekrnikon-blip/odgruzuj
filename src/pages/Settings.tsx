@@ -14,6 +14,7 @@ import { categories, categoryIcons, Category } from "@/data/flashcards";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { ReminderClock } from "@/components/ReminderClock";
+import { isNativeMobile, WEB_PURCHASE_URL } from "@/lib/platform";
 
 interface AppSettings {
   notificationsEnabled: boolean;
@@ -354,8 +355,8 @@ export default function Settings() {
                 )}
               </div>
               
-              {/* Show renewal button if expiring soon */}
-              {daysUntilExpiry !== null && daysUntilExpiry <= 7 && (
+              {/* Show renewal button if expiring soon — UKRYTE w buildzie natywnym (Google Play / App Store policy) */}
+              {!isNativeMobile() && daysUntilExpiry !== null && daysUntilExpiry <= 7 && (
                 <button
                   onClick={handleBlikPayment}
                   disabled={isBlikPayment}
@@ -374,6 +375,17 @@ export default function Settings() {
                   )}
                 </button>
               )}
+
+              {/* Natywny build: informacja zamiast przycisku odnowienia */}
+              {isNativeMobile() && daysUntilExpiry !== null && daysUntilExpiry <= 7 && (
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">
+                  Subskrypcję odnowisz na{" "}
+                  <a href={WEB_PURCHASE_URL} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold underline">
+                    odgruzuj.pl
+                  </a>
+                  . Po opłaceniu dostęp PRO aktywuje się automatycznie w aplikacji.
+                </div>
+              )}
               
               <button
                 onClick={handleManageSubscription}
@@ -382,6 +394,40 @@ export default function Settings() {
                 <ExternalLink className="w-4 h-4" />
                 Zarządzaj subskrypcją
               </button>
+            </div>
+          ) : isNativeMobile() ? (
+            /*
+             * BUILD NATYWNY (Android/iOS) — zgodność z Google Play Billing
+             * Policy oraz Apple Guideline 3.1.1: nie wolno sprzedawać treści
+             * cyfrowych konsumowanych w aplikacji przez Stripe. Pokazujemy
+             * listę korzyści i kierujemy użytkownika na stronę WWW.
+             */
+            <div className="space-y-4">
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-primary" /><span>Dostęp do ponad 500 fiszek</span></li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-primary" /><span>Baza stale się powiększa!</span></li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-primary" /><span>Wszystkie kategorie zadań</span></li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-primary" /><span>Losowe fiszki według Twoich ustawień</span></li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-primary" /><span>Synchronizacja między urządzeniami</span></li>
+              </ul>
+
+              <div className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4 space-y-2">
+                <p className="text-sm font-medium text-foreground">
+                  Subskrypcję PRO aktywujesz na naszej stronie internetowej.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Zaloguj się tym samym kontem na <strong>odgruzuj.pl</strong> i wykup dostęp — PRO odblokuje się automatycznie w aplikacji po następnym logowaniu.
+                </p>
+                <a
+                  href={WEB_PURCHASE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 w-full btn-primary flex items-center justify-center gap-2"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Przejdź do odgruzuj.pl
+                </a>
+              </div>
             </div>
           ) : (
             <div className="space-y-4">
@@ -459,7 +505,7 @@ export default function Settings() {
                     </>
                   )}
                 </button>
-                
+
                 <button
                   onClick={handleBlikPayment}
                   disabled={isBlikPayment || isUpgrading}
@@ -477,7 +523,7 @@ export default function Settings() {
                     </>
                   )}
                 </button>
-                
+
                 <p className="text-xs text-center text-muted-foreground">
                   Płatność jednorazowa - wymaga ręcznego odnowienia
                 </p>
