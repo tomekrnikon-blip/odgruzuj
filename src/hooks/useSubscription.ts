@@ -1,16 +1,48 @@
+/**
+ * ============================================================================
+ * useSubscription — Stan subskrypcji PRO + integracja Stripe
+ * ============================================================================
+ *
+ * Źródła prawdy o subskrypcji (kolejność ważności):
+ *   1. `profiles.subscription_status = 'active'` + `subscription_expires_at`
+ *      — używane dla subskrypcji nadanych ręcznie przez admina ORAZ dla
+ *      jednorazowych płatności BLIK/P24 (przedłużanie konta).
+ *   2. Edge function `check-subscription` — odpytuje Stripe API o aktywne
+ *      subskrypcje cykliczne (karta).
+ *
+ * Dlaczego dwa źródła?
+ *   BLIK/P24 nie obsługuje recurring w Stripe, więc nie tworzymy subskrypcji
+ *   tylko `payment_intent`. Datę wygaśnięcia zapisujemy bezpośrednio w
+ *   `profiles` (funkcja `verify-blik-payment`).
+ *
+ * Flow płatności:
+ *   - `startCheckout('monthly'|'yearly')`  → karta cykliczna (Stripe Subscription)
+ *   - `startBlikPayment(...)`              → BLIK jednorazowy (mode: 'payment')
+ *   - `verifyBlikPayment(...)`             → po powrocie aktualizuje profil
+ *   - `openCustomerPortal()`               → panel Stripe (anulowanie, faktury)
+ *
+ * Auto-refresh: co 60s sprawdzamy ponownie status (np. po sukcesie BLIK
+ * w innej karcie). To prosty polling — nie używamy webhooków na froncie.
+ * ============================================================================
+ */
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
 interface SubscriptionStatus {
+  /** Czy konto ma aktywny dostęp PRO (z DB lub Stripe). */
   subscribed: boolean;
+  /** ISO string końca subskrypcji — wyświetlany w Settings. */
   subscriptionEnd: string | null;
+  /** Spinner podczas pierwszego sprawdzania. */
   isLoading: boolean;
+  /** Źródło informacji — przydatne do różnego UI (karta vs BLIK manual). */
   source: 'database' | 'stripe' | null;
+  /** Dni pozostałe do końca — używane do przypomnień "odnów BLIK-iem" (7/3/1 dzień). */
   daysUntilExpiry: number | null;
 }
 
-// Calculate days until expiry
+/** Zaokrąglenie w górę — "zostało X dni" liczy się od północy. */
 const calculateDaysUntilExpiry = (expiryDate: string | null): number | null => {
   if (!expiryDate) return null;
   const now = new Date();
