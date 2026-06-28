@@ -31,7 +31,7 @@ export function useTimer({
   const [isComplete, setIsComplete] = useState(false);
   const [isWarning, setIsWarning] = useState(false);
   const warningTriggeredRef = useRef(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const clearTimerInterval = useCallback(() => {
     if (intervalRef.current) {
