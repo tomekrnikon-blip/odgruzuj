@@ -248,13 +248,16 @@ export default function Dashboard() {
               </ul>
             </div>
             <div className="flex flex-col gap-3">
-              <button
-                onClick={handleUpgrade}
-                className="btn-primary flex items-center justify-center gap-2"
-              >
-                <Crown className="w-5 h-5" />
-                Wykup subskrypcję Pro
-              </button>
+              {/* Przycisk PRO ukryty w buildzie natywnym (App Store / Play policy) */}
+              {!isNativeMobile() && (
+                <button
+                  onClick={handleUpgrade}
+                  className="btn-primary flex items-center justify-center gap-2"
+                >
+                  <Crown className="w-5 h-5" />
+                  Wykup subskrypcję Pro
+                </button>
+              )}
               <p className="text-xs text-muted-foreground">
                 ...lub wróć jutro po kolejne darmowe fiszki! 💚
               </p>
