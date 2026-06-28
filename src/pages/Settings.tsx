@@ -14,6 +14,7 @@ import { categories, categoryIcons, Category } from "@/data/flashcards";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { ReminderClock } from "@/components/ReminderClock";
+import { isNativeMobile, WEB_PURCHASE_URL } from "@/lib/platform";
 
 interface AppSettings {
   notificationsEnabled: boolean;
