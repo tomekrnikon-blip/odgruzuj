@@ -1,5 +1,14 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+
+const NotificationSchema = z.object({
+  userId: z.string().uuid().optional(),
+  targetUserId: z.string().uuid().optional(),
+  title: z.string().min(1).max(100).optional(),
+  body: z.string().min(1).max(500).optional(),
+  sendToAll: z.boolean().optional(),
+});
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -178,8 +187,15 @@ const handler = async (req: Request): Promise<Response> => {
     } = {};
     
     try {
-      requestBody = await req.json();
-    } catch {
+      const raw = await req.json();
+      requestBody = NotificationSchema.parse(raw);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return new Response(
+          JSON.stringify({ error: "Invalid input", details: err.errors }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
       requestBody = {};
     }
     
